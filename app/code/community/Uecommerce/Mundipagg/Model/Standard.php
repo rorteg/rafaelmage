@@ -1629,6 +1629,32 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     }
 
     /**
+    * Reset interest
+    */
+    public function resetInterest($info) 
+    {
+        $info->getQuote()->setInterest(0.0);
+        $info->getQuote()->setBaseInterest(0.0);
+        
+        $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
+        $info->getQuote()->save();
+
+        return $info;
+    }
+
+    /**
+    * Apply interest
+    */
+    public function applyInterest($info, $interest) 
+    {
+        $info->getQuote()->setInterest($info->getQuote()->getStore()->convertPrice($interest, false));
+        $info->getQuote()->setBaseInterest($interest);
+        
+        $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
+        $info->getQuote()->save();
+    }
+
+    /**
      * Add payment transaction
      *
      * @param Mage_Sales_Model_Order_Payment $payment

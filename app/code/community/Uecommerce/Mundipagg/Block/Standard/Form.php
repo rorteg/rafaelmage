@@ -155,23 +155,69 @@ class Uecommerce_Mundipagg_Block_Standard_Form extends Mage_Payment_Block_Form
                 }
             }
         }
+
+        // Atualiza taxa de juros para 0 caso o usuario tenha voltado na navegacao
+        $quote = Mage::getSingleton('checkout/cart')->getQuote();
+        $quote->setInterest(0.0);
+        $quote->setBaseInterest(0.0);
+        $quote->setTotalsCollectedFlag(false)->collectTotals();
+        $quote->save();
         
+        // pega dados de juros
+        $wI = Mage::getStoreConfig('payment/mundipagg_standard/installment_without_interest');
+
+        $withoutInterest = intval($wI) ? intval($wI) : 12;
+        
+        $interest = 0;
+        
+        // pega valores do pedido
+        if ($session->isLoggedIn()) {
+            $total = Mage::getSingleton('adminhtml/session_quote')->getQuote()->getShippingAddress()->getBaseGrandTotal();
+        } else {
+            $total = Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal();
+        }
+
         $installments = array();
         
         for($i = 1; $i <= $maxInstallments; $i++) {
             $orderTotal = $baseGrandTotal;
             $installmentValue = round($orderTotal / $i, 2);
+
+            // caso nao haja juros na parcela
+            if($i <= $withoutInterest) {
+                $installmentValue = $orderTotal / $i;
+            } else { 
+                // caso haja juros
+                $interest = Mage::helper('mundipagg')->getJurosParcelaEscolhida($i)/100;
+
+                //Mage::log($i.': interest: '.$interest);
+                //Mage::log($i. ': total: '. $orderTotal);
+
+                $installmentValue = Mage::helper('mundipagg')->calcInstallmentValue($orderTotal, $interest, $i);
+                //$orderTotal = $i * $installmentValue;
+            }
             
-            // confere se a parcela não esta abaixo do minimo
+            // confere se a parcela nao está abaixo do minimo
             if($minInstallmentValue >= 0 && $installmentValue < $minInstallmentValue) {
                 break;
             }
+            
+            // confere se a parcela não está abaixo do minimo
+            if($minInstallmentValue >= 0 && $installmentValue < $minInstallmentValue) {
+                break;
+            }
+
+            //Mage::log($i.': installmentValue: '. $installmentValue);
             
             // monta o texto da parcela
             if($i == 1) {
                 $label = "À vista (" . Mage::helper('core')->currency(($baseGrandTotal), true, false) . ")";
             } else {
-                $label = $i . "x sem juros (" . Mage::helper('core')->currency(($installmentValue), true, false) . " cada)";
+                if($interest > 0) {
+                    $label = $i . "x com juros (" . Mage::helper('core')->currency(($installmentValue), true, false) . " cada)";
+                } else {
+                    $label = $i . "x sem juros (" . Mage::helper('core')->currency(($installmentValue), true, false) . " cada)";
+                }
             }
             
             // adiciona no array de parcelas

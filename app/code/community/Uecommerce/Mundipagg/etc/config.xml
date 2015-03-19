@@ -111,8 +111,18 @@
             <adminhtml>
                 <rewrite>
                     <sales_transactions_detail_grid>Uecommerce_Mundipagg_Block_Adminhtml_Sales_Transactions_Detail_Grid</sales_transactions_detail_grid>
+                    <sales_order_totals>Uecommerce_Mundipagg_Block_Adminhtml_Sales_Order_Totals</sales_order_totals>
+                    <sales_order_invoice_totals>Uecommerce_Mundipagg_Block_Adminhtml_Sales_Order_Invoice_Totals</sales_order_invoice_totals>
+                    <sales_order_creditmemo_totals>Uecommerce_Mundipagg_Block_Adminhtml_Sales_Order_Creditmemo_Totals</sales_order_creditmemo_totals>
                 </rewrite>
             </adminhtml>
+            <sales>
+                <rewrite>
+                    <order_totals>Uecommerce_Mundipagg_Block_Sales_Order_Totals</order_totals>
+                    <order_invoice_totals>Uecommerce_Mundipagg_Block_Sales_Order_Invoice_Totals</order_invoice_totals>
+                    <order_creditmemo_totals>Uecommerce_Mundipagg_Block_Sales_Order_Creditmemo_Totals</order_creditmemo_totals>
+                </rewrite>
+            </sales>
         </blocks>
         
         <helpers>
@@ -120,6 +130,59 @@
                 <class>Uecommerce_Mundipagg_Helper</class>
             </mundipagg>
         </helpers>
+
+        <sales>
+            <quote>
+                <totals>
+                    <interest>
+                        <class>Uecommerce_Mundipagg_Model_Quote_Address_Interest</class>
+                        <after>shipping</after>
+                        <before>grand_total</before>
+                    </interest>
+                </totals>
+            </quote>
+            <order>
+                <totals>
+                    <interest>
+                        <class>Uecommerce_Mundipagg_Model_Quote_Address_Interest</class>
+                        <after>shipping</after>
+                        <before>grand_total</before>
+                    </interest>
+                </totals>
+            </order>
+            <order_invoice>
+                <totals>
+                    <your_total>
+                        <class>Uecommerce_Mundipagg_Model_Order_Invoice_Interest</class>
+                        <after>shipping</after>
+                        <before>grand_total</before>
+                    </your_total>
+                </totals>
+            </order_invoice>
+        </sales>
+
+        <fieldsets>
+            <sales_convert_quote_address>
+                <interest>
+                    <to_order>*</to_order>
+                </interest>
+                <base_interest>
+                    <to_order>*</to_order>
+                </base_interest>
+            </sales_convert_quote_address>
+            <sales_convert_order>
+                <interest>
+                    <to_invoice>*</to_invoice>
+                    <to_shipment>*</to_shipment>
+                    <to_cm>*</to_cm>
+                </interest>
+                <base_interest>
+                    <to_invoice>*</to_invoice>
+                    <to_shipment>*</to_shipment>
+                    <to_cm>*</to_cm>
+                </base_interest>
+            </sales_convert_order>
+        </fieldsets>
     </global>
 
     <frontend>

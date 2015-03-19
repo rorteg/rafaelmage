@@ -467,10 +467,141 @@
                             </depends>
                         </parcelamento_de12>
 
+                        <installment_without_interest translate="label">
+                            <label>Até quantas parcelas não tem juros?</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>45</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                        </installment_without_interest>
+
+                        <installment_interest_value_2 translate="label">
+                            <label>Juros de 2 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>46</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_2>
+
+                        <installment_interest_value_3 translate="label">
+                            <label>Juros de 3 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>47</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_3>
+
+                        <installment_interest_value_4 translate="label">
+                            <label>Juros de 4 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>48</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_4>
+
+                        <installment_interest_value_5 translate="label">
+                            <label>Juros de 5 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>49</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_5>
+
+                        <installment_interest_value_6 translate="label">
+                            <label>Juros de 6 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_6>
+
+                        <installment_interest_value_7 translate="label">
+                            <label>Juros de 7 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>51</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_7>
+
+                        <installment_interest_value_8 translate="label">
+                            <label>Juros de 8 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>52</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_8>
+
+                        <installment_interest_value_9 translate="label">
+                            <label>Juros de 9 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>53</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_9>
+
+                        <installment_interest_value_10 translate="label">
+                            <label>Juros de 10 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>54</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_10>
+
+                        <installment_interest_value_11 translate="label">
+                            <label>Juros de 11 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>55</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_11>
+
+                        <installment_interest_value_12 translate="label">
+                            <label>Juros de 12 parcelas (% a.m)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>56</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                            <comment><![CDATA[Ex: 4.45]]></comment>
+                        </installment_interest_value_12>
+
                         <cielo_sku translate="label">
                             <label>SKU produto de teste de R$1,00 da Cielo</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>45</sort_order>
+                            <sort_order>60</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>

@@ -30,6 +30,8 @@
 
 class Uecommerce_Mundipagg_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    protected $config_juros;
+
     /**
     * Get extension version
     */
@@ -276,33 +278,6 @@ class Uecommerce_Mundipagg_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Retorna o valor de uma parcela
-     * - valor total a ser parcelado
-     * - taxa de juros
-     * - numero de prestacoes
-     *
-     * Thanks to Fillipe Almeida Dutra
-     */
-    public function calcInstallmentValue($total, $interest, $periods)
-    {
-        /* 
-         * Formula do coeficiente:
-         * 
-         * juros / ( 1 - 1 / (1 + i)^n )
-         * 
-         */
-        
-        // calcula o coeficiente, seguindo a formula acima
-        $coefficient = pow((1 + $interest), $periods);
-        $coefficient = 1 / $coefficient;
-        $coefficient = 1 - $coefficient;
-        $coefficient = $interest / $coefficient;
-        
-        // retorna o valor da parcela
-        return ($total * $coefficient);
-    }
-
-    /**
     * Apply telephone mask
     */ 
     public function applyTelephoneMask($string)
@@ -329,5 +304,139 @@ class Uecommerce_Mundipagg_Helper_Data extends Mage_Core_Helper_Abstract
         }
        
         return '55'.$mask;
+    }
+
+    /**
+     * Retorna o valor de uma parcela
+     * - valor total a ser parcelado
+     * - taxa de juros
+     * - numero de prestacoes
+     *
+     * Thanks to Fillipe Almeida Dutra
+     */
+    public function calcInstallmentValue($total, $interest, $periods)
+    {
+        /* 
+         * Formula do coeficiente:
+         * 
+         * juros / ( 1 - 1 / (1 + i)^n )
+         * 
+         */
+        
+        // calcula o coeficiente, seguindo a formula acima
+        $coefficient = pow((1 + $interest), $periods);
+        $coefficient = 1 / $coefficient;
+        $coefficient = 1 - $coefficient;
+        $coefficient = $interest / $coefficient;
+        
+        // retorna o valor da parcela
+        return ($total * $coefficient);
+    }
+
+    public function getJurosParcela($total, $parcela)
+    {
+        $juros = $this->getJurosParcelaEscolhida($parcela);
+
+        if ($juros) {
+            return $total * $juros / $parcela;
+        } else {
+            return $total / $parcela;
+        }
+    }
+
+    public function getTotalJuros($total, $parcela) 
+    {
+        return $this->getJurosParcela($total, $parcela) * $parcela;
+    }
+
+    public function getConfigJuros($position) 
+    {
+        if (empty($this->config_juros)) {
+            $storeId = Mage::app()->getStore()->getStoreId();
+
+            $value2 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_2', $storeId);
+            $value3 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_3', $storeId);
+            $value4 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_4', $storeId);
+            $value5 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_5', $storeId);
+            $value6 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_6', $storeId);
+            $value7 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_7', $storeId);
+            $value8 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_8', $storeId);
+            $value9 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_9', $storeId);
+            $value10 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_10', $storeId);
+            $value11 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_11', $storeId);
+            $value12 = Mage::getStoreConfig('payment/mundipagg_standard/installment_interest_value_12', $storeId);
+            
+            $this->config_juros = array(
+                $this->prepareCalc($value2?$value2:0),
+                $this->prepareCalc($value3?$value3:0),
+                $this->prepareCalc($value4?$value4:0),
+                $this->prepareCalc($value5?$value5:0),
+                $this->prepareCalc($value6?$value6:0),
+                $this->prepareCalc($value7?$value7:0),
+                $this->prepareCalc($value8?$value8:0),
+                $this->prepareCalc($value9?$value9:0),
+                $this->prepareCalc($value10?$value10:0),
+                $this->prepareCalc($value11?$value11:0),
+                $this->prepareCalc($value12?$value12:0)
+            );
+        }
+
+        return $this->config_juros[$position];
+    }
+
+    public function prepareCalc($value) 
+    {
+        return (float) $value;
+    }
+
+    public function getJurosParcelaEscolhida($parcela) 
+    {
+        $juros = 0;
+        
+        if ($parcela == 2) {
+            $juros = $this->getConfigJuros(0);
+        }
+
+        if ($parcela > 2 && $parcela <= 3) {
+            $juros = $this->getConfigJuros(1);
+        }
+
+        if ($parcela > 3 && $parcela <= 4) {
+            $juros = $this->getConfigJuros(2);
+        }
+
+        if ($parcela > 4 && $parcela <= 5) {
+            $juros = $this->getConfigJuros(3);
+        }
+
+        if ($parcela > 5 && $parcela <= 6) {
+            $juros = $this->getConfigJuros(4);
+        }
+
+        if ($parcela > 6 && $parcela <= 7) {
+            $juros = $this->getConfigJuros(5);
+        }
+
+        if ($parcela > 7 && $parcela <= 8) {
+            $juros = $this->getConfigJuros(6);
+        }
+
+        if ($parcela > 8 && $parcela <= 9) {
+            $juros = $this->getConfigJuros(7);
+        }
+
+        if ($parcela > 9 && $parcela <= 10) {
+            $juros = $this->getConfigJuros(8);
+        }
+
+         if ($parcela > 10 && $parcela <= 11) {
+            $juros = $this->getConfigJuros(9);
+        }
+
+        if ($parcela > 11) {
+            $juros = $this->getConfigJuros(10);
+        }
+
+        return $juros;
     }
 }

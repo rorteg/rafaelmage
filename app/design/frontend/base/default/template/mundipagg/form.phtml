@@ -213,64 +213,10 @@ ul.inline li img {
 		                                	<div class="field">
 		                                		<label class="required"><?php echo $this->__('Credit options') ?> <?php if($num == 2):?><a href="javascript:void(0);" onclick="javascript:void(0);">(<?php echo $this->__('click to update') ?>)</a><?php endif ?></label>
 			                                	<div class="input-box">
-			                                		<?php 
-				                                	// Não pode parcelar
-													if($baseGrandTotal < $valorMinParcelamento) {
-														$QtdParcelasMax = 1;
-				                                	}
-
-				                                	// Não ter valor mínimo para parcelar OU Parcelar a partir de um valor mínimo
-				                                	if($valorMinParcelamento == 0) {
-				                                		$QtdParcelasMax = $standard->getConfigData('parcelamento_max');
-				                                	}
-
-				                                	// Parcelar a partir de um valor mínimo
-													if($valorMinParcelamento > 0 && $baseGrandTotal >= $valorMinParcelamento) {
-														$QtdParcelasMax = $standard->getConfigData('parcelamento_max');
-				                                	}	                  	              	
-
-				                                	// Por faixa de valores
-				                                	if($valorMinParcelamento == '') {
-				                                		$QtdParcelasMax = $standard->getConfigData('parcelamento_max');
-				                                	
-					                                	$p = 1;
-
-			                							for($p = 1; $p <= $QtdParcelasMax; $p++):
-			                								if($p == 1):
-			                									$de 		= 0;
-																$parcela_de = 0;
-			                								else:
-			                									$de 		= 'parcelamento_de'.$p;
-																$parcela_de = $standard->getConfigData($de);
-			                								endif;
-
-			                								$ate = 'parcelamento_ate'.$p;
-				                							
-				                							if($p < $QtdParcelasMax) {
-				                								$parcela_ate = $standard->getConfigData($ate);
-				                							} else {
-																$parcela_ate = '1000000000';
-				                							}
-				                							
-				                							if($parcela_de >= 0 && $parcela_ate >= $parcela_de):
-				                								if($baseGrandTotal >= $parcela_de AND $baseGrandTotal <= $parcela_ate):
-					                						
-					                								$QtdParcelasMax = $p;
-					                							endif;
-				                							else:
-				                								$QtdParcelasMax = $p-1;
-				                							endif;
-			                							endfor;
-				                                	}
-				                                    ?>
-			                                        <select id="<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry">
-					                                	<option value="1"><?php echo "1x de " . $currencySymbol.number_format($baseGrandTotal, "2", ",", "."); ?></option>
-			                							<?php
-			                							for ($i = 2; $i <= $QtdParcelasMax; $i++): 
-					                                    	$valor = $baseGrandTotal/$i;
-					                                    ?>
-					                                        <option value="<?php echo $i; ?>"><?php echo $i . "x de " . $currencySymbol.number_format((double)$valor, "2", ",", "."); ?> <?php echo $this->__('sem juros') ?></option>
-					                                	<?php endfor; ?>
+			                                		<select id="<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry">
+					                                	<?php foreach($this->getInstallments() as $parcel): ?>
+															<option value="<?php echo $parcel['num'] ?>"><?php echo $parcel['label'] ?></option>
+														<?php endforeach ?>
 			                                		</select>
 				                           		</div>
 				                           	</div>
