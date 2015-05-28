@@ -631,12 +631,12 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             // Return
             if ( isset($resultPayment['error']) ) {
                 try {
-                    $payment->setSkipOrderProcessing(true);
-                    $payment->setIsTransactionPending(true);
-                    $payment->save();
+                    $payment->setSkipOrderProcessing(true)->save();
 
                     Mage::throwException(Mage::helper('mundipagg')->__($resultPayment['ErrorDescription']));
                 } catch (Exception $e) {
+                    Mage::logException($e);
+                    
                     return $this;
                 }
             } else {
