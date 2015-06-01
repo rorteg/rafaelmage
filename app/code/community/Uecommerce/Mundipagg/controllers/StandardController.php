@@ -258,9 +258,7 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
             $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
             
             if ($order->getId() && $order->canCancel()) {
-                $order->setState(Mage_Sales_Model_Order::STATE_CANCELED, true);
-                $order->cancel();
-                $order->save();
+                $order->cancel()->save();
             }
         }
 
@@ -297,9 +295,7 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
             $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
             
             if ($order->getId() && $order->canCancel()) {
-                $order->setState(Mage_Sales_Model_Order::STATE_CANCELED, true);
-                $order->cancel();
-                $order->save();
+                $order->cancel()->save();
             }
         }
 
