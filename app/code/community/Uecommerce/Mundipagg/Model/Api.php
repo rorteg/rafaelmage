@@ -1120,7 +1120,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					$transactionKey 		= $data['OnlineDebitTransaction']['TransactionKey'];
 					$capturedAmountInCents 	= $data['OnlineDebitTransaction']['AmountPaidInCents'];
 				}
-
+				
 				$order = Mage::getModel('sales/order');
 				$order->loadByIncrementId($orderReference);
 
@@ -1137,7 +1137,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 			    foreach ($transactions as $key => $transaction) {
 			    	$orderTransactionKey = $transaction->getAdditionalInformation('TransactionKey');
-			    
+
 			    	// transactionKey found
 			    	if ($orderTransactionKey == $transactionKey) {
 			    		$t++;
@@ -1363,13 +1363,29 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 		if ($payment->getAdditionalInformation('PaymentMethod') == 'mundipagg_creditcard') {
 			$payment->setAdditionalInformation('CreditCardTransactionStatusEnum', $data['CreditCardTransaction']['CreditCardTransactionStatus']);
-			$payment->save();
 		}
 
 		if ($payment->getAdditionalInformation('PaymentMethod') == 'mundipagg_boleto') {
 			$payment->setAdditionalInformation('BoletoTransactionStatusEnum', $data['BoletoTransaction']['BoletoTransactionStatus']);
-			$payment->save();
 		}
+
+		if (isset($data['OnlineDebitTransaction']['BankPaymentDate'])) {
+			$payment->setAdditionalInformation('BankPaymentDate', $data['OnlineDebitTransaction']['BankPaymentDate']);
+		}
+
+		if (isset($data['OnlineDebitTransaction']['BankName'])) {
+			$payment->setAdditionalInformation('BankName', $data['OnlineDebitTransaction']['BankName']);
+		}
+
+		if (isset($data['OnlineDebitTransaction']['Signature'])) {
+			$payment->setAdditionalInformation('Signature', $data['OnlineDebitTransaction']['Signature']);
+		}
+
+		if (isset($data['OnlineDebitTransaction']['TransactionIdentifier'])) {
+			$payment->setAdditionalInformation('TransactionIdentifier', $data['OnlineDebitTransaction']['TransactionIdentifier']);
+		}
+
+		$payment->save();
 
 		if ($status == 'OverPaid' ||  $status == 'Overpaid') {
 			$order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, 'overpaid');
