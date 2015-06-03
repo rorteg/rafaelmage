@@ -220,6 +220,15 @@ if ($paymentAction == 'authorize') {
         </p>
     <?php
     endif;
+
+    if($PaymentMethod == 'mundipagg_debit'):
+        $bankName = $this->getInfo()->getAdditionalInformation('BankName');
+        $bankPaymentDate = $this->getInfo()->getAdditionalInformation('BankPaymentDate');
+    ?>
+        <?php if($bankName): echo $helper->__('Banco'); ?>: <?php echo $bankName; endif;?>
+        <?php if($bankPaymentDate): echo $helper->__('Data de pagamento'); ?>: <?php echo $bankPaymentDate; endif;?>
+    <?php 
+    endif;
     ?>
     </p>
 </div>
