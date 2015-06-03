@@ -47,7 +47,7 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
     protected $_canUseCheckout = true;
     protected $_canUseForMultishipping = true;
     protected $_canSaveCc = false;
-    protected $_canFetchTransactionInfo = true;
+    protected $_canFetchTransactionInfo = false;
     protected $_canManageRecurringProfiles = false;
     protected $_allowCurrencyCode = array('BRL', 'USD', 'EUR');
     protected $_isInitializeNeeded = true;

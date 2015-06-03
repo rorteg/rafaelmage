@@ -397,9 +397,6 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			// Get Webservice URL
 			$url = $standard->getURL();
 			
-			// Get store key
-			$key = $standard->getMerchantKey();
-
 			// Set Data
 			$_request = array();
 			$_request["Order"] = array();
@@ -436,7 +433,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					$boletoTransactionData->BankNumber = $standard->getBankNumber();
 				}
 
-				$boletoTransactionData->DocumentNumber  = '1234';
+				$boletoTransactionData->DocumentNumber  = '';
 
 				$boletoTransactionData->Options = new stdclass();
  				$boletoTransactionData->Options->CurrencyIso = 'BRL';
@@ -467,7 +464,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$ch = curl_init();
 
 			// Header
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json', 'MerchantKey: '.$key.''));
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json', 'MerchantKey: '.$standard->getMerchantKey().''));
 
 			// Set the url, number of POST vars, POST data
 			curl_setopt($ch, CURLOPT_URL, $url);
@@ -498,6 +495,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 				Mage::log(print_r($data,1), null, 'Uecommerce_Mundipagg.log');
 			}
 
+			// Error
 			if (isset($data['ErrorReport']) && !empty($data['ErrorReport'])) {
 				$_errorItemCollection = $data['ErrorReport']['ErrorItemCollection'];
 				
@@ -510,26 +508,28 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					'error' 			=> 1, 
 					'ErrorCode' 		=> $errorCode, 
 					'ErrorDescription' 	=> Mage::helper('mundipagg')->__($ErrorDescription),
+					'result'			=> $data
 				);
 			}
 
-			// Success
-			if (count($data['BoletoTransactionResultCollection']['BoletoTransactionResult'])>1) {
-				$returnBoleto = $data['BoletoTransactionResultCollection'];
+			// False
+			if (isset($data['Success']) && (string)$data['Success'] == 'false') {
+				return array(
+					'error' 			=> 1, 
+					'ErrorCode' 		=> 'WithError', 
+					'ErrorDescription' 	=> 'WithError',
+					'result'			=> $data
+				);
 			} else {
-				$boleto = $data['BoletoTransactionResultCollection'];
-				$returnBoleto[0] = $boleto;
+				// Success
+				return array(
+					'success' 			=> true, 
+					'message' 			=> 0, 
+					'OrderKey'			=> $data['OrderResult']['OrderKey'],
+					'OrderReference'	=> $data['OrderResult']['OrderReference'],
+					'result'			=> $data
+				);
 			}
-
-			// Transactions results
-			return array(
-				'success' 			=> true, 
-				'message' 			=> 0, 
-				'OrderKey'			=> $data['OrderResult']['OrderKey'],
-				'OrderReference'	=> $data['OrderResult']['OrderReference'],
-				'Boleto'			=> $returnBoleto,
-				'result'			=> $data
-			);
 		}
 		catch (Exception $e) {
 			//Redirect to Cancel page
@@ -574,6 +574,146 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		}
 		
 		return $newBoletoTransCollection;
+	}
+
+	/**
+	* Debit transaction
+	**/
+	public function debitTransaction($order, $data, Uecommerce_Mundipagg_Model_Standard $standard)
+	{
+		try {
+			// Get Webservice URL
+			$url = $standard->getURL();
+
+			$baseGrandTotal = str_replace(',', '.', $order->getBaseGrandTotal());
+			$amountInCentsVar = intval(strval(($baseGrandTotal*100)));
+
+			// Set Data
+			$_request = array();
+
+			$_request = array();
+
+			$_request["RequestKey"] = '00000000-0000-0000-0000-000000000000';
+			$_request["AmountInCents"] = $amountInCentsVar;
+			$_request['Bank'] = $data['Bank'];
+			
+			// Buyer data
+			$_request["Buyer"] = array();
+			$_request["Buyer"] = $this->buyerDebitBillingData($order, $data, $_request, $standard);
+
+			// Order data
+			$_request['InstallmentCount'] = '0';
+			$_request["OrderKey"] = '00000000-0000-0000-0000-000000000000';
+			$_request["OrderRequest"]['AmountInCents'] = $amountInCentsVar;
+			$_request["OrderRequest"]['OrderReference'] = $order->getIncrementId();
+
+			if ($standard->getEnvironment() != 'production') {
+				$_request["OrderRequest"]["OrderReference"] = md5(date('Y-m-d H:i:s')); // Identificação do pedido na loja
+			}
+
+			$_request['PaymentMethod'] = null;
+			$_request['PaymentType'] = null;
+
+			// Data
+			$dataToPost = json_encode($_request);
+
+			if ($standard->getDebug() == 1) {
+				Mage::log('Uecommerce_Mundipagg: '. Mage::helper('mundipagg')->getExtensionVersion(), null, 'Uecommerce_Mundipagg.log');
+				Mage::log(print_r($dataToPost,1), null, 'Uecommerce_Mundipagg.log');
+			}
+		
+			// Send payment data to MundiPagg
+			$ch = curl_init();
+
+			// Header
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json', 'MerchantKey: '.$standard->getMerchantKey().''));
+
+			// Set the url, number of POST vars, POST data
+			curl_setopt($ch, CURLOPT_URL, $url);
+
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $dataToPost);
+
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+			// Execute post
+			$_response = curl_exec($ch);
+
+			// Close connection
+			curl_close($ch);
+
+			if ($standard->getDebug() == 1) {
+				Mage::log('Uecommerce_Mundipagg: '. Mage::helper('mundipagg')->getExtensionVersion(), null, 'Uecommerce_Mundipagg.log');
+				Mage::log(print_r($_response,1), null, 'Uecommerce_Mundipagg.log');
+			}
+
+			// Is there an error?
+			$xml 	   = simplexml_load_string($_response);
+			$json 	   = json_encode($xml);
+			$data      = array();
+			$data 	   = json_decode($json, true);
+
+			if ($standard->getDebug() == 1) {
+				Mage::log('Uecommerce_Mundipagg: '. Mage::helper('mundipagg')->getExtensionVersion(), null, 'Uecommerce_Mundipagg.log');
+				Mage::log(print_r($data,1), null, 'Uecommerce_Mundipagg.log');
+			}
+
+			// Error
+			if (isset($data['ErrorReport']) && !empty($data['ErrorReport'])) {
+				$_errorItemCollection = $data['ErrorReport']['ErrorItemCollection'];
+				
+				foreach ($_errorItemCollection as $errorItem) {
+					$errorCode 			= $errorItem['ErrorCode'];
+					$ErrorDescription 	= $errorItem['Description'];
+				}
+				
+				return array(
+					'error' 			=> 1, 
+					'ErrorCode' 		=> $errorCode, 
+					'ErrorDescription' 	=> Mage::helper('mundipagg')->__($ErrorDescription),
+					'result'			=> $data
+				);
+			}
+
+			// False
+			if (isset($data['Success']) && (string)$data['Success'] == 'false') {
+				return array(
+					'error' 			=> 1, 
+					'ErrorCode' 		=> 'WithError', 
+					'ErrorDescription' 	=> 'WithError',
+					'result'			=> $data
+				);
+			} else {
+				// Success
+				return array(
+					'success' 				=> true, 
+					'message' 				=> 4, 
+					'OrderKey'				=> $data['OrderKey'],
+					'TransactionKey'		=> $data['TransactionKey'],
+					'TransactionKeyToBank'	=> $data['TransactionKeyToBank'],
+					'TransactionReference'	=> $data['TransactionReference'],
+					'result'				=> $data
+				);
+			}
+		}
+		catch (Exception $e) {
+			//Redirect to Cancel page
+			Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('cancel');
+			
+			//Log error
+			Mage::logException($e);
+
+			//Mail error
+			$this->mailError(print_r($e->getMessage(), 1));
+
+			// Return error
+			$approvalRequest['error'] 				= 'Error WS';
+            $approvalRequest['ErrorCode'] 			= 'ErrorCode WS';
+            $approvalRequest['ErrorDescription'] 	= 'ErrorDescription WS';
+            $approvalRequest['OrderKey'] 			= '';
+            $approvalRequest['OrderReference'] 		= '';
+
+            return $approvalRequest;
+		}
 	}
 
 	/**
@@ -677,6 +817,110 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		
 		$_request["Buyer"]["AddressCollection"] = array();
 		$_request["Buyer"]["AddressCollection"] = array($address);
+
+		return $_request["Buyer"];
+	}
+
+	/**
+	* Set buyer data
+	*/
+	public function buyerDebitBillingData($order, $data, $_request, $standard) 
+	{
+		if ($order->getData()) {
+			if ($order->getCustomerGender()) {
+				$gender = $order->getCustomerGender();
+			} else {
+				$customerId = $order->getCustomerId(); 
+
+				$customer = Mage::getModel('customer/customer')->load($customerId);
+
+				$gender = $customer->getGender();
+			}
+
+			switch ($gender) {
+				case '1':
+					$gender = 'M';
+					break;
+				
+				case '2':
+					$gender = 'F';
+					break;
+			}
+		}
+
+		$billingAddress = $order->getBillingAddress();
+		$street 		= $billingAddress->getStreet();
+		$regionCode 	= $billingAddress->getRegionCode();
+
+		if ($billingAddress->getRegionCode() == '') {
+			$regionCode = 'RJ';
+		}
+
+		$telephone = Mage::helper('mundipagg')->applyTelephoneMask($billingAddress->getTelephone());
+
+		if ($billingAddress->getTelephone() == '') {
+			$telephone = '55(21)88888888';
+		}
+
+		// In case we doesn't have CPF or CNPJ informed we set default value for MundiPagg (required field)
+		$data['DocumentNumber'] = isset($data['TaxDocumentNumber']) ? $data['TaxDocumentNumber'] : $order->getCustomerTaxvat();
+
+		$invalid = 0;
+
+		if (Mage::helper('mundipagg')->validateCPF($data['DocumentNumber'])) {
+            $data['PersonType']      = 'Person';
+            $data['DocumentType'] = 'CPF';
+            $data['DocumentNumber']   = $data['DocumentNumber'];
+        } else {
+        	$invalid++;
+        }
+        
+        // We verify if a CNPJ is informed
+        if (Mage::helper('mundipagg')->validateCNPJ($data['DocumentNumber'])) {
+            $data['PersonTypeEnum'] = 'Company';
+            $data['DocumentType'] = 'CNPJ';
+            $data['DocumentNumber'] = $data['DocumentNumber'];
+        } else {
+        	$invalid++;
+        }
+
+		if ($invalid == 2) {
+			$data['DocumentNumber'] = '00000000000';
+			$data['DocumentType'] 	= 'CPF';
+			$data['PersonType'] 	= 'Person';
+		}
+
+		// Request
+		if($gender == 'M' || $gender == 'F') {
+			$_request["Buyer"]["Gender"] 		= $gender;
+		}
+
+		$_request["Buyer"]["DocumentNumber"] 	= preg_replace('[\D]', '', $data['DocumentNumber']);
+		$_request["Buyer"]["DocumentType"] 		= $data['DocumentType'];
+		$_request["Buyer"]["Email"] 			= $order->getCustomerEmail();
+		$_request["Buyer"]["EmailType"] 		= 'Personal';
+		$_request["Buyer"]["Name"] 				= $order->getCustomerName();
+		$_request["Buyer"]["PersonType"] 		= $data['PersonType'];
+		$_request["Buyer"]["MobilePhone"] 		= $telephone;
+		$_request["Buyer"]['BuyerCategory']		= 'Normal';
+		$_request["Buyer"]['Birthdate']			= '1983-06-02'; // Se enviar o objeto Buyer sem o Birthdate tenho um erro 500
+		$_request["Buyer"]['FacebookId']		= '';
+		$_request["Buyer"]['TwitterId']			= '';
+		$_request["Buyer"]['BuyerReference']	= '';
+		
+		// Address
+		$address = array();
+		$address['AddressTypeEnum'] = 'Residential';
+		$address['City']			= $billingAddress->getCity();
+		$address['District'] 		= isset($street[3])?$street[3]:'xxx';
+		$address['Complement'] 		= isset($street[2])?$street[2]:'';
+		$address['Number'] 			= isset($street[1])?$street[1]:'0';
+		$address['State'] 			= $regionCode;
+		$address['Street'] 			= isset($street[0])?$street[0]:'xxx';
+		$address['ZipCode']			= preg_replace('[\D]', '', $billingAddress->getPostcode());
+		
+		$_request["Buyer"]["BuyerAddressCollection"] = array();
+		$_request["Buyer"]["BuyerAddressCollection"] = array($address);
 
 		return $_request["Buyer"];
 	}

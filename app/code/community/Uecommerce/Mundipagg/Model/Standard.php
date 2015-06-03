@@ -617,19 +617,21 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                 $resultPayment['result'] = array();
                 $resultPayment['result'] = json_decode($json, true);
 
-                if (count($xml->CreditCardTransactionResultCollection->CreditCardTransactionResult) == 1) {
-                    $trans = $resultPayment['result']['CreditCardTransactionResultCollection']['CreditCardTransactionResult'];
-                    
-                    $transaction = $this->_addTransaction($payment, $trans['TransactionKey'], Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH, $trans);
-                } else {
-                    foreach ($resultPayment['result']['CreditCardTransactionResultCollection']['CreditCardTransactionResult'] as $key => $trans) {
+                if (isset($xml->CreditCardTransactionResultCollection->CreditCardTransactionResult)) {
+                    if (count($xml->CreditCardTransactionResultCollection->CreditCardTransactionResult) == 1) {
+                        $trans = $resultPayment['result']['CreditCardTransactionResultCollection']['CreditCardTransactionResult'];
+                        
                         $transaction = $this->_addTransaction($payment, $trans['TransactionKey'], Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH, $trans);
+                    } else {
+                        foreach ($resultPayment['result']['CreditCardTransactionResultCollection']['CreditCardTransactionResult'] as $key => $trans) {
+                            $transaction = $this->_addTransaction($payment, $trans['TransactionKey'], Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH, $trans);
+                        }
                     }
                 }
             }
 
             // Return
-            if ( isset($resultPayment['error']) ) {
+            if (isset($resultPayment['error'])) {
                 try {
                     $payment->setSkipOrderProcessing(true)->save();
 
@@ -645,18 +647,20 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     $order->sendNewOrderEmail();
                 }
 
-                $creditCardTransactionResultCollection = $xml->CreditCardTransactionResultCollection->CreditCardTransactionResult;
+                if (isset($xml->CreditCardTransactionResultCollection->CreditCardTransactionResult)) {
+                    $creditCardTransactionResultCollection = $xml->CreditCardTransactionResultCollection->CreditCardTransactionResult;
 
-                // We can capture only if:
-                // 1. Multiple Credit Cards Payment
-                // 2. Clearsale is disabled 
-                // 3. Payment action is "AuthorizeAndCapture"
-                if (
-                    count($creditCardTransactionResultCollection) > 1 && 
-                    $this->getClearsale() == 0 && 
-                    $this->getPaymentAction() == 'order') 
-                {
-                    $this->captureAndcreateInvoice($payment);
+                    // We can capture only if:
+                    // 1. Multiple Credit Cards Payment
+                    // 2. Clearsale is disabled 
+                    // 3. Payment action is "AuthorizeAndCapture"
+                    if (
+                        count($creditCardTransactionResultCollection) > 1 && 
+                        $this->getClearsale() == 0 && 
+                        $this->getPaymentAction() == 'order') 
+                    {
+                        $this->captureAndcreateInvoice($payment);
+                    }
                 }
             }
 
@@ -806,7 +810,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             Mage::throwException(Mage::helper('payment')->__('Order action is not available.'));
         }
         
-        //Load order
+        // Load order
         $order = $payment->getOrder();
 
         $order = Mage::getModel('sales/order')->loadByIncrementId($order->getRealOrderId());
@@ -943,7 +947,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         $order = $payment->getOrder(); 
 
                         if (!$order->canInvoice()) {
-                            //Log error
+                            // Log error
                             Mage::logException(Mage::helper('core')->__('Cannot create an invoice.'));
 
                             Mage::throwException(Mage::helper('core')->__('Cannot create an invoice.'));
@@ -976,6 +980,14 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         $payment->save();
 
                         break;
+
+                    // Debit
+                    case 4:
+                        // We record transaction
+                        $trans = $resultPayment['result'];
+
+                        $this->_addTransaction($payment, $trans['TransactionKey'], $transactionType, $trans);
+                        break;
                 }
             }
 
@@ -998,7 +1010,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             
             // Get customer taxvat
             $taxvat = '';
-            
+             
             if ($order->getCustomerTaxvat() == '') {
                 $customerId = $order->getCustomerId(); 
 
@@ -1007,21 +1019,23 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 
                     $taxvat = $customer->getTaxvat();
                 }
+
+                if($taxvat != '') {
+                    $order->setCustomerTaxvat($taxvat)->save();
+                }
             } else {
                 $taxvat = $order->getCustomerTaxvat();
             }
 
-            $order->setCustomerTaxvat($taxvat)->save();
-
-            //Data to pass to api
+            // Data to pass to api
             $data['customer_id']                = $order->getCustomerId();
             $data['address_id']                 = $order->getBillingAddress()->getCustomerAddressId();
             $data['payment_method']             = isset($postData['payment']['method'])?$postData['payment']['method']:$mundipaggData['method'];
             
             $type = $data['payment_method'];
 
-            // Payment done with 1 or more Credit Cards
-            if ($data['payment_method'] != 'mundipagg_boleto') {
+            // 1 or more Credit Cards Payment
+            if ($data['payment_method'] != 'mundipagg_boleto' && $data['payment_method'] != 'mundipagg_debit') {
                 $helper = Mage::helper('mundipagg');
 
                 $num = $helper->getCreditCardsNumber($type);
@@ -1101,7 +1115,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             }
 
             // Boleto Payment
-            if ( $data['payment_method'] == 'mundipagg_boleto') {
+            if ($data['payment_method'] == 'mundipagg_boleto') {
                 $data['TaxDocumentNumber']      = isset($postData['payment']['boleto_taxvat'])?$postData['payment']['boleto_taxvat']:$taxvat;  
                 $data['boleto_parcelamento']    = isset($postData['payment']['boleto_parcelamento'])?$postData['payment']['boleto_parcelamento']:1;
                 $data['boleto_dates']           = isset($postData['payment']['boleto_dates'])?$postData['payment']['boleto_dates']:null;
@@ -1119,16 +1133,38 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                 }
             }
 
-            //Unset MundipaggData data
+            // Debit Payment
+            if ($data['payment_method'] == 'mundipagg_debit') {
+                $data['TaxDocumentNumber']  = isset($postData['payment']['taxvat'])?$postData['payment']['taxvat']:$taxvat;  
+                $data['Bank']               = isset($postData['payment']['mundipagg_debit']) ? $postData['payment']['mundipagg_debit'] : $mundipaggData['mundipagg_debit'];
+
+                // We verify if a CPF is informed
+                if (Mage::helper('mundipagg')->validateCPF($data['TaxDocumentNumber'])) {
+                    $data['PersonTypeEnum']         = 'Person';
+                    $data['TaxDocumentTypeEnum']    = 'CPF';
+                }
+
+                // We verify if a CNPJ is informed
+                if (Mage::helper('mundipagg')->validateCNPJ($data['TaxDocumentNumber'])) {
+                    $data['PersonTypeEnum']         = 'Company';
+                    $data['TaxDocumentTypeEnum']    = 'CNPJ';
+                }
+            }
+
+            // Unset MundipaggData data
             $session->setMundipaggData();
 
-            //Api
+            // Api
             $api = Mage::getModel('mundipagg/api');
 
-            //Get approval request from gateway
+            // Get approval request from gateway
             switch ($type) {
                 case 'mundipagg_boleto':
                     $approvalRequest = $api->boletoTransaction($order, $data, $this);
+                    break;
+
+                case 'mundipagg_debit':
+                    $approvalRequest = $api->debitTransaction($order, $data, $this);
                     break;
                 
                 case $type:
@@ -1136,15 +1172,8 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     break;
             }
 
-            // Set OrderKey and OrderReference from Mundipagg    
-            $payment->setAdditionalInformation('OrderKey', $approvalRequest['OrderKey']);
-            $payment->setAdditionalInformation('OrderReference', $approvalRequest['OrderReference']);
-
-            if(isset($approvalRequest['OrderStatusEnum'])) {
-                $payment->setAdditionalInformation('OrderStatusEnum', $approvalRequest['OrderStatusEnum']);
-            }
-
-            $payment->save();
+            // Set some data from Mundipagg
+            $payment = $this->setPaymentAdditionalInformation($approvalRequest, $payment);
 
             // Payment gateway error
             if (isset($approvalRequest['error'])) {
@@ -1159,10 +1188,6 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                             $authorizedAmount += $result->AuthorizedAmountInCents * 0.01;
                         }
                     }
-                    
-                    //Mage::log('AuthorizedAmount: '.$authorizedAmount, null, 'Uecommerce_Mundipagg.log');
-                    //Mage::log('orderGrandTotal: '.$orderGrandTotal, null, 'Uecommerce_Mundipagg.log');
-                    //Mage::log('calc: '.abs($orderGrandTotal-$authorizedAmount), null, 'Uecommerce_Mundipagg.log');
 
                     // If authorized amount is the same as order grand total we can show success page
                     $epsilon = 0.1;
@@ -1176,19 +1201,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     }
                 } else {
                     Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('cancel');
-
-                    if (isset($approvalRequest['ErrorCode'])) {
-                        $payment->setAdditionalInformation('ErrorCode', $approvalRequest['ErrorCode']);
-                    }
-
-                    if (isset($approvalRequest['ErrorDescription'])) {
-                        $payment->setAdditionalInformation('ErrorDescription', $approvalRequest['ErrorDescription']);
-                    }
-
-                    $payment->save();
                 }
-
-                return $approvalRequest;
             } else {
                 switch($approvalRequest['message']) {
                     // BoletoBancario
@@ -1220,9 +1233,6 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                             }
                         }
 
-                        //Mage::log('AuthorizedAmount: '.$authorizedAmount, null, 'Uecommerce_Mundipagg.log');
-                        //Mage::log('orderGrandTotal: '.$orderGrandTotal, null, 'Uecommerce_Mundipagg.log');
-
                         // If authorized amount is the same as order grand total we can show success page
                         $epsilon = 0.1;
                         
@@ -1249,17 +1259,24 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                                 $this->_transactionId = $transactionKey;
 
                                 $payment->setTransactionId($this->_transactionId);
+
+                                $payment->save();
                             }
                         }
                         catch(Exception $e) {
                             continue;
                         }
-
                     break;
-                }
 
-                return $approvalRequest;
+                    // Debit
+                    case 4:
+                        Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('debit');
+                        Mage::getSingleton('checkout/session')->setBankRedirectUrl($approvalRequest['result']['BankRedirectUrl']);
+                        break;
+                }
             }
+
+            return $approvalRequest;
         } 
         catch (Exception $e) {
             //Api
@@ -1271,6 +1288,47 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             //Mail error
             $api->mailError(print_r($e->getMessage(), 1));
         }
+    }
+
+    private function setPaymentAdditionalInformation($approvalRequest, $payment)
+    {
+        if (isset($approvalRequest['ErrorCode'])) {
+            $payment->setAdditionalInformation('ErrorCode', $approvalRequest['ErrorCode']);
+        }
+
+        if (isset($approvalRequest['ErrorDescription'])) {
+            $payment->setAdditionalInformation('ErrorDescription', $approvalRequest['ErrorDescription']);
+        }
+
+        if(isset($approvalRequest['OrderKey'])) {
+            $payment->setAdditionalInformation('OrderKey', $approvalRequest['OrderKey']);
+        }
+
+        if(isset($approvalRequest['OrderReference'])) {
+            $payment->setAdditionalInformation('OrderReference', $approvalRequest['OrderReference']);
+        }
+
+        if(isset($approvalRequest['OrderStatusEnum'])) {
+            $payment->setAdditionalInformation('OrderStatusEnum', $approvalRequest['OrderStatusEnum']);
+        }
+
+        if(isset($approvalRequest['TransactionKey'])) {
+            $payment->setAdditionalInformation('TransactionKey', $approvalRequest['TransactionKey']);
+        }
+
+        if(isset($approvalRequest['OnlineDebitStatus'])) {
+            $payment->setAdditionalInformation('OnlineDebitStatus', $approvalRequest['OnlineDebitStatus']);
+        }
+
+        if(isset($approvalRequest['TransactionKeyToBank'])) {
+            $payment->setAdditionalInformation('TransactionKeyToBank', $approvalRequest['TransactionKeyToBank']);
+        }
+
+        if(isset($approvalRequest['TransactionReference'])) {
+            $payment->setAdditionalInformation('TransactionReference', $approvalRequest['TransactionReference']);
+        }
+
+        return $payment;
     }
 
     /**
@@ -1569,6 +1627,10 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     public function getOrderPlaceRedirectUrl() 
     {
         switch (Mage::getSingleton('checkout/session')->getApprovalRequestSuccess()) {
+            case 'debit':
+                $redirectUrl = Mage::getSingleton('checkout/session')->getBankRedirectUrl();
+                break;
+
             case 'success':
                 $redirectUrl = Mage::getUrl('mundipagg/standard/success', array('_secure' => true));
                 break;

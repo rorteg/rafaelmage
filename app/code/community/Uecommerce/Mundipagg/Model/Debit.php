@@ -16,7 +16,7 @@
  *
  * @category   Uecommerce
  * @package    Uecommerce_Mundipagg
- * @copyright  Copyright (c) 2014 Uecommerce (http://www.uecommerce.com.br/)
+ * @copyright  Copyright (c) 2015 Uecommerce (http://www.uecommerce.com.br/)
  * @license    http://www.uecommerce.com.br/
  */
 
@@ -43,11 +43,11 @@ class Uecommerce_Mundipagg_Model_Debit extends Uecommerce_Mundipagg_Model_Standa
     protected $_canCapturePartial = false;
     protected $_canRefund = true;
     protected $_canVoid = true;
-    protected $_canUseInternal = true;
+    protected $_canUseInternal = false;
     protected $_canUseCheckout = true;
     protected $_canUseForMultishipping = true;
     protected $_canSaveCc = false;
-    protected $_canFetchTransactionInfo = true;
+    protected $_canFetchTransactionInfo = false;
     protected $_canManageRecurringProfiles = false;
     protected $_allowCurrencyCode = array('BRL', 'USD', 'EUR');
     protected $_isInitializeNeeded = true;
@@ -63,30 +63,19 @@ class Uecommerce_Mundipagg_Model_Debit extends Uecommerce_Mundipagg_Model_Standa
             case 'staging':
             default:
                 $this->setmerchantKey(trim($standard->getConfigData('merchantKeyStaging')));
-                $this->setUrl(trim($standard->getConfigData('apiUrlStaging')));
-                $this->setClearsale($standard->getConfigData('clearsale'));
+                $this->setUrl(trim($this->getConfigData('apiDebitUrl')));
                 $this->setPaymentMethodCode(1);
-                $this->setBankNumber(341);
-                $this->setParcelamento($standard->getConfigData('parcelamento'));
-                $this->setParcelamentoMax($standard->getConfigData('parcelamento_max'));
-                $this->setPaymentAction($standard->getConfigData('payment_action'));
                 $this->setDebug($standard->getConfigData('debug'));
                 $this->setEnvironment($standard->getConfigData('environment'));
-                $this->setCieloSku($standard->getConfigData('cielo_sku'));
-                $this->setBanks($standard->getConfigData('banks'));
+                $this->setDebitTypes($this->getConfigData('debit_types'));
                 break;
 
             case 'production':
                 $this->setmerchantKey(trim($standard->getConfigData('merchantKeyProduction')));
-                $this->setUrl(trim($standard->getConfigData('apiUrlProduction')));
-                $this->setClearsale($standard->getConfigData('clearsale'));
-                $this->setParcelamento($standard->getConfigData('parcelamento'));
-                $this->setParcelamentoMax($standard->getConfigData('parcelamento_max'));
-                $this->setPaymentAction($standard->getConfigData('payment_action'));
+                $this->setUrl(trim($this->getConfigData('apiDebitUrl')));
                 $this->setDebug($standard->getConfigData('debug'));
                 $this->setEnvironment($standard->getConfigData('environment'));
-                $this->setCieloSku($standard->getConfigData('cielo_sku'));
-                $this->setBanks($standard->getConfigData('banks'));
+                $this->setDebitTypes($this->getConfigData('debit_types'));
                 break;
         }
     }
@@ -120,11 +109,14 @@ class Uecommerce_Mundipagg_Model_Debit extends Uecommerce_Mundipagg_Model_Standa
      */
     public function initialize($paymentAction, $stateObject)
     {
-        $this->setCreditCardOperationEnum('AuthAndCapture');
-        
         $payment = $this->getInfoInstance();
         $order = $payment->getOrder();
 
-        parent::authorize($payment, $order->getBaseTotalDue());
+        parent::order($payment, $order->getBaseTotalDue());
+    }
+
+    public function getConfigData($key, $storeId = null)
+    {
+        return Mage::getStoreConfig('payment/mundipagg_debit/' . $key, $storeId);
     }
 }

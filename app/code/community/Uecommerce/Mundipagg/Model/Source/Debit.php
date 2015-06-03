@@ -16,7 +16,7 @@
  *
  * @category   Uecommerce
  * @package    Uecommerce_Mundipagg
- * @copyright  Copyright (c) 2012 Uecommerce (http://www.uecommerce.com.br/)
+ * @copyright  Copyright (c) 2015 Uecommerce (http://www.uecommerce.com.br/)
  * @license    http://www.uecommerce.com.br/
  */
 
@@ -33,9 +33,9 @@ class Uecommerce_Mundipagg_Model_Source_Debit
     public function toOptionArray() 
     {
         return array(
-        	array('value' => 'BancoDoBrasil', 'label' => 'Banco Do Brasil'),
-        	array('value' => 'Bradesco', 'label' => 'Bradesco'),
-        	array('value' => 'Itau', 'label' => 'Itaú'),
+        	array('value' => '001', 'label' => 'Banco Do Brasil'),
+        	array('value' => '237', 'label' => 'Bradesco'),
+        	array('value' => '341', 'label' => 'Itaú'),
         	array('value' => 'VBV', 'label' => 'VBV'),
         );
     }
