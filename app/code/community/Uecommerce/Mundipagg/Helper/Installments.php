@@ -161,7 +161,7 @@
 
             $quote = (Mage::getModel('checkout/type_onepage') !== false)? Mage::getModel('checkout/type_onepage')->getQuote(): Mage::getModel('checkout/session')->getQuote();
 
-            $currency = $quote->getQuoteCurrencyCode();
+            //$currency = $quote->getQuoteCurrencyCode();
 
             $amount = (double) $quote->getGrandTotal();
 

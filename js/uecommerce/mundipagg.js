@@ -82,6 +82,67 @@ function remove_characters(event) {
             event.preventDefault(); 
         }   
     }
+
+
+}
+
+function selectCredcard(ele){
+    var check = checkCredcardType(ele.value);
+
+    ele.up(2).previous().select('.cc_brand_types').each(function(el) {
+        el.removeClassName('active');
+    });
+    if(check){
+        var parentElement = ele.up(2).previous().select('li');
+        parentElement.each(function(element){
+            var inpt = element.select('input')[0];
+
+            if( inpt.value == check){
+                inpt.click();
+                inpt.previous().addClassName('active');
+            }
+        });
+    }
+}
+
+function checkCredcardType(cardNumber){
+    var regexVisa = /^4[0-9]{12}(?:[0-9]{3})?/;
+    var regexMaster = /^5[1-5][0-9]{14}/;
+    var regexAmex = /^3[47][0-9]{13}/;
+    var regexDiners = /^3(?:0[0-5]|[68][0-9])[0-9]{11}/;
+    var regexElo = /^((((636368)|(438935)|(504175)|(451416)|(636297))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/;
+    var regexHipercard = /^(3841\d{10}(\d{3})?)|(3841\d{15})$/;
+    //var regexDiscover = /^6(?:011|5[0-9]{2})[0-9]{12}/;
+    //var regexJCB = /^(?:2131|1800|35\d{3})\d{11}/;
+
+    if(regexVisa.test(cardNumber)){
+        return 'VI';
+    }
+    if(regexMaster.test(cardNumber)){
+        return 'MC';
+    }
+    if(regexAmex.test(cardNumber)){
+        return 'AE';
+    }
+    if(regexHipercard.test(cardNumber)){
+        return 'HI';
+    }
+    if(regexDiners.test(cardNumber)){
+        return 'DI';
+    }
+    /*if(regexDiscover.test(cardNumber)){
+        return 'discover';
+    }*/
+    /*if(regexJCB.test(cardNumber)){
+        return 'jcb';
+    }*/
+    if(regexElo.test(cardNumber)){
+        return 'EL';
+    }
+
+
+
+    return false;
 }
 
 function remove_special_characters(event) {
@@ -409,6 +470,7 @@ function check_values() {
 
 function setCcType(field, code, num, c, issuer)
 {
+
 	$$('#' + code + '_' + num + '_' + c + '_cc_type')[0].value = issuer;
 	$(code + '_' + num + '_' + c + '_credito_instituicao_' + issuer).checked=true
 
@@ -418,7 +480,8 @@ function setCcType(field, code, num, c, issuer)
 }
 
 function checkInstallments(field, url)
-{	
+{
+    
 	if ($('onestepcheckout-form') == null) {
 		params = $('co-payment-form').serialize(true);
 	} else {
@@ -431,7 +494,7 @@ function checkInstallments(field, url)
 		onSuccess: function(response) {
 			if (200 == response.status){
 				var result = eval("(" + response.responseText + ")");
-
+                console.log(result);
 				new Ajax.Request(url + 'mundipagg/standard/val', {
 					method: 'post',
 					parameters: params,

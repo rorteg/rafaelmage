@@ -34,6 +34,8 @@ $standard = $this->getStandard();
 // Get Quote
 $quote = $standard->getQuote();
 
+$installmentsHelper = Mage::helper('mundipagg/installments');
+
 if($quote->isVirtual()) {
 	$data = $quote->getBillingAddress();
 } else {
@@ -106,6 +108,53 @@ ul.inline li img {
 .sp-methods select.month {
 	width: 145px;
 }
+
+.cc_brand_types{
+    width:58px;
+    height:37px;
+    margin-right: 10px;
+    background: url(<?php echo $this->getSkinUrl('images/mundipagg/cc_types.png');?>);
+    margin-bottom: 5px;
+}
+
+.cc_brand_types.vi{
+    background-position: 0 -37px;
+}
+.cc_brand_types.vi.active{
+    background-position: 0 0;
+}
+.cc_brand_types.mc{
+    background-position: -59px -37px;
+}
+.cc_brand_types.mc.active{
+    background-position:  -59px 0;
+}
+.cc_brand_types.ae{
+    background-position: -292px -37px;
+}
+.cc_brand_types.ae.active{
+    background-position: -292px 0;
+}
+.cc_brand_types.di{
+    background-position: -234px -37px;
+}
+.cc_brand_types.di.active{
+    background-position: -234px 0;
+}
+.cc_brand_types.el{
+    background-position: -175px -37px;
+}
+.cc_brand_types.el.active{
+    background-position: -175px 0;
+}
+.cc_brand_types.hi{
+    background-position: -117px -37px;
+}
+.cc_brand_types.hi.active{
+    background-position: -117px 0;
+}
+
+.inline.input-radio input[type=radio]{display:none}
 </style>
 <fieldset class="form-list">
 	<ul id="payment_form_<?php echo $_code ?>" style="display:none;">
@@ -207,15 +256,15 @@ ul.inline li img {
 								        </li>
 								    </div>
 							    <?php endif; ?>
-								<?php if ($standard->getConfigData('parcelamento') && $_code != 'mundipagg_creditcardoneinstallment'): ?>
+								<?php if ($installmentsHelper->isInstallmentsEnabled() && $_code != 'mundipagg_creditcardoneinstallment'): ?>
 									<div id="parcelamento_<?php echo $num; ?>_<?php echo $c;?>" <?php if($countCcs > 1): ?>style="display:none"<?php endif?>>
 		                                <li class="fields" style="margin-bottom: 5px;">
 		                                	<div class="field">
 		                                		<label class="required"><?php echo $this->__('Credit options') ?> <?php if($num == 2):?><a href="javascript:void(0);" onclick="javascript:void(0);">(<?php echo $this->__('click to update') ?>)</a><?php endif ?></label>
 			                                	<div class="input-box">
 			                                		<select id="<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry">
-					                                	<?php foreach($this->getInstallments() as $parcel): ?>
-															<option value="<?php echo $parcel['num'] ?>"><?php echo $parcel['label'] ?></option>
+					                                	<?php foreach($this->getInstallments() as $key => $parcel): ?>
+															<option value="<?php echo $key ?>"><?php echo $parcel ?></option>
 														<?php endforeach ?>
 			                                		</select>
 				                           		</div>
@@ -238,7 +287,8 @@ ul.inline li img {
 									        ?>
 									            <?php foreach($ccards as $ccard): ?>
 									            	<li>
-														<img src="<?php echo $this->getSkinUrl('images/mundipagg/'.$ccard.'.png');?>" alt="<?php echo $ccard ?>" border="0" class="cursor_hand" onclick="setCcType(this, '<?php echo $_code; ?>', '<?php echo $num; ?>', '<?php echo $c;?>', '<?php echo $ccard; ?>');">
+                                                        <div class="cc_brand_types <?php echo strtolower($ccard); ?>">&nbsp;</div>
+														<!--<img src="<?php //echo $this->getSkinUrl('images/mundipagg/'.$ccard.'.png');?>" alt="<?php //echo $ccard ?>" border="0" class="cursor_hand" onclick="setCcType(this, '<?php //echo $_code; ?>', '<?php //echo $num; ?>', '<?php //echo $c;?>', '<?php //echo $ccard; ?>');">-->
 														<input type="radio" name="payment[<?php echo $_code; ?>_<?php echo $num; ?>_<?php echo $c;?>_credito_instituicao]" id="<?php echo $_code; ?>_<?php echo $num; ?>_<?php echo $c;?>_credito_instituicao_<?php echo $ccard; ?>" value="<?php echo $ccard ?>" class="<?php if ($_i == 1): ?>validate-one-required-by-name<?php endif; ?>" onclick="setCcType(this, '<?php echo $_code; ?>', '<?php echo $num; ?>', '<?php echo $c;?>', '<?php echo $ccard; ?>');">
 													</li>
 									            <?php 
@@ -327,14 +377,14 @@ ul.inline li img {
 						        		</div>
 							        </li>
 							    <?php endif; ?>
-	                			<?php if ($standard->getConfigData('parcelamento') && $_code != 'mundipagg_creditcardoneinstallment'): ?>
+                                <?php if ($installmentsHelper->isInstallmentsEnabled() && $_code != 'mundipagg_creditcardoneinstallment'): ?>
 	                                <li style="margin-bottom: 5px;">
 	                                	<div class="field">
 	                                		<label class="required"><?php echo $this->__('Credit options') ?> <?php if($num ==2): ?><a href="javascript:void(0);" onclick="javascript:void(0);">(<?php echo $this->__('click to update') ?>)</a><?php endif ?></label>
 		                                	<div class="input-box">
 		                                		<select id="<?php echo $_code; ?>_new_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_new_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" onchange="checkInstallments(this, '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>');">
-													<?php foreach($this->getInstallments() as $parcel): ?>
-													<option value="<?php echo $parcel['num'] ?>"><?php echo $parcel['label'] ?></option>
+													<?php foreach($this->getInstallments() as $key => $parcel): ?>
+													<option value="<?php echo $key ?>"><?php echo $parcel ?></option>
 													<?php endforeach ?>
 												</select>
 			                           		</div> 
@@ -387,5 +437,11 @@ Validation.addAllThese([
         return true;
     }]
 ]);
+$$('.validate-cc-number').invoke('observe','keyup',function(){
+    selectCredcard(this);
+});
+$$('.validate-cc-number').invoke('observe','blur',function(){
+    selectCredcard(this);
+});
 //]]>
 </script>
