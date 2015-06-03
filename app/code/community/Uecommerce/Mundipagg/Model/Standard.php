@@ -47,7 +47,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     protected $_canUseCheckout = false;
     protected $_canUseForMultishipping = true;
     protected $_canSaveCc = false;
-    protected $_canFetchTransactionInfo = true;
+    protected $_canFetchTransactionInfo = false;
     protected $_canManageRecurringProfiles = false;
     protected $_allowCurrencyCode = array('BRL', 'USD', 'EUR');
     protected $_isInitializeNeeded = true;
