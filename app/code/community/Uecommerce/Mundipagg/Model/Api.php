@@ -1115,6 +1115,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					$capturedAmountInCents 	= $data['CreditCardTransaction']['CapturedAmountInCents'];
 				}
 
+				if (!empty($data['OnlineDebitTransaction'])) {
+					$status 				= $data['OnlineDebitTransaction']['OnlineDebitTransactionStatus'];
+					$transactionKey 		= $data['OnlineDebitTransaction']['TransactionKey'];
+					$capturedAmountInCents 	= $data['OnlineDebitTransaction']['AmountPaidInCents'];
+				}
+
 				$order = Mage::getModel('sales/order');
 				$order->loadByIncrementId($orderReference);
 
