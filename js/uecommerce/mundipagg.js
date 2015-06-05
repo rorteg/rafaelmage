@@ -94,7 +94,14 @@ function selectCredcard(ele){
     });
     var id = ele.id;
 
-    var realId = id.replace('mundipagg_twocreditcards_','').replace('_cc_number','');
+    var realId = id
+        .replace('mundipagg_creditcard','')
+        .replace('mundipagg_twocreditcards_','')
+        .replace('mundipagg_threecreditcards','')
+        .replace('mundipagg_fourcreditcards_','')
+        .replace('mundipagg_fivecreditcards','')
+        .replace('_cc_number','');
+    var cardType = id.replace('mundipagg_','').replace('_cc_number','').replace('_'+realId,'');
     if(check){
         var parentElement = ele.up(2).previous().select('li');
 
@@ -107,8 +114,9 @@ function selectCredcard(ele){
                 if(window.isInstallmentsEnabled) {
 
 
-                    if (window[id] != check) {
-                        window[id] = check;
+                    if (window[realId] != check) {
+                        window[realId] = check;
+                        window['brand_'+realId] = check;
                         selects = ele.up(3).select('select');
                         selects.each(function(select){
                             if(select.name.indexOf('parcelamento') != -1){
@@ -118,36 +126,40 @@ function selectCredcard(ele){
 
                         window['select_html_'+realId] = installmentElement.innerHTML;
                         window['select_'+realId] = installmentElement;
-
-                        if($('mundipagg_twocreditcards_new_value_'+realId).value == '') {
-                            updateInstallments(check, installmentElement);
+                        if($('mundipagg_'+cardType+'_new_value_'+realId) != undefined) {
+                            if ($('mundipagg_' + cardType + '_new_value_' + realId).value == '') {
+                                updateInstallments(check, installmentElement);
+                            } else {
+                                updateInstallments(check, installmentElement, $('mundipagg_' + cardType + '_new_value_' + realId).value);
+                            }
                         }else{
-                            updateInstallments(check, installmentElement,$('mundipagg_twocreditcards_new_value_'+realId).value);
+                            updateInstallments(check, installmentElement);
                         }
                     }
 
-                    setTimeout(function(){
-                        window[id] = undefined;
-                    },5000);
+
                 }
             }
         });
 
     }else{
-        if($('mundipagg_twocreditcards_new_value_'+realId) != undefined){
-            totalValue = $('mundipagg_twocreditcards_new_value_'+realId).value;
-        }else{
-            totalValue = '';
-        }
-        if(window['select_'+realId] != undefined && totalValue == '') {
-            window['select_'+realId].innerHTML = window['select_html_'+realId];
-        }else{
-            if(window.installmentElement !== undefined) {
-                updateInstallments(0, installmentElement, $('mundipagg_twocreditcards_new_value_' + realId).value);
+        if (window[realId] != undefined) {
+            window[realId] = undefined;
+            if ($('mundipagg_'+cardType+'_new_value_' + realId) != undefined) {
+                totalValue = $('mundipagg_'+cardType+'_new_value_' + realId).value;
+            } else {
+                totalValue = '';
+            }
+            if (window['select_' + realId] != undefined && totalValue == '') {
+                window['select_' + realId].innerHTML = window['select_html_' + realId];
+            } else {
+                if (window.installmentElement !== undefined) {
+                    updateInstallments(0, installmentElement, $('mundipagg_'+cardType+'_new_value_' + realId).value);
+                }
             }
         }
-
     }
+
 
 
 }
@@ -448,7 +460,18 @@ function calculateInstallmentValue(field, num, c, url) {
                 installmentElement = select;
             }
         });
-        var realId = field.id.replace('mundipagg_twocreditcards_new_value_','');
+
+        var id = field.id;
+        var realId = id
+            .replace('mundipagg_creditcard','')
+            .replace('mundipagg_twocreditcards_','')
+            .replace('mundipagg_threecreditcards','')
+            .replace('mundipagg_fourcreditcards_','')
+            .replace('mundipagg_fivecreditcards','')
+            .replace('_cc_number','');
+        var cardType = id.replace('mundipagg_','').replace('_cc_number','').replace('_'+realId,'');
+
+        var realId = field.id.replace('mundipagg_'+cardType+'_new_value_','');
         window['select_html_'+realId] = installmentElement.innerHTML;
         window['select_'+realId] = installmentElement;
         if(window['brand_'+realId] != undefined){

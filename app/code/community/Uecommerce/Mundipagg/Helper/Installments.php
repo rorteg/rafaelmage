@@ -202,4 +202,43 @@
             }
             return $result;
         }
+
+        public function getInterestForCard($installments = 1 , $ccType = null){
+            $quote = (Mage::getModel('checkout/type_onepage') !== false)? Mage::getModel('checkout/type_onepage')->getQuote(): Mage::getModel('checkout/session')->getQuote();
+
+
+            $numberOfInstallments = $installments;
+            $currentAmount = $quote->getInterest();
+
+            if($numberOfInstallments > 0)
+            {
+
+                $ccTypeInstallments = "installments_".$ccType;
+
+                $all_installments = Mage::helper('mundipagg/installments')->getInstallments(null, $ccTypeInstallments);
+                if(empty($all_installments)) {
+                    $all_installments = Mage::helper('mundipagg/installments')->getInstallments();
+                }
+
+                $installmentKey = $numberOfInstallments - 1;
+
+                $installment = $all_installments[$installmentKey];
+
+                if($installment != null && is_array($installment)) {
+
+                    // check if interest rate is filled in
+                    if(isset($installment[2]) && $installment[2] > 0) {
+
+                        $interestRate = $installment[2];
+                        $grandTotal = $quote->getGrandTotal();
+                        $fee = ($grandTotal / 100) * $interestRate;
+
+                        $balance = $fee - $currentAmount;
+
+
+                        return $balance;
+                    }
+                }
+            }
+        }
     }

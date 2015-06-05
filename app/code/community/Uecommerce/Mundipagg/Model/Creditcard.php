@@ -97,42 +97,62 @@ class Uecommerce_Mundipagg_Model_Creditcard extends Uecommerce_Mundipagg_Model_S
      */
     public function assignData($data) 
     {
-        if (!($data instanceof Varien_Object)) {
-            $data = new Varien_Object($data);
-        }
-
         $info = $this->getInfoInstance();
-
-        // Reset interests
-        $interest = 0;
-        $info = $this->resetInterest($info);
-
+        $this->resetInterest($info);
         if (isset($data[$this->_code.'_token_1_1']) && $data[$this->_code.'_token_1_1'] != 'new') {
             $parcelsNumber = $data[$this->_code.'_credito_parcelamento_1_1'];
         } else {
             $parcelsNumber = $data[$this->_code.'_new_credito_parcelamento_1_1'];
         }
 
-        $withoutInterest = Mage::getStoreConfig('payment/mundipagg_standard/installment_without_interest');
-        $interestValue = Mage::helper('mundipagg')->getJurosParcelaEscolhida($parcelsNumber)/100;
- 
-        // we check if there are interests for this parcel
-        if($parcelsNumber > $withoutInterest) {
-            $installmentValue = Mage::helper('mundipagg')->calcInstallmentValue($info->getQuote()->getGrandTotal(), $interestValue, $parcelsNumber);
-            
-            $installmentValue = round($installmentValue, 2);
-            $interest = ($installmentValue * $parcelsNumber) - $info->getQuote()->getGrandTotal();
+        $cctype = $data[$this->_code.'_1_1_cc_type'];
 
-            //Mage::log('interest total: '.$interest);
-        }
+        $interest = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber , $cctype);
 
-        // Apply interest
         if ($interest > 0) {
             $this->applyInterest($info, $interest);
         } else {
             // If none of Cc parcels doens't have interest we reset interest
             $info = $this->resetInterest($info);
         }
+
+        //$this->applyInterest($info,1000.0000);
+        /* if (!($data instanceof Varien_Object)) {
+             $data = new Varien_Object($data);
+         }
+
+         $info = $this->getInfoInstance();
+
+         // Reset interests
+         $interest = 0;
+         $info = $this->resetInterest($info);
+
+         if (isset($data[$this->_code.'_token_1_1']) && $data[$this->_code.'_token_1_1'] != 'new') {
+             $parcelsNumber = $data[$this->_code.'_credito_parcelamento_1_1'];
+         } else {
+             $parcelsNumber = $data[$this->_code.'_new_credito_parcelamento_1_1'];
+         }
+
+         $withoutInterest = Mage::getStoreConfig('payment/mundipagg_standard/installment_without_interest');
+         $interestValue = Mage::helper('mundipagg')->getJurosParcelaEscolhida($parcelsNumber)/100;
+
+         // we check if there are interests for this parcel
+         if($parcelsNumber > $withoutInterest) {
+             $installmentValue = Mage::helper('mundipagg')->calcInstallmentValue($info->getQuote()->getGrandTotal(), $interestValue, $parcelsNumber);
+
+             $installmentValue = round($installmentValue, 2);
+             $interest = ($installmentValue * $parcelsNumber) - $info->getQuote()->getGrandTotal();
+
+             //Mage::log('interest total: '.$interest);
+         }
+
+         // Apply interest
+         if ($interest > 0) {
+             $this->applyInterest($info, $interest);
+         } else {
+             // If none of Cc parcels doens't have interest we reset interest
+             $info = $this->resetInterest($info);
+         }*/
 
         parent::assignData($data);
     }

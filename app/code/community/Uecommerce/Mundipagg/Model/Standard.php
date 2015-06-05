@@ -1711,7 +1711,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     {
         $info->getQuote()->setInterest($info->getQuote()->getStore()->convertPrice($interest, false));
         $info->getQuote()->setBaseInterest($interest);
-        
+
         $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
         $info->getQuote()->save();
     }
