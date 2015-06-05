@@ -156,15 +156,16 @@
             return $value;
         }
 
-        public function getInstallmentForCreditCardType($ccType = null) {
+        public function getInstallmentForCreditCardType($ccType = null,$amount = null) {
 
 
             $quote = (Mage::getModel('checkout/type_onepage') !== false)? Mage::getModel('checkout/type_onepage')->getQuote(): Mage::getModel('checkout/session')->getQuote();
 
             //$currency = $quote->getQuoteCurrencyCode();
-
-            $amount = (double) $quote->getGrandTotal();
-
+            if(!$amount) {
+                $amount = (double)$quote->getGrandTotal();
+            }
+            $amount = str_replace(',','.',$amount);
             $ccTypeInstallments = "installments_".$ccType;
 
             $all_installments = $this->getInstallments(null, $ccTypeInstallments);

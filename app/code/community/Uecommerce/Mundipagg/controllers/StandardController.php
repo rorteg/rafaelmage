@@ -369,6 +369,34 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
         }
     }
 
+    public function installmentsandinterestAction(){
+        $post = $this->getRequest()->getPost();
+        $result = array();
+        $installmentsHelper = Mage::helper('mundipagg/installments');
+        if(isset($post['cctype'])){
+            $total = $post['total'];
+            $cctype = $post['cctype'];
+            if(!$total){
+                $total = null;
+            }
+
+            $installments = $installmentsHelper->getInstallmentForCreditCardType($cctype,$total);
+
+            $result['installments'] = $installments;
+            $result['brand'] = $cctype;
+
+        }else{
+            $installments = $installmentsHelper->getInstallmentForCreditCardType();
+            $result['installments'] = $installments;
+        }
+
+
+
+        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+    }
+
+
+
     /**
     * Get max number of installments for a value
     */
@@ -377,6 +405,9 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
         $val = $this->getRequest()->getParam('val');
 
         if (is_numeric($val)) {
+
+
+
             $standard = Mage::getSingleton('mundipagg/standard');
 
             $valorMinParcelamento = $standard->getConfigData('parcelamento_min');

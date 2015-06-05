@@ -48,9 +48,26 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
         if ($address->getData('address_type') == 'billing') return $this;
-		
+
 		$this->_setAddress($address);
-		
+
+        parent::collect($address);
+
+        $quote = $address->getQuote();
+
+        if ($address->getAllItems()) {
+
+            $payment = $quote->getPayment();
+
+            if($payment && !empty($payment)) {
+
+                //$paymentMethod = $quote->getPayment()->getMethod();
+
+
+
+            }
+
+        }
 		
 		if($ammount = $address->getQuote()->getInterest())
 		{
@@ -63,6 +80,8 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
 			$this->_setBaseAmount(0.00);
 			$this->_setAmount(0.00);
 		}
+
+
 		
 		return $this;
 	}

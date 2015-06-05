@@ -92,17 +92,64 @@ function selectCredcard(ele){
     ele.up(2).previous().select('.cc_brand_types').each(function(el) {
         el.removeClassName('active');
     });
+    var id = ele.id;
+
+    var realId = id.replace('mundipagg_twocreditcards_','').replace('_cc_number','');
     if(check){
         var parentElement = ele.up(2).previous().select('li');
+
         parentElement.each(function(element){
             var inpt = element.select('input')[0];
 
             if( inpt.value == check){
                 inpt.click();
                 inpt.previous().addClassName('active');
+                if(window.isInstallmentsEnabled) {
+
+
+                    if (window[id] != check) {
+                        window[id] = check;
+                        selects = ele.up(3).select('select');
+                        selects.each(function(select){
+                            if(select.name.indexOf('parcelamento') != -1){
+                                installmentElement = select;
+                            }
+                        });
+
+                        window['select_html_'+realId] = installmentElement.innerHTML;
+                        window['select_'+realId] = installmentElement;
+
+                        if($('mundipagg_twocreditcards_new_value_'+realId).value == '') {
+                            updateInstallments(check, installmentElement);
+                        }else{
+                            updateInstallments(check, installmentElement,$('mundipagg_twocreditcards_new_value_'+realId).value);
+                        }
+                    }
+
+                    setTimeout(function(){
+                        window[id] = undefined;
+                    },5000);
+                }
             }
         });
+
+    }else{
+        if($('mundipagg_twocreditcards_new_value_'+realId) != undefined){
+            totalValue = $('mundipagg_twocreditcards_new_value_'+realId).value;
+        }else{
+            totalValue = '';
+        }
+        if(window['select_'+realId] != undefined && totalValue == '') {
+            window['select_'+realId].innerHTML = window['select_html_'+realId];
+        }else{
+            if(window.installmentElement !== undefined) {
+                updateInstallments(0, installmentElement, $('mundipagg_twocreditcards_new_value_' + realId).value);
+            }
+        }
+
     }
+
+
 }
 
 function checkCredcardType(cardNumber){
@@ -143,6 +190,47 @@ function checkCredcardType(cardNumber){
 
 
     return false;
+}
+
+function updateInstallments(ccType, element ,total){
+    var url = window.baseUrl+'mundipagg/standard/installmentsandinterest';
+
+    if(!total){
+        total=0;
+    }
+
+    loading = new Element('img', {src:window.baseUrl+'skin/frontend/base/default/images/mundipagg/ajax-loader.gif'});
+    loading.addClassName('mundipagg_reload');
+    element.insert({
+        'after':loading
+    });
+    element.options.length = 0;
+    var id = element.id.replace('_new_credito_parcelamento','')+'_cc_number';
+    new Ajax.Request(url,{
+        method:'post',
+        parameters:{cctype:ccType,total:total},
+        onSuccess:function(response){
+
+            var res = JSON.parse(response.responseText);
+
+            if(res['installments'] != undefined){
+
+                i=0;
+                for(key in res.installments){
+                    element.options[i] = new Option(res.installments[key],key,false,false);
+                    i++;
+                }
+                if(res['brand'] != undefined) {
+                    window['brand_' + id.replace('mundipagg_twocreditcards_', '').replace('_cc_number', '')] = res.brand;
+                }
+            }else{
+                window['select_'+id].innerHTML = window['select_html_'+id];
+                window['brand_'+id.replace('mundipagg_twocreditcards_','').replace('_cc_number','')] = undefined;
+            }
+            $$('.mundipagg_reload')[0].remove();
+        }
+    });
+
 }
 
 function remove_special_characters(event) {
@@ -353,7 +441,21 @@ function calculateInstallmentValue(field, num, c, url) {
 	}
 
 	if(parseFloat(vfield_oc)) {
-		installments(field_id, field_id_new, num, c, vfield_oc, url);
+		//installments(field_id, field_id_new, num, c, vfield_oc, url);
+        selects = field.up(3).select('select');
+        selects.each(function(select){
+            if(select.name.indexOf('parcelamento') != -1){
+                installmentElement = select;
+            }
+        });
+        var realId = field.id.replace('mundipagg_twocreditcards_new_value_','');
+        window['select_html_'+realId] = installmentElement.innerHTML;
+        window['select_'+realId] = installmentElement;
+        if(window['brand_'+realId] != undefined){
+            updateInstallments(window['brand_'+realId],installmentElement,vfield_oc);
+        }else{
+            updateInstallments(0,installmentElement,vfield_oc);
+        }
 
 		/* If more than 2 decimals we reduce to 2 */
 		$(field).value = (vfield_oc.toFixed(2)).replace('.',',');
@@ -369,8 +471,21 @@ function calculateInstallmentValue(field, num, c, url) {
 				}
 
 				$$('#mundipagg_twocreditcards_new_value_2_2')[0].value = new_value;
+                selects = $$('#mundipagg_twocreditcards_new_value_2_2')[0].up(3).select('select');
+                selects.each(function(select){
+                    if(select.name.indexOf('parcelamento') != -1){
+                        installmentElement = select;
+                    }
+                });
+                window['select_html_2_2'] = installmentElement.innerHTML;
+                window['select_2_2'] = installmentElement;
+                if(window['brand_2_2'] != undefined){
+                    updateInstallments(window['brand_2_2'],installmentElement,new_value);
+                }else{
+                    updateInstallments(0,installmentElement,new_value);
+                }
 
-				installments('mundipagg_twocreditcards_credito_parcelamento_2_2', 'mundipagg_twocreditcards_new_credito_parcelamento_2_2', num, c, new_value_oc, url);
+				//installments('mundipagg_twocreditcards_credito_parcelamento_2_2', 'mundipagg_twocreditcards_new_credito_parcelamento_2_2', num, c, new_value_oc, url);
 			}
 			
 			if(c != 1) {
@@ -379,8 +494,21 @@ function calculateInstallmentValue(field, num, c, url) {
 				}
 
 				$$('#mundipagg_twocreditcards_new_value_2_1')[0].value = new_value;
+                selects = $$('#mundipagg_twocreditcards_new_value_2_1')[0].up(3).select('select');
+                selects.each(function(select){
+                    if(select.name.indexOf('parcelamento') != -1){
+                        installmentElement = select;
+                    }
+                });
+                window['select_html_2_1'] = installmentElement.innerHTML;
+                window['select_2_1'] = installmentElement;
+                if(window['brand_2_1'] != undefined){
+                    updateInstallments(window['brand_2_1'],installmentElement,new_value);
+                }else{
+                    updateInstallments(0,installmentElement,new_value);
+                }
 
-				installments('mundipagg_twocreditcards_credito_parcelamento_2_1', 'mundipagg_twocreditcards_new_credito_parcelamento_2_1', num, c, new_value_oc, url);
+				//installments('mundipagg_twocreditcards_credito_parcelamento_2_1', 'mundipagg_twocreditcards_new_credito_parcelamento_2_1', num, c, new_value_oc, url);
 			}
 		}
 	}
@@ -488,6 +616,8 @@ function checkInstallments(field, url)
 		params = $('onestepcheckout-form').serialize(true);
 	}
 
+
+
 	new Ajax.Request(url + 'checkout/onepage/savePayment', {
 		method: 'post',
 		parameters: params,
@@ -495,17 +625,17 @@ function checkInstallments(field, url)
 			if (200 == response.status){
 				var result = eval("(" + response.responseText + ")");
                 console.log(result);
-				new Ajax.Request(url + 'mundipagg/standard/val', {
+				/*new Ajax.Request(url + 'mundipagg/standard/val', {
 					method: 'post',
 					parameters: params,
 					onSuccess: function(response) {
 						if (200 == response.status){
 							var result = eval("(" + response.responseText + ")");
-
+                            console.log(result);
 							$$('tr.grand-total td.value2 span.price')[0].update(result.grandTotal);
 						}
 					}
-				});
+				});*/
 			}
 		},
 		onFailure: function(response) {
