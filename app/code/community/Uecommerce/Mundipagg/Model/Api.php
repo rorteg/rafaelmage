@@ -93,13 +93,13 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 				$creditcardTransactionData = new stdclass();
 
 				// We check if user is not cheating with installments
-				if ($installment == 1) {
+				/*if ($installment == 1) {
 					if ($paymentData['InstallmentCount'] > $qtdParcelasMax) {
 						$paymentData['InstallmentCount'] = $qtdParcelasMax;
 					}
 				} else {
 					$paymentData['InstallmentCount'] = 1;	
-				}
+				}*/
 
 				$creditcardTransactionData->CreditCard = new stdclass();
 				$creditcardTransactionData->Options = new stdclass();

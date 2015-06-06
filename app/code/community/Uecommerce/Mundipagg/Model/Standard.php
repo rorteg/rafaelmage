@@ -383,7 +383,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 
                     $epsilon = 0.00001;
 
-                    if ($totalInstallments > 0 && abs($grandTotal-$totalInstallments) > $epsilon) {
+                    if ($totalInstallments > 0 && abs($grandTotal-$totalInstallments-$info->getPaymentInterest()) > $epsilon) {
                         Mage::throwException(Mage::helper('payment')->__('Installments does not match with quote.'));
                     }
                 }
@@ -1063,15 +1063,17 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         
                         if ( isset($postData['payment'][$method.'_new_value_'.$num.'_'.$i]) && $postData['payment'][$method.'_new_value_'.$num.'_'.$i] != '' ) {
                             $data['payment'][$i]['AmountInCents'] = str_replace(',', '.', $postData['payment'][$method.'_new_value_'.$num.'_'.$i]);
+                            $data['payment'][$i]['AmountInCents'] = $data['payment'][$i]['AmountInCents'] + Mage::helper('mundipagg/installments')->getInterestForCard($data['payment'][$i]['InstallmentCount'] , isset($postData['payment'][$method.'_'.$num.'_'.$i.'_cc_type']) ? $postData['payment'][$method.'_'.$num.'_'.$i.'_cc_type'] : $mundipaggData[$method.'_'.$num.'_'.$i.'_cc_type'], $data['payment'][$i]['AmountInCents']);
+
                             $data['payment'][$i]['AmountInCents'] = $data['payment'][$i]['AmountInCents']*100;
                         } else {
                             if (!isset($postData['partial'])) {
                                 $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100;
                             } else { // If partial payment we deduct authorized amount already processed
                                 if (Mage::getSingleton('checkout/session')->getAuthorizedAmount()) {
-                                    $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100 - Mage::getSingleton('checkout/session')->getAuthorizedAmount()*100;
+                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal()+(float)$order->getInterest())*100 - Mage::getSingleton('checkout/session')->getAuthorizedAmount()*100;
                                 } else {
-                                    $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100;
+                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal()+(float)$order->getInterest())*100;
                                 }
                             }
                         }

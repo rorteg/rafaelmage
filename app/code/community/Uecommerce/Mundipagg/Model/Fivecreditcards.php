@@ -97,6 +97,84 @@ class Uecommerce_Mundipagg_Model_Fivecreditcards extends Uecommerce_Mundipagg_Mo
      */
     public function assignData($data) 
     {
+
+        $info = $this->getInfoInstance();
+        $this->resetInterest($info);
+
+        if (isset($data[$this->_code.'_token_5_1']) && $data[$this->_code.'_token_5_1'] != 'new') {
+            $parcelsNumber1 = $data[$this->_code.'_credito_parcelamento_5_1'];
+        } else {
+            $parcelsNumber1 = $data[$this->_code.'_new_credito_parcelamento_5_1'];
+        }
+
+        $cctype1 = $data[$this->_code.'_5_1_cc_type'];
+
+        if (isset($data[$this->_code.'_token_5_2']) && $data[$this->_code.'_token_5_2'] != 'new') {
+            $parcelsNumber2 = $data[$this->_code.'_credito_parcelamento_5_2'];
+        } else {
+            $parcelsNumber2 = $data[$this->_code.'_new_credito_parcelamento_5_2'];
+        }
+
+        $cctype2 = $data[$this->_code.'_5_2_cc_type'];
+
+        if (isset($data[$this->_code.'_token_5_3']) && $data[$this->_code.'_token_5_3'] != 'new') {
+            $parcelsNumber3 = $data[$this->_code.'_credito_parcelamento_5_3'];
+        } else {
+            $parcelsNumber3 = $data[$this->_code.'_new_credito_parcelamento_5_3'];
+        }
+
+        $cctype3 = $data[$this->_code.'_5_3_cc_type'];
+
+        if (isset($data[$this->_code.'_token_5_4']) && $data[$this->_code.'_token_5_4'] != 'new') {
+            $parcelsNumber4 = $data[$this->_code.'_credito_parcelamento_5_4'];
+        } else {
+            $parcelsNumber4 = $data[$this->_code.'_new_credito_parcelamento_5_4'];
+        }
+
+        $cctype4 = $data[$this->_code.'_5_4_cc_type'];
+
+        if (isset($data[$this->_code.'_token_5_5']) && $data[$this->_code.'_token_5_5'] != 'new') {
+            $parcelsNumber5 = $data[$this->_code.'_credito_parcelamento_5_5'];
+        } else {
+            $parcelsNumber5 = $data[$this->_code.'_new_credito_parcelamento_5_5'];
+        }
+
+        $cctype5 = $data[$this->_code.'_5_5_cc_type'];
+
+        $interest1 = 0;
+        $interest2 = 0;
+        $interest3 = 0;
+        $interest4 = 0;
+        $interest5 = 0;
+
+        if($cctype1){
+            $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $data[$this->_code.'_new_value_5_1']);
+        }
+
+        if($cctype2){
+            $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, $data[$this->_code.'_new_value_5_2']);
+        }
+
+        if($cctype3){
+            $interest3 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber3 , $cctype3, $data[$this->_code.'_new_value_5_3']);
+        }
+
+        if($cctype4){
+            $interest4 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber4 , $cctype4, $data[$this->_code.'_new_value_5_4']);
+        }
+
+        if($cctype5){
+            $interest5 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber5 , $cctype5, $data[$this->_code.'_new_value_5_5']);
+        }
+        $interest = $interest1+$interest2+$interest3+$interest4+$interest5;
+
+        if ($interest > 0) {
+            $this->applyInterest($info, $interest);
+        } else {
+            // If none of Cc parcels doens't have interest we reset interest
+            $this->resetInterest($info);
+        }
+
         parent::assignData($data);
     }
 

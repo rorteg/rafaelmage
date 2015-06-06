@@ -97,7 +97,48 @@ class Uecommerce_Mundipagg_Model_Twocreditcards extends Uecommerce_Mundipagg_Mod
      */
     public function assignData($data) 
     {
+
+        $info = $this->getInfoInstance();
+        $this->resetInterest($info);
+
+        if (isset($data[$this->_code.'_token_2_1']) && $data[$this->_code.'_token_2_1'] != 'new') {
+            $parcelsNumber1 = $data[$this->_code.'_credito_parcelamento_2_1'];
+        } else {
+            $parcelsNumber1 = $data[$this->_code.'_new_credito_parcelamento_2_1'];
+        }
+
+        $cctype1 = $data[$this->_code.'_2_1_cc_type'];
+
+        if (isset($data[$this->_code.'_token_2_2']) && $data[$this->_code.'_token_2_2'] != 'new') {
+            $parcelsNumber2 = $data[$this->_code.'_credito_parcelamento_2_2'];
+        } else {
+            $parcelsNumber2 = $data[$this->_code.'_new_credito_parcelamento_2_2'];
+        }
+
+        $cctype2 = $data[$this->_code.'_2_2_cc_type'];
+        $interest1 = 0;
+        $interest2 = 0;
+
+        if($cctype1){
+            $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $data[$this->_code.'_new_value_2_1']);
+        }
+
+        if($cctype2){
+            $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, $data[$this->_code.'_new_value_2_2']);
+        }
+
+        $interest = $interest1+$interest2;
+
+        if ($interest > 0) {
+            $this->applyInterest($info, $interest);
+        } else {
+            // If none of Cc parcels doens't have interest we reset interest
+            $info = $this->resetInterest($info);
+        }
+
         parent::assignData($data);
+
+
 
         return $this;
     }

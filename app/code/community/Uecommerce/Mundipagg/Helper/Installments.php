@@ -163,7 +163,7 @@
 
             //$currency = $quote->getQuoteCurrencyCode();
             if(!$amount) {
-                $amount = (double)$quote->getGrandTotal();
+                $amount = (double)$quote->getGrandTotal()-$quote->getInterest();
             }
             $amount = str_replace(',','.',$amount);
             $ccTypeInstallments = "installments_".$ccType;
@@ -203,21 +203,21 @@
             return $result;
         }
 
-        public function getInterestForCard($installments = 1 , $ccType = null){
+        public function getInterestForCard($installments = 1 , $ccType = null,$grandTotal = null){
             $quote = (Mage::getModel('checkout/type_onepage') !== false)? Mage::getModel('checkout/type_onepage')->getQuote(): Mage::getModel('checkout/session')->getQuote();
 
 
             $numberOfInstallments = $installments;
-            $currentAmount = $quote->getInterest();
+//            $currentAmount = $quote->getInterest();
 
             if($numberOfInstallments > 0)
             {
 
                 $ccTypeInstallments = "installments_".$ccType;
 
-                $all_installments = Mage::helper('mundipagg/installments')->getInstallments(null, $ccTypeInstallments);
+                $all_installments = $this->getInstallments(null, $ccTypeInstallments);
                 if(empty($all_installments)) {
-                    $all_installments = Mage::helper('mundipagg/installments')->getInstallments();
+                    $all_installments = $this->getInstallments();
                 }
 
                 $installmentKey = $numberOfInstallments - 1;
@@ -230,12 +230,15 @@
                     if(isset($installment[2]) && $installment[2] > 0) {
 
                         $interestRate = $installment[2];
-                        $grandTotal = $quote->getGrandTotal();
+                        if(!$grandTotal) {
+                            $grandTotal = $quote->getGrandTotal();
+                        }
+                        $grandTotal = str_replace(',','.',$grandTotal);
                         $fee = ($grandTotal / 100) * $interestRate;
 
-                        $balance = $fee - $currentAmount;
-
-
+//                        $balance = round($fee - $currentAmount,2);
+                        $balance = round($fee,2);
+                       
                         return $balance;
                     }
                 }

@@ -38,16 +38,10 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
         $this->setCode('interest');
     }
 
-    /**
-     * Used each time when collectTotals is invoked
-     * 
-     * @param Mage_Sales_Model_Quote_Address $address
-     * @return Your_Module_Model_Total_Custom
-     */
-    
+
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
-        //if ($address->getData('address_type') == 'billing') return $this;
+        if ($address->getData('address_type') == 'billing') return $this;
 
 
 		$this->_setAddress($address);
@@ -57,28 +51,23 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
         $quote = $address->getQuote();
         $amount = $quote->getInterest();
 
+
         if($amount > 0){
             $this->_setBaseAmount(0.00);
             $this->_setAmount(0.00);
 
-            $address->setInterest($quote->getInterest());
-            $quote->setInterest(0);
-            $address->setGrandTotal($address->getGrandTotal() + $amount);
-            $address->setBaseGrandTotal($address->getBaseGrandTotal() + $amount);
+            $quote->getPayment()->setPaymentInterest($amount);
+            $address->setInterest($amount);
+
+            $this->_setBaseAmount($amount);
+            $this->_setAmount($amount);
 
         }
 
-
-		
 		return $this;
 	}
 
-    /**
-     * Used each time when totals are displayed
-     * 
-     * @param Mage_Sales_Model_Quote_Address $address
-     * @return Your_Module_Model_Total_Custom
-     */
+
     public function fetch(Mage_Sales_Model_Quote_Address $address)
     {
         if ($address->getInterest() != 0) 
@@ -92,49 +81,5 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
         }
     }
 
-    protected function getTotalsInterest($installments, $ccType, Mage_Sales_Model_Quote_Address $address){
 
-        $numberOfInstallments = $installments;
-        $currentAmount = $address->getQuote()->getInterest();
-
-        if($numberOfInstallments > 0)
-        {
-
-            $ccTypeInstallments = "installments_".$ccType;
-
-            $all_installments = Mage::helper('mundipagg/installments')->getInstallments(null, $ccTypeInstallments);
-            if(empty($all_installments)) {
-                $all_installments = Mage::helper('mundipagg/installments')->getInstallments();
-            }
-
-            $installmentKey = $numberOfInstallments - 1;
-
-            $installment = $all_installments[$installmentKey];
-
-            if($installment != null && is_array($installment)) {
-
-                // check if interest rate is filled in
-                if(isset($installment[2]) && $installment[2] > 0) {
-                    $this->_setAmount(0);
-                    $this->_setBaseAmount(0);
-
-                    $interestRate = $installment[2];
-                    $grandTotal = $address->getGrandTotal();
-                    $fee = ($grandTotal / 100) * $interestRate;
-
-                    $balance = $fee - $currentAmount;
-
-                    $address->setInterest($address->getQuote()->getStore()->convertPrice($balance));
-                    $address->setBaseInterest($balance);
-
-                    $address->setGrandTotal($address->getGrandTotal() + $address->getInterest());
-                    $address->setBaseGrandTotal($address->getBaseGrandTotal() + $address->getBaseInterest());
-
-                    //Mage::log($address->getGrandTotal());
-
-                    return $this;
-                }
-            }
-        }
-    }
 }

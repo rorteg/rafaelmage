@@ -54,7 +54,9 @@ if($isPartial == 'partial'):
 else :
 	$baseGrandTotal = $data->getBaseGrandTotal();
 endif;
-
+if($data->getInterest()){
+    $baseGrandTotal = $baseGrandTotal-$data->getInterest();
+}
 // We check if taxvat is enabled
 $_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
 
@@ -155,6 +157,14 @@ ul.inline li img {
 }
 
 .inline.input-radio input[type=radio]{display:none}
+
+.mundipagg_reload{
+    position: absolute;
+    z-index: 10;
+    margin-top: -19px;
+}
+
+.division{width:100%;clear:both;height: 10px;border-top:1px solid #ddd;margin-top:10px}
 </style>
 <fieldset class="form-list">
 	<ul id="payment_form_<?php echo $_code ?>" style="display:none;">
@@ -273,7 +283,7 @@ ul.inline li img {
 	                    			</div>
 	    						<?php endif; ?>
 	    					<?php endif; ?>
-
+                            <div class="division"></div>
 							<div id="<?php echo $_code; ?>_new_credit_card_<?php echo $num; ?>_<?php echo $c;?>" <?php if( $countCcs > 0 ) { ?>style="display:none"<?php } ?>>
 							
 	                        	<li style="margin-bottom: 5px;">
@@ -359,7 +369,7 @@ ul.inline li img {
 			                    		<label class="required"><?php echo $this->__('Card Verification Number') ?> <span class="required">*</span></label>
 				                    	<div class="input-box">
 					                    	<div class="v-fix">
-					                    		<input type="text" id="<?php echo $_code; ?>_cc_cid_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_cc_cid_<?php echo $num; ?>_<?php echo $c;?>]" style="width: 30px" class="required-entry input-text validate-cc-cvn validate-length" maxlength="4" onkeydown="remove_characters(event);"/>
+					                    		<input type="text" id="<?php echo $_code; ?>_cc_cid_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_cc_cid_<?php echo $num; ?>_<?php echo $c;?>]" style="width: 55px" class="required-entry input-text validate-cc-cvn validate-length" maxlength="4" onkeydown="remove_characters(event);"/>
 					                    	</div>
 					                    	<div class="v-fix" style="padding-left:6px;">
 					                    		<a href="#" class="cvv-what-is-this"><?php echo $this->__('What is this?') ?></a>
@@ -437,6 +447,10 @@ Validation.addAllThese([
         return true;
     }]
 ]);
+
+   window.baseUrl = '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>';
+   window.isInstallmentsEnabled = '<?php echo Mage::helper('mundipagg/installments')->isInstallmentsEnabled(); ?>';
+
 $$('.validate-cc-number').invoke('observe','keyup',function(){
     selectCredcard(this);
 });

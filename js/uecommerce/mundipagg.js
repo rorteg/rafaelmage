@@ -97,10 +97,11 @@ function selectCredcard(ele){
     var realId = id
         .replace('mundipagg_creditcard','')
         .replace('mundipagg_twocreditcards_','')
-        .replace('mundipagg_threecreditcards','')
+        .replace('mundipagg_threecreditcards_','')
         .replace('mundipagg_fourcreditcards_','')
-        .replace('mundipagg_fivecreditcards','')
+        .replace('mundipagg_fivecreditcards_','')
         .replace('_cc_number','');
+
     var cardType = id.replace('mundipagg_','').replace('_cc_number','').replace('_'+realId,'');
     if(check){
         var parentElement = ele.up(2).previous().select('li');
@@ -205,13 +206,13 @@ function checkCredcardType(cardNumber){
 }
 
 function updateInstallments(ccType, element ,total){
-    var url = window.baseUrl+'mundipagg/standard/installmentsandinterest';
+    var url = window.baseUrl+'/mundipagg/standard/installmentsandinterest';
 
     if(!total){
         total=0;
     }
 
-    loading = new Element('img', {src:window.baseUrl+'skin/frontend/base/default/images/mundipagg/ajax-loader.gif'});
+    loading = new Element('img', {src:window.baseUrl+'/skin/frontend/base/default/images/mundipagg/ajax-loader.gif'});
     loading.addClassName('mundipagg_reload');
     element.insert({
         'after':loading
@@ -465,9 +466,9 @@ function calculateInstallmentValue(field, num, c, url) {
         var realId = id
             .replace('mundipagg_creditcard','')
             .replace('mundipagg_twocreditcards_','')
-            .replace('mundipagg_threecreditcards','')
+            .replace('mundipagg_threecreditcards_','')
             .replace('mundipagg_fourcreditcards_','')
-            .replace('mundipagg_fivecreditcards','')
+            .replace('mundipagg_fivecreditcards_','')
             .replace('_cc_number','');
         var cardType = id.replace('mundipagg_','').replace('_cc_number','').replace('_'+realId,'');
 
