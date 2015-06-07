@@ -38,16 +38,6 @@ class Uecommerce_Mundipagg_Block_Adminhtml_Sales_Order_Invoice_View extends Mage
 
     	$orderPayment = $this->getInvoice()->getOrder()->getPayment();
 
-    	/*
-    	Mage::log('_isAllowedAction("creditmemo"): '.$this->_isAllowedAction('creditmemo'), null, 'Uecommerce_Mundipagg.log');
-    	Mage::log('canRefundPartialPerInvoice: '.$orderPayment->canRefundPartialPerInvoice(), null, 'Uecommerce_Mundipagg.log' );
-        Mage::log('canRefund: '.$orderPayment->canRefund(), null, 'Uecommerce_Mundipagg.log');
-        Mage::log('orderPayment->getAmountPaid(): '.$orderPayment->getAmountPaid(), null, 'Uecommerce_Mundipagg.log');
-        Mage::log('orderPayment->getAmountRefunded(): '.$orderPayment->getAmountRefunded(), null, 'Uecommerce_Mundipagg.log');
-        Mage::log('orderPayment->canRefund(): '.$this->getInvoice()->canRefund(), null, 'Uecommerce_Mundipagg.log' );
-        Mage::log('this->getInvoice()->getIsUsedForRefund: '.$this->getInvoice()->getIsUsedForRefund(), null, 'Uecommerce_Mundipagg.log' );
-        */
-
         if ($this->_isAllowedAction('creditmemo') ) {
             if (($orderPayment->canRefundPartialPerInvoice()
                 && $this->getInvoice()->canRefund()

@@ -101,6 +101,11 @@ class Uecommerce_Mundipagg_Model_Creditcardoneinstallment extends Uecommerce_Mun
         if (!($data instanceof Varien_Object)) {
             $data = new Varien_Object($data);
         }
+
+        $info = $this->getInfoInstance();
+
+        // Reset interests from old methods first
+        $this->resetInterest($info);
         
         parent::assignData($data);
     }

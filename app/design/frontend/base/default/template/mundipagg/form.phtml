@@ -54,17 +54,16 @@ if($isPartial == 'partial'):
 else :
 	$baseGrandTotal = $data->getBaseGrandTotal();
 endif;
-if($data->getInterest()){
+
+if($data->getInterest()) {
     $baseGrandTotal = $baseGrandTotal-$data->getInterest();
 }
+
 // We check if taxvat is enabled
 $_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
 
 // Get current currency symbol
 $currencySymbol = Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol();
-
-// Min installment value
-$valorMinParcelamento = $standard->getConfigData('parcelamento_min');
 
 //Credit Card Saved On File
 $ccs = $this->getCcs();
@@ -453,8 +452,8 @@ Validation.addAllThese([
     }]
 ]);
 
-   window.baseUrl = '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>';
-   window.isInstallmentsEnabled = '<?php echo Mage::helper('mundipagg/installments')->isInstallmentsEnabled(); ?>';
+window.baseUrl = '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>';
+window.isInstallmentsEnabled = '<?php echo Mage::helper('mundipagg/installments')->isInstallmentsEnabled(); ?>';
 
 $$('.validate-cc-number').invoke('observe','keyup',function(){
     selectCredcard(this);

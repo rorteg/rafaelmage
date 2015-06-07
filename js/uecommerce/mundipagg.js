@@ -340,7 +340,10 @@ function token_or_not(num,c,active) {
 		$(type+'_expirationMonth_'+num+'_'+c).disable();
 		$(type+'_expirationYear_'+num+'_'+c).disable();
 		$(type+'_cc_cid_'+num+'_'+c).disable();
-		$(type+'_new_credito_parcelamento_'+num+'_'+c).disable();
+
+        if(document.getElementById(type+'_new_credito_parcelamento_'+num+'_'+c)!= null) {
+            $(type+'_new_credito_parcelamento_'+num+'_'+c).disable();
+        }
 
 		if(document.getElementById(type+'_new_value_'+num+'_'+c)!= null) {
 			$(type+'_new_value_'+num+'_'+c).disable();
@@ -353,6 +356,7 @@ function token_or_not(num,c,active) {
 			$('parcelamento_'+num+'_'+c).show();
 		}*/
         $('parcelamento_'+num+'_'+c).show();
+        
 		if(document.getElementById('value_'+num+'_'+c)!= null) {
 			$('value_'+num+'_'+c).show();
 		}

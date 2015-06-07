@@ -73,8 +73,14 @@ class Uecommerce_Mundipagg_Block_Standard_Form extends Mage_Payment_Block_Form
     */
     public function getInstallments($ccType = null)
     {
+        $session = Mage::getSingleton('admin/session');
 
-        $quote = Mage::getSingleton('checkout/cart')->getQuote();
+        if ($session->isLoggedIn()) {
+            $quote = Mage::getSingleton('adminhtml/session_quote')->getQuote();
+        } else {
+            $quote = Mage::getModel('checkout/session')->getQuote();
+        }
+
         $quote->setInterest(0.0);
         $quote->setBaseInterest(0.0);
         $quote->setTotalsCollectedFlag(false)->collectTotals();

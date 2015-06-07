@@ -98,21 +98,20 @@ class Uecommerce_Mundipagg_Model_Creditcard extends Uecommerce_Mundipagg_Model_S
     public function assignData($data) 
     {
         $info = $this->getInfoInstance();
+
+        // Reset interests first
         $this->resetInterest($info);
 
         $cctype = $data[$this->_code.'_1_1_cc_type'];
+
         if (isset($data[$this->_code.'_token_1_1']) && $data[$this->_code.'_token_1_1'] != 'new') {
             $parcelsNumber = $data[$this->_code.'_credito_parcelamento_1_1'];
             $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_1_1']);
             $cctype = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cardonFile->getCcType());
-
         } else {
             $parcelsNumber = $data[$this->_code.'_new_credito_parcelamento_1_1'];
 
         }
-
-
-
 
         $interest = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber , $cctype);
 
@@ -122,8 +121,6 @@ class Uecommerce_Mundipagg_Model_Creditcard extends Uecommerce_Mundipagg_Model_S
             // If none of Cc parcels doens't have interest we reset interest
             $this->resetInterest($info);
         }
-
-
 
         parent::assignData($data);
     }

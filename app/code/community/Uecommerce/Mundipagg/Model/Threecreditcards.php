@@ -100,7 +100,10 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
         $info = $this->getInfoInstance();
         $this->resetInterest($info);
 
+        parent::assignData($data);
+
         $cctype1 = $data[$this->_code.'_3_1_cc_type'];
+
         if (isset($data[$this->_code.'_token_3_1']) && $data[$this->_code.'_token_3_1'] != 'new') {
             $parcelsNumber1 = $data[$this->_code.'_credito_parcelamento_3_1'];
             $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_3_1']);
@@ -111,8 +114,8 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
             $value1 = $data[$this->_code.'_new_value_3_1'];
         }
 
-
         $cctype2 = $data[$this->_code.'_3_2_cc_type'];
+
         if (isset($data[$this->_code.'_token_3_2']) && $data[$this->_code.'_token_3_2'] != 'new') {
             $parcelsNumber2 = $data[$this->_code.'_credito_parcelamento_3_2'];
             $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_3_2']);
@@ -123,8 +126,8 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
             $value2 = $data[$this->_code.'_new_value_3_2'];
         }
 
-
         $cctype3 = $data[$this->_code.'_3_3_cc_type'];
+
         if (isset($data[$this->_code.'_token_3_3']) && $data[$this->_code.'_token_3_3'] != 'new') {
             $parcelsNumber3 = $data[$this->_code.'_credito_parcelamento_3_3'];
             $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_3_3']);
@@ -134,20 +137,19 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
             $parcelsNumber3 = $data[$this->_code.'_new_credito_parcelamento_3_3'];
         }
 
-
         $interest1 = 0;
         $interest2 = 0;
         $interest3 = 0;
 
-        if($cctype1){
+        if($cctype1) {
             $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $value1);
         }
 
-        if($cctype2){
+        if($cctype2) {
             $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, $value2);
         }
 
-        if($cctype3){
+        if($cctype3) {
             $interest3 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber3 , $cctype3, $value3);
         }
 
@@ -160,7 +162,7 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
             $this->resetInterest($info);
         }
 
-        parent::assignData($data);
+        return $this;
     }
 
     /**

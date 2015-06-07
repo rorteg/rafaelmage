@@ -379,8 +379,9 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 
                     //Mage::log('grandTotal: '.$grandTotal, null, 'Uecommerce_Mundipagg.log');
                     //Mage::log('totalInstallments: '.$totalInstallments, null, 'Uecommerce_Mundipagg.log');
-                    //Mage::log('cal: '. abs($grandTotal-$totalInstallments), null, 'Uecommerce_Mundipagg.log');
-
+                    //Mage::log('getPaymentInterest: '. $info->getPaymentInterest());
+                    //Mage::log('cal: '. abs($grandTotal-$totalInstallments-$info->getPaymentInterest()), null, 'Uecommerce_Mundipagg.log');
+                    
                     $epsilon = 0.00001;
 
                     if ($totalInstallments > 0 && abs($grandTotal-$totalInstallments-$info->getPaymentInterest()) > $epsilon) {
@@ -712,7 +713,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                 $TransactionReference = $transaction->getAdditionalInformation('TransactionReference');
             }
 
-            $data['CreditCardTransactionCollection']['AmountInCents'] = $amount*100;
+            $data['CreditCardTransactionCollection']['AmountInCents'] = $payment->getOrder()->getBaseGrandTotal()*100;
             $data['CreditCardTransactionCollection']['TransactionKey'] = $TransactionKey;
             $data['CreditCardTransactionCollection']['TransactionReference'] = $TransactionReference;
             $data['OrderKey'] = $payment->getAdditionalInformation('OrderKey');
@@ -753,6 +754,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             } else {
                 Mage::throwException(Mage::helper('mundipagg')->__('Unable to capture order.'));
             }
+
         } else {
             Mage::throwException(Mage::helper('mundipagg')->__('No OrderKey found.'));
         }
@@ -1701,11 +1703,12 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     */
     public function resetInterest($info) 
     {
-        $info->getQuote()->setInterest(0.0);
-        $info->getQuote()->setBaseInterest(0.0);
-        
-        $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
-        $info->getQuote()->save();
+        if ($info->getQuote()->getInterest() > 0 || $info->getQuote()->getBaseInterest() > 0) {
+            $info->getQuote()->setInterest(0.0);
+            $info->getQuote()->setBaseInterest(0.0);
+            $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
+            $info->getQuote()->save();
+        }
 
         return $info;
     }
@@ -1717,7 +1720,6 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     {
         $info->getQuote()->setInterest($info->getQuote()->getStore()->convertPrice($interest, false));
         $info->getQuote()->setBaseInterest($interest);
-
         $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
         $info->getQuote()->save();
     }
