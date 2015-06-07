@@ -100,37 +100,53 @@ class Uecommerce_Mundipagg_Model_Fourcreditcards extends Uecommerce_Mundipagg_Mo
         $info = $this->getInfoInstance();
         $this->resetInterest($info);
 
+        $cctype1 = $data[$this->_code.'_4_1_cc_type'];
         if (isset($data[$this->_code.'_token_4_1']) && $data[$this->_code.'_token_4_1'] != 'new') {
             $parcelsNumber1 = $data[$this->_code.'_credito_parcelamento_4_1'];
+            $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_4_1']);
+            $cctype1 = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cardonFile->getCcType());
+            $value1 = $data[$this->_code.'_value_4_1'];
         } else {
             $parcelsNumber1 = $data[$this->_code.'_new_credito_parcelamento_4_1'];
+            $value1 = $data[$this->_code.'_new_value_4_1'];
         }
 
-        $cctype1 = $data[$this->_code.'_4_1_cc_type'];
-
-        if (isset($data[$this->_code.'_token_4_2']) && $data[$this->_code.'_token_4_2'] != 'new') {
-            $parcelsNumber2 = $data[$this->_code.'_credito_parcelamento_4_2'];
-        } else {
-            $parcelsNumber2 = $data[$this->_code.'_new_credito_parcelamento_4_2'];
-        }
 
         $cctype2 = $data[$this->_code.'_4_2_cc_type'];
-
-        if (isset($data[$this->_code.'_token_4_3']) && $data[$this->_code.'_token_4_3'] != 'new') {
-            $parcelsNumber3 = $data[$this->_code.'_credito_parcelamento_4_3'];
+        if (isset($data[$this->_code.'_token_4_2']) && $data[$this->_code.'_token_4_2'] != 'new') {
+            $parcelsNumber2 = $data[$this->_code.'_credito_parcelamento_4_2'];
+            $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_4_2']);
+            $cctype2 = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cardonFile->getCcType());
+            $value2 = $data[$this->_code.'_value_4_2'];
         } else {
-            $parcelsNumber3 = $data[$this->_code.'_new_credito_parcelamento_4_3'];
+            $parcelsNumber2 = $data[$this->_code.'_new_credito_parcelamento_4_2'];
+            $value2 = $data[$this->_code.'_new_value_4_2'];
         }
+
 
         $cctype3 = $data[$this->_code.'_4_3_cc_type'];
-
-        if (isset($data[$this->_code.'_token_4_4']) && $data[$this->_code.'_token_4_4'] != 'new') {
-            $parcelsNumber4 = $data[$this->_code.'_credito_parcelamento_4_4'];
+        if (isset($data[$this->_code.'_token_4_3']) && $data[$this->_code.'_token_4_3'] != 'new') {
+            $parcelsNumber3 = $data[$this->_code.'_credito_parcelamento_4_3'];
+            $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_4_3']);
+            $cctype3 = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cardonFile->getCcType());
+            $value3 = $data[$this->_code.'_value_4_3'];
         } else {
-            $parcelsNumber4 = $data[$this->_code.'_new_credito_parcelamento_4_4'];
+            $parcelsNumber3 = $data[$this->_code.'_new_credito_parcelamento_4_3'];
+            $value3 = $data[$this->_code.'_new_value_4_3'];
         }
 
+
         $cctype4 = $data[$this->_code.'_4_4_cc_type'];
+        if (isset($data[$this->_code.'_token_4_4']) && $data[$this->_code.'_token_4_4'] != 'new') {
+            $parcelsNumber4 = $data[$this->_code.'_credito_parcelamento_4_4'];
+            $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($data[$this->_code.'_token_4_4']);
+            $cctype4 = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cardonFile->getCcType());
+            $value4 = $data[$this->_code.'_value_4_4'];
+        } else {
+            $parcelsNumber4 = $data[$this->_code.'_new_credito_parcelamento_4_4'];
+            $value4 = $data[$this->_code.'_new_value_4_4'];
+        }
+
 
 
         $interest1 = 0;
@@ -139,19 +155,19 @@ class Uecommerce_Mundipagg_Model_Fourcreditcards extends Uecommerce_Mundipagg_Mo
         $interest4 = 0;
 
         if($cctype1){
-            $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $data[$this->_code.'_new_value_4_1']);
+            $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $value1);
         }
 
         if($cctype2){
-            $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, $data[$this->_code.'_new_value_4_2']);
+            $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, $value2);
         }
 
         if($cctype3){
-            $interest3 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber3 , $cctype3, $data[$this->_code.'_new_value_4_3']);
+            $interest3 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber3 , $cctype3, $value3);
         }
 
         if($cctype4){
-            $interest4 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber4 , $cctype4, $data[$this->_code.'_new_value_4_4']);
+            $interest4 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber4 , $cctype4, $value4);
         }
 
         $interest = $interest1+$interest2+$interest3+$interest4;

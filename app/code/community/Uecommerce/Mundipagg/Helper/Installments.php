@@ -238,7 +238,7 @@
 
 //                        $balance = round($fee - $currentAmount,2);
                         $balance = round($fee,2);
-                       
+
                         return $balance;
                     }
                 }

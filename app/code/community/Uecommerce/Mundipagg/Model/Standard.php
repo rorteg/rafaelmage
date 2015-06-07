@@ -1071,9 +1071,9 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                                 $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100;
                             } else { // If partial payment we deduct authorized amount already processed
                                 if (Mage::getSingleton('checkout/session')->getAuthorizedAmount()) {
-                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal()+(float)$order->getInterest())*100 - Mage::getSingleton('checkout/session')->getAuthorizedAmount()*100;
+                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal())*100 - Mage::getSingleton('checkout/session')->getAuthorizedAmount()*100;
                                 } else {
-                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal()+(float)$order->getInterest())*100;
+                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal())*100;
                                 }
                             }
                         }
@@ -1085,13 +1085,17 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         
                         if ( isset($postData['payment'][$method.'_value_'.$num.'_'.$i]) && $postData['payment'][$method.'_value_'.$num.'_'.$i] != '' ) {
                             $data['payment'][$i]['AmountInCents'] = str_replace(',', '.', $postData['payment'][$method.'_value_'.$num.'_'.$i]);
+                            $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($postData['payment'][$method.'_token_'.$num.'_'.$i]);
+                            $tokenCctype = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cardonFile->getCcType());
+                            $data['payment'][$i]['AmountInCents'] = $data['payment'][$i]['AmountInCents'] + Mage::helper('mundipagg/installments')->getInterestForCard($data['payment'][$i]['InstallmentCount'] ,$tokenCctype , $data['payment'][$i]['AmountInCents']);
                             $data['payment'][$i]['AmountInCents'] = $data['payment'][$i]['AmountInCents']*100;
+
                         } else {
                             if (!isset($postData['partial'])) {
                                 $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100;
                             } else { // If partial payment we deduct authorized amount already processed
                                 if (Mage::getSingleton('checkout/session')->getAuthorizedAmount()) {
-                                    $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100 - Mage::getSingleton('checkout/session')->getAuthorizedAmount()*100;
+                                    $data['payment'][$i]['AmountInCents'] = ($order->getGrandTotal())*100 - Mage::getSingleton('checkout/session')->getAuthorizedAmount()*100;
                                 } else {
                                     $data['payment'][$i]['AmountInCents'] = $order->getGrandTotal()*100;
                                 }

@@ -71,7 +71,7 @@ class Uecommerce_Mundipagg_Block_Standard_Form extends Mage_Payment_Block_Form
     *
     * Thanks to Fillipe Almeida Dutra
     */
-    public function getInstallments()
+    public function getInstallments($ccType = null)
     {
 
         $quote = Mage::getSingleton('checkout/cart')->getQuote();
@@ -80,7 +80,7 @@ class Uecommerce_Mundipagg_Block_Standard_Form extends Mage_Payment_Block_Form
         $quote->setTotalsCollectedFlag(false)->collectTotals();
         $quote->save();
 
-        return Mage::helper('mundipagg/installments')->getInstallmentForCreditCardType();
+        return Mage::helper('mundipagg/installments')->getInstallmentForCreditCardType($ccType);
 
         // Payment Methods
         $paymentMethods = $this->getStandard()->getPaymentMethods();
