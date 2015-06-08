@@ -36,6 +36,8 @@ class Uecommerce_Mundipagg_Block_Parcelamento extends Mage_Core_Block_Template
 	{
 		parent::_construct();
 		$this->setTemplate('mundipagg/parcelamento.phtml');
+
+
 	}
 
 	protected function _beforeToHtml()
@@ -73,62 +75,14 @@ class Uecommerce_Mundipagg_Block_Parcelamento extends Mage_Core_Block_Template
 		$active = Mage::getStoreConfig('payment/mundipagg_creditcard/active');
 
 		if ($active) {
-			$parcelamento = Mage::getStoreConfig('payment/mundipagg_standard/parcelamento');
-			$parcelamentoMin = Mage::getStoreConfig('payment/mundipagg_standard/parcelamento_min');
-			$parcelamentoMax = Mage::getStoreConfig('payment/mundipagg_standard/parcelamento_max');
+            $parcelamento = Mage::getStoreConfig('payment/mundipagg_standard/product_pages_installment_default');
 
-			$valorMinParcelamento = $parcelamentoMin;
+            $installmentsHelper = Mage::helper('mundipagg/installments');
+            $installmentsHelper->displayTotal = false;
+            $parcelamentoMax = $installmentsHelper->getInstallmentForCreditCardType($parcelamento, $this->getPrice());
 
-			// Não ter valor mínimo para parcelar OU Parcelar a partir de um valor mínimo
-			if ($valorMinParcelamento == 0) {
-				$qtdParcelasMax = $parcelamentoMax;
-			}
-
-			// Parcelar a partir de um valor mínimo
-			if ($valorMinParcelamento > 0 && $this->getPrice() >= $valorMinParcelamento) {
-				$qtdParcelasMax = $parcelamentoMax;
-			}	                  	              	
-
-			// Por faixa de valores
-			if ($valorMinParcelamento == '') {
-				$qtdParcelasMax = $parcelamentoMax;
-
-				$p = 1;
-
-				for ($p = 1; $p <= $qtdParcelasMax; $p++) {
-					if ($p == 1) {
-						$de 		= 0;
-						$parcelaDe = 0;
-					} else {
-						$de 		= 'parcelamento_de'.$p;
-						$parcelaDe = Mage::getStoreConfig('payment/mundipagg_standard/'.$de);
-					}
-
-					$ate 			= 'parcelamento_ate'.$p;
-					$parcelaAte= Mage::getStoreConfig('payment/mundipagg_standard/'.$ate);
-					
-					if ($parcelaDe >= 0 && $parcelaAte >= $parcelaDe) {
-						if ($this->getPrice() >= $parcelaDe AND $this->getPrice() <= $parcelaAte) {
-							$qtdParcelasMax = $p;
-						}
-					} else {
-						$qtdParcelasMax = $p-1;
-					}
-				}
-			}
-		
-			if (isset($qtdParcelasMax)) {
-				$data = array(
-					'price' 			=> $this->getPrice(), 
-					'price_parcelado'	=> number_format((double)($this->getPrice()/$qtdParcelasMax), "2", ",", "."),
-					'parcelamento_max' 	=> $qtdParcelasMax,
-				);
-
-				return $data;
-			}
-		}
-
-		return array();
+            return end($parcelamentoMax);
+        }
 	}
 
 	/**

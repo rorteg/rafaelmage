@@ -31,6 +31,7 @@
 class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
 {
 
+    public $displayTotal = true;
     protected function _fixQty($qty)
     {
         return (!empty($qty) ? (float)$qty : null);
@@ -212,7 +213,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             if(isset($installment[2]) && $installment[2] > 0) {
                 $total_amount_with_interest = $amount + ($amount * ($installment[2] / 100));
                 $message = ' c/ juros';
-                if($displayTotal){
+                if($displayTotal && $this->displayTotal){
                     $message .= ' (Total: '.Mage::helper('core')->formatPrice(round((($total_amount_with_interest)/$i),2) * $i,false).')';
                 }
             } else {
@@ -278,4 +279,6 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
 
         return 0;
     }
+
+    
 }
