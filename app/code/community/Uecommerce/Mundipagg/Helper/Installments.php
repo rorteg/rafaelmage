@@ -178,7 +178,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
         if ($session->isLoggedIn()) {
             $quote = Mage::getSingleton('adminhtml/session_quote')->getQuote();
         } else {
-            $quote = Mage::getModel('checkout/session')->getQuote();
+            $quote = (Mage::getModel('checkout/type_onepage') !== false)? Mage::getModel('checkout/type_onepage')->getQuote(): Mage::getModel('checkout/session')->getQuote();;
         }
 
         if(!$amount) {

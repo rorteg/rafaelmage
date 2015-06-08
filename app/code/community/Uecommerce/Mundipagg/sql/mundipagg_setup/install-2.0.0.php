@@ -35,7 +35,7 @@
     $prefix = Mage::getConfig()->getTablePrefix();
 
     $installer->run("
-	
+
 CREATE TABLE IF NOT EXISTS `".$prefix."mundipagg_card_on_file` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `entity_id` int(10) NOT NULL,
@@ -52,11 +52,11 @@ CREATE TABLE IF NOT EXISTS `".$prefix."mundipagg_card_on_file` (
 
 UPDATE ".$prefix."core_config_data SET `value` = 0 WHERE path = 'payment/uecommerce_mundipagg_standard/active';
 
-UPDATE ".$prefix."core_config_data SET `value` = 0 WHERE path = 'payment/mundipagg_standard/active';	
+UPDATE ".$prefix."core_config_data SET `value` = 0 WHERE path = 'payment/mundipagg_standard/active';
 
-UPDATE ".$prefix."sales_flat_quote_payment SET `method` = 'mundipagg_creditcard' WHERE method = 'mundipagg_standard';	
+UPDATE ".$prefix."sales_flat_quote_payment SET `method` = 'mundipagg_creditcard' WHERE method = 'mundipagg_standard';
 
-UPDATE ".$prefix."sales_flat_order_payment SET `method` = 'mundipagg_creditcard' WHERE method = 'mundipagg_standard';	
+UPDATE ".$prefix."sales_flat_order_payment SET `method` = 'mundipagg_creditcard' WHERE method = 'mundipagg_standard';
 
 ");
 
@@ -85,8 +85,6 @@ UPDATE ".$prefix."sales_flat_order_payment SET `method` = 'mundipagg_creditcard'
             $status->save();
         }
     }
-
-    $installer = Mage::getResourceModel('sales/setup', 'default_setup');
 
 // Interests
     $installer->addAttribute('quote', 'mundipagg_base_interest',
