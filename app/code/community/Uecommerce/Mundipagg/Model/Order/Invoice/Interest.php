@@ -34,8 +34,8 @@ class Uecommerce_Mundipagg_Model_Order_Invoice_Interest extends Mage_Sales_Model
 	{
 		$order = $invoice->getOrder();
         
-        $invoice->setGrandTotal($invoice->getGrandTotal() + $order->getInterest());
-        $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() + $order->getBaseInterest());
+        $invoice->setGrandTotal($invoice->getGrandTotal() + $order->getMundipaggInterest());
+        $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() + $order->getMundipaggBaseInterest());
 		
 		return $this;
 	}

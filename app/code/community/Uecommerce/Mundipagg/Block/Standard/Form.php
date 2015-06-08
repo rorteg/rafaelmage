@@ -81,8 +81,8 @@ class Uecommerce_Mundipagg_Block_Standard_Form extends Mage_Payment_Block_Form
             $quote = Mage::getModel('checkout/session')->getQuote();
         }
 
-        $quote->setInterest(0.0);
-        $quote->setBaseInterest(0.0);
+        $quote->setMundipaggInterest(0.0);
+        $quote->setMundipaggBaseInterest(0.0);
         $quote->setTotalsCollectedFlag(false)->collectTotals();
         $quote->save();
 
@@ -173,8 +173,8 @@ class Uecommerce_Mundipagg_Block_Standard_Form extends Mage_Payment_Block_Form
 
         // Atualiza taxa de juros para 0 caso o usuario tenha voltado na navegacao
         $quote = Mage::getSingleton('checkout/cart')->getQuote();
-        $quote->setInterest(0.0);
-        $quote->setBaseInterest(0.0);
+        $quote->setMundipaggInterest(0.0);
+        $quote->setMundipaggBaseInterest(0.0);
         $quote->setTotalsCollectedFlag(false)->collectTotals();
         $quote->save();
         

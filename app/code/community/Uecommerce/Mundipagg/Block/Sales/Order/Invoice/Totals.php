@@ -41,13 +41,13 @@ class Uecommerce_Mundipagg_Block_Sales_Order_Invoice_Totals extends Mage_Sales_B
         
         $source = $this->getSource();
 		
-		if($this->getSource()->getInterest() > 0)
+		if($this->getSource()->getMundipaggInterest() > 0)
 		{
 			$this->addTotalBefore(new Varien_Object(array
 			(
-					'code'  => 'interest',
+					'code'  => 'mundipagg_interest',
 					'field' => 'interest',
-					'value' => $this->getSource()->getInterest(),
+					'value' => $this->getSource()->getMundipaggInterest(),
 					'label' => $this->__('Interest')
 			)), 'grand_total');
 		}

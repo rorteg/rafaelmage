@@ -33,56 +33,56 @@ $installer = Mage::getResourceModel('sales/setup', 'default_setup');
 $installer->startSetup();
 
 // Interests
-$installer->addAttribute('quote', 'base_interest', 
+$installer->addAttribute('quote', 'mundipagg_base_interest',
 	array(
 		'label' => 'Base Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('quote', 'interest', 
+$installer->addAttribute('quote', 'mundipagg_interest',
 	array(
 		'label' => 'Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('order', 'base_interest', 
+$installer->addAttribute('order', 'mundipagg_base_interest',
 	array(
 		'label' => 'Base Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('order', 'interest', 
+$installer->addAttribute('order', 'mundipagg_interest',
 	array(
 		'label' => 'Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('invoice', 'base_interest', 
+$installer->addAttribute('invoice', 'mundipagg_base_interest',
 	array(
 		'label' => 'Base Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('invoice', 'interest', 
+$installer->addAttribute('invoice', 'mundipagg_interest',
 	array(
 		'label' => 'Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('creditmemo', 'base_interest', 
+$installer->addAttribute('creditmemo', 'mundipagg_base_interest',
 	array(
 		'label' => 'Base Interest',
 		'type'  => 'decimal',
 	)
 );
 
-$installer->addAttribute('creditmemo', 'interest', 
+$installer->addAttribute('creditmemo', 'mundipagg_interest',
 	array(
 		'label' => 'Interest',
 		'type'  => 'decimal',

@@ -1703,9 +1703,9 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     */
     public function resetInterest($info) 
     {
-        if ($info->getQuote()->getInterest() > 0 || $info->getQuote()->getBaseInterest() > 0) {
-            $info->getQuote()->setInterest(0.0);
-            $info->getQuote()->setBaseInterest(0.0);
+        if ($info->getQuote()->getMundipaggInterest() > 0 || $info->getQuote()->getMundipaggBaseInterest() > 0) {
+            $info->getQuote()->setMundipaggInterest(0.0);
+            $info->getQuote()->setMundipaggBaseInterest(0.0);
             $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
             $info->getQuote()->save();
         }
@@ -1718,8 +1718,8 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     */
     public function applyInterest($info, $interest) 
     {
-        $info->getQuote()->setInterest($info->getQuote()->getStore()->convertPrice($interest, false));
-        $info->getQuote()->setBaseInterest($interest);
+        $info->getQuote()->setMundipaggInterest($info->getQuote()->getStore()->convertPrice($interest, false));
+        $info->getQuote()->setMundipaggBaseInterest($interest);
         $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
         $info->getQuote()->save();
     }

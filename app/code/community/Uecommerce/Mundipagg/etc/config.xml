@@ -134,20 +134,20 @@
         <sales>
             <quote>
                 <totals>
-                    <interest>
+                    <mundipagg_interest>
                         <class>Uecommerce_Mundipagg_Model_Quote_Address_Interest</class>
                         <after>shipping</after>
                         <before>grand_total</before>
-                    </interest>
+                    </mundipagg_interest>
                 </totals>
             </quote>
             <order>
                 <totals>
-                    <interest>
+                    <mundipagg_interest>
                         <class>Uecommerce_Mundipagg_Model_Quote_Address_Interest</class>
                         <after>shipping</after>
                         <before>grand_total</before>
-                    </interest>
+                    </mundipagg_interest>
                 </totals>
             </order>
             <order_invoice>
@@ -163,24 +163,24 @@
 
         <fieldsets>
             <sales_convert_quote_address>
-                <interest>
+                <mundipagg_interest>
                     <to_order>*</to_order>
-                </interest>
-                <base_interest>
+                </mundipagg_interest>
+                <mundipagg_base_interest>
                     <to_order>*</to_order>
-                </base_interest>
+                </mundipagg_base_interest>
             </sales_convert_quote_address>
             <sales_convert_order>
-                <interest>
+                <mundipagg_interest>
                     <to_invoice>*</to_invoice>
                     <to_shipment>*</to_shipment>
                     <to_cm>*</to_cm>
-                </interest>
-                <base_interest>
+                </mundipagg_interest>
+                <mundipagg_base_interest>
                     <to_invoice>*</to_invoice>
                     <to_shipment>*</to_shipment>
                     <to_cm>*</to_cm>
-                </base_interest>
+                </mundipagg_base_interest>
             </sales_convert_order>
         </fieldsets>
     </global>

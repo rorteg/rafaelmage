@@ -181,7 +181,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
         }
 
         if(!$amount) {
-            $amount = (double)$quote->getGrandTotal()-$quote->getInterest();
+            $amount = (double)$quote->getGrandTotal()-$quote->getMundipaggInterest();
         }
         
         $amount = str_replace(',','.',$amount);
@@ -213,7 +213,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
                 $total_amount_with_interest = $amount + ($amount * ($installment[2] / 100));
                 $message = ' c/ juros';
                 if($displayTotal){
-                    $message .= ' (Total: '.Mage::helper('core')->formatPrice($total_amount_with_interest, false).')';
+                    $message .= ' (Total: '.Mage::helper('core')->formatPrice(round((($total_amount_with_interest)/$i),2) * $i,false).')';
                 }
             } else {
                 $total_amount_with_interest = $amount;
@@ -239,17 +239,17 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
 
         if($installments > 0) {
             $ccTypeInstallments = "installments_".$ccType;
-Mage::log( 'ccTypeInstallments' );            
-Mage::log( print_r($ccTypeInstallments,1) );
+//Mage::log( 'ccTypeInstallments' );
+//Mage::log( print_r($ccTypeInstallments,1) );
             $all_installments = $this->getInstallments(null, $ccTypeInstallments);
-Mage::log( 'all_installments' );  
-Mage::log( print_r($all_installments,1) );
+//Mage::log( 'all_installments' );
+//Mage::log( print_r($all_installments,1) );
             if(empty($all_installments)) {
                 $all_installments = $this->getInstallments();
             }
 
-Mage::log( 'if empty all_installments' );  
-Mage::log( print_r($all_installments,1) );
+//Mage::log( 'if empty all_installments' );
+//Mage::log( print_r($all_installments,1) );
 
             $installmentKey = $installments - 1;
 
@@ -264,7 +264,10 @@ Mage::log( print_r($all_installments,1) );
                         $grandTotal = $quote->getGrandTotal();
                     }
                     $grandTotal = str_replace(',','.',$grandTotal);
-                    $fee = ($grandTotal / 100) * $interestRate;
+
+                    $grandTotalInterest = $grandTotal + ($grandTotal * ($interestRate / 100));
+                    
+                    $fee = (round(($grandTotalInterest/$installments),2) * $installments) - $grandTotal;
 
                     $balance = round($fee,2);
 

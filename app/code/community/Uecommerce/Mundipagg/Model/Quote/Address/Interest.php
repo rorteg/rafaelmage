@@ -35,24 +35,25 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
      */
     public function __construct()
     {
-        $this->setCode('interest');
+        $this->setCode('mundipagg_interest');
     }
 
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
+        if ($address->getData('address_type') == 'billing') return $this;
         $this->_setAddress($address);
 
         parent::collect($address);
 
         $quote = $address->getQuote();
-        $amount = $quote->getInterest();
+        $amount = $quote->getMundipaggInterest();
 
         if($amount > 0) {
             $this->_setBaseAmount(0.00);
             $this->_setAmount(0.00);
 
             $quote->getPayment()->setPaymentInterest($amount);
-            $address->setInterest($amount);
+            $address->setMundipaggInterest($amount);
 
             $this->_setBaseAmount($amount);
             $this->_setAmount($amount);
@@ -61,7 +62,7 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
             $this->_setAmount(0.00);
             
             $quote->getPayment()->setPaymentInterest(0.00);
-            $address->setInterest(0.00);
+            $address->setMundipaggInterest(0.00);
         }
 
 		return $this;
@@ -70,13 +71,13 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
 
     public function fetch(Mage_Sales_Model_Quote_Address $address)
     {
-        if ($address->getInterest() != 0) 
+        if ($address->getMundipaggInterest() != 0)
         {
             $address->addTotal(array
             (
                 'code' => $this->getCode(),
                 'title' => Mage::helper('mundipagg')->__('Interest'),
-                'value' => $address->getInterest()
+                'value' => $address->getMundipaggInterest()
             ));
         }
     }
