@@ -40,7 +40,12 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
 
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
-        if ($address->getData('address_type') == 'billing') return $this;
+        if($address->getQuote()->isVirtual()){
+            if ($address->getData('address_type') == 'shipping') return $this;
+        }else{
+            if ($address->getData('address_type') == 'billing') return $this;
+        }
+
         $this->_setAddress($address);
 
         parent::collect($address);
