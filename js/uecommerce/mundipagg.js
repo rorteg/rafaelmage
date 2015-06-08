@@ -301,7 +301,8 @@ function verify_cc_expiration_date(v,elm) {
     return true;
 }
 
-function token_or_not(num,c,active) {
+function token_or_not(num,c,field) {
+
 	var type = $$('input[name="payment\\[method\\]"]:checked').first().value;
 
 	if( document.getElementById(type+'_token_'+num+'_'+c).value == 'new' ) {
@@ -328,7 +329,9 @@ function token_or_not(num,c,active) {
 		/*if(active == 1) {
 			$('parcelamento_'+num+'_'+c).hide();
 		}*/
-        $('parcelamento_'+num+'_'+c).hide();
+        if($('parcelamento_'+num+'_'+c) != null) {
+            $('parcelamento_' + num + '_' + c).hide();
+        }
 		if(document.getElementById('value_'+num+'_'+c)!= null) {
 			$('value_'+num+'_'+c).hide();
 		}
@@ -355,11 +358,30 @@ function token_or_not(num,c,active) {
 		/*if(active == 1) {
 			$('parcelamento_'+num+'_'+c).show();
 		}*/
-        $('parcelamento_'+num+'_'+c).show();
+        if($('parcelamento_'+num+'_'+c) != null) {
+            $('parcelamento_' + num + '_' + c).show();
+        }
         
 		if(document.getElementById('value_'+num+'_'+c)!= null) {
 			$('value_'+num+'_'+c).show();
 		}
+        group = '.'+field.readAttribute('data');
+
+        field.select('option').each(function(opt){
+            if(opt.value == field.value){
+                if(opt.readAttribute('data')){
+                    grandTotal = 0;
+
+                    fieldValue = field.up(3).select(group+'.check_values')[0];
+                    if(fieldValue != undefined) {
+                        grandTotal = fieldValue.value;
+                    }
+                    if(field.up(3).select(group+'.installment-token')[0] != undefined) {
+                        updateInstallments(opt.readAttribute('data'), field.up(3).select(group + '.installment-token')[0], grandTotal);
+                    }
+                }
+            }
+        });
 	}
 }
 
@@ -487,7 +509,7 @@ function calculateInstallmentValue(field, num, c, url) {
             field.up(3).previous().select('.tokens')[0].select('option').each(function(opt){
                 if(opt.selected){
                     window['brand_'+realId] = opt.readAttribute('data');
-                    console.log(opt.readAttribute('data'));
+                    //console.log(opt.readAttribute('data'));
                 }
             });
 
@@ -495,24 +517,25 @@ function calculateInstallmentValue(field, num, c, url) {
 
         var cardType = id.replace('mundipagg_','').replace('_cc_number','').replace('_'+realId,'');
 
+        if(window['installmentElement'] != undefined) {
 
 
-        window['select_html_'+realId] = installmentElement.innerHTML;
-        window['select_'+realId] = installmentElement;
-        if(window['brand_'+realId] != undefined){
-            updateInstallments(window['brand_'+realId],installmentElement,vfield_oc);
-        }else{
-            var brand = field.up(3).select('.cc_brand_types.active')[0];
-            if(brand != undefined){
-                window['brand_'+realId] = brand.next().value;
-                updateInstallments(window['brand_'+realId],installmentElement,vfield_oc);
-                console.log(window['brand_'+realId]);
-            }else{
-                updateInstallments(0,installmentElement,vfield_oc);
+            window['select_html_' + realId] = installmentElement.innerHTML;
+            window['select_' + realId] = installmentElement;
+            if (window['brand_' + realId] != undefined) {
+                updateInstallments(window['brand_' + realId], installmentElement, vfield_oc);
+            } else {
+                var brand = field.up(3).select('.cc_brand_types.active')[0];
+                if (brand != undefined) {
+                    window['brand_' + realId] = brand.next().value;
+                    updateInstallments(window['brand_' + realId], installmentElement, vfield_oc);
+                    console.log(window['brand_' + realId]);
+                } else {
+                    updateInstallments(0, installmentElement, vfield_oc);
+                }
+
             }
-
         }
-
 		/* If more than 2 decimals we reduce to 2 */
 		$(field).value = (vfield_oc.toFixed(2)).replace('.',',');
 
@@ -547,22 +570,23 @@ function calculateInstallmentValue(field, num, c, url) {
                     });
                 }
 
+                if(window['installmentElement'] != undefined) {
+                    window['select_html_2_2'] = installmentElement.innerHTML;
+                    window['select_2_2'] = installmentElement;
 
-                window['select_html_2_2'] = installmentElement.innerHTML;
-                window['select_2_2'] = installmentElement;
+                    if (window['brand_2_2'] != undefined) {
+                        updateInstallments(window['brand_2_2'], installmentElement, new_value);
 
-                if(window['brand_2_2'] != undefined){
-                    updateInstallments(window['brand_2_2'],installmentElement,new_value);
+                        if ($('parcelamento_2_2') != undefined) {
 
-                    if($('parcelamento_2_2') != undefined){
+                            updateInstallments(window['brand_2_2'], $('parcelamento_2_2').select('select')[0], new_value);
+                        }
+                    } else {
 
-                        updateInstallments(window['brand_2_2'],$('parcelamento_2_2').select('select')[0],new_value);
-                    }
-                }else{
-
-                    updateInstallments(0,installmentElement,new_value);
-                    if($('parcelamento_2_2') != undefined){
-                        updateInstallments(0,$('parcelamento_2_2').select('select')[0],new_value);
+                        updateInstallments(0, installmentElement, new_value);
+                        if ($('parcelamento_2_2') != undefined) {
+                            updateInstallments(0, $('parcelamento_2_2').select('select')[0], new_value);
+                        }
                     }
                 }
 
@@ -594,19 +618,22 @@ function calculateInstallmentValue(field, num, c, url) {
                         }
                     });
                 }
-                window['select_html_2_1'] = installmentElement.innerHTML;
-                window['select_2_1'] = installmentElement;
 
-                if(window['brand_2_1'] != undefined){
-                    updateInstallments(window['brand_2_1'],installmentElement,new_value);
-                    if($('parcelamento_2_1') != undefined){
+                if(window['installmentElement'] != undefined) {
+                    window['select_html_2_1'] = installmentElement.innerHTML;
+                    window['select_2_1'] = installmentElement;
 
-                        updateInstallments(window['brand_2_1'],$('parcelamento_2_1').select('select')[0],new_value);
-                    }
-                }else{
-                    updateInstallments(0,installmentElement,new_value);
-                    if($('parcelamento_2_1') != undefined){
-                        updateInstallments(0,$('parcelamento_2_1').select('select')[0],new_value);
+                    if (window['brand_2_1'] != undefined) {
+                        updateInstallments(window['brand_2_1'], installmentElement, new_value);
+                        if ($('parcelamento_2_1') != undefined) {
+
+                            updateInstallments(window['brand_2_1'], $('parcelamento_2_1').select('select')[0], new_value);
+                        }
+                    } else {
+                        updateInstallments(0, installmentElement, new_value);
+                        if ($('parcelamento_2_1') != undefined) {
+                            updateInstallments(0, $('parcelamento_2_1').select('select')[0], new_value);
+                        }
                     }
                 }
 

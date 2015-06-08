@@ -237,7 +237,7 @@ ul.inline li img {
 	                    				<label class="required"><?php echo $this->__('Select a Credit Card or add a new one') ?><span class="required">*</span></label>
 		                    			<div class="input-box">
 
-				                    		<select id="<?php echo $_code; ?>_token_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_token_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry tokens" onchange="token_or_not(<?php echo $num; ?>,<?php echo $c;?>,<?php echo $standard->getConfigData('parcelamento');?>)">
+				                    		<select id="<?php echo $_code; ?>_token_<?php echo $num; ?>_<?php echo $c;?>" data="group_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_token_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry tokens group_<?php echo $num; ?>_<?php echo $c;?>" onchange="token_or_not(<?php echo $num; ?>,<?php echo $c;?>,this)">
 				                    			<option value="">...</option>
 					                    		<?php
 					                    		$selected = '';
@@ -247,6 +247,7 @@ ul.inline li img {
 					                    		endif;
 
 												foreach($ccs as $id => $cc):
+
                                                     if($countCcs == 1){
                                                         $currentSelectedToken = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cc->getCcType());
                                                     }
@@ -265,7 +266,7 @@ ul.inline li img {
 			                        		<div class="field">
 			                        			<label class="required"><?php echo $this->__('Value (Ex: 100,50)') ?> <span class="required">*</span></label>
 									        	<div class="input-box">	
-									        		<input type="text" id="<?php echo $_code; ?>_value_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_value_<?php echo $num; ?>_<?php echo $c;?>]" title="<?php echo $this->__('Value (Ex: 100,50)') ?>" class="required-entry validate-greater-than-zero check_values" onchange="calculateInstallmentValue(this, <?php echo $num;?>, <?php echo $c;?>, '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>');" onkeydown="remove_special_characters(event);" value=""/>
+									        		<input type="text" id="<?php echo $_code; ?>_value_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_value_<?php echo $num; ?>_<?php echo $c;?>]" title="<?php echo $this->__('Value (Ex: 100,50)') ?>" class="required-entry validate-greater-than-zero check_values group_<?php echo $num; ?>_<?php echo $c;?>" onchange="calculateInstallmentValue(this, <?php echo $num;?>, <?php echo $c;?>, '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>');" onkeydown="remove_special_characters(event);" value=""/>
 									        	</div>
 									        </div>
 								        </li>
@@ -277,7 +278,7 @@ ul.inline li img {
 		                                	<div class="field">
 		                                		<label class="required"><?php echo $this->__('Credit options') ?> <?php if($num == 2):?><!--<a href="javascript:void(0);" onclick="javascript:void(0);">(<?php /*echo $this->__('click to update') */?>)</a>--><?php endif ?></label>
 			                                	<div class="input-box">
-			                                		<select id="<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry">
+			                                		<select id="<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry installment-token group_<?php echo $num; ?>_<?php echo $c;?>">
 					                                	<?php foreach($this->getInstallments($currentSelectedToken) as $key => $parcel): ?>
 															<option value="<?php echo $key ?>"><?php echo $parcel ?></option>
 														<?php endforeach ?>
