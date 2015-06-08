@@ -200,7 +200,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             $max_installments = $this->getConfigValue($amount, null);
             $all_installments = $this->getInstallments();
         }
-
+        $displayTotal = Mage::getStoreConfig('payment/mundipagg_standard/display_total');
         // result array here
         for($i=1;$i<=$max_installments;$i++) {
             // check if installment has extra interest
@@ -211,12 +211,17 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             $installment = $all_installments[$key];
             if(isset($installment[2]) && $installment[2] > 0) {
                 $total_amount_with_interest = $amount + ($amount * ($installment[2] / 100));
+                $message = ' c/ juros';
+                if($displayTotal){
+                    $message .= ' (Total: '.Mage::helper('core')->formatPrice($total_amount_with_interest, false).')';
+                }
             } else {
                 $total_amount_with_interest = $amount;
+                $message = ' s/ juros';
             }
 
             $partial_amount = ((double)$total_amount_with_interest)/$i;
-            $result[(string)$i] = $i."x ".Mage::helper('core')->formatPrice($partial_amount, false);
+            $result[(string)$i] = $i."x ".Mage::helper('core')->formatPrice($partial_amount, false).$message;
         }
 
         return $result;
