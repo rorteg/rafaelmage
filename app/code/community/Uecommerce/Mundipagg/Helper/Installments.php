@@ -266,7 +266,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
                     $grandTotal = str_replace(',','.',$grandTotal);
 
                     $grandTotalInterest = $grandTotal + ($grandTotal * ($interestRate / 100));
-                    
+
                     $fee = (round(($grandTotalInterest/$installments),2) * $installments) - $grandTotal;
 
                     $balance = round($fee,2);

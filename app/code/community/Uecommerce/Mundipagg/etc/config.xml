@@ -80,6 +80,14 @@
                     </onhold_order>
                 </observers>
             </sales_order_place_after>
+            <controller_action_postdispatch_checkout_onepage_savePayment>
+                <observers>
+                    <removeInterest>
+                        <class>Uecommerce_Mundipagg_Model_Observer</class>
+                        <method>removeInterest</method>
+                    </removeInterest>
+                </observers>
+            </controller_action_postdispatch_checkout_onepage_savePayment>
         </events>
 
         <resources>

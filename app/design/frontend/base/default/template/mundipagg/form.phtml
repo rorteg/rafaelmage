@@ -55,8 +55,8 @@ else :
 	$baseGrandTotal = $data->getBaseGrandTotal();
 endif;
 
-if($data->getInterest()) {
-    $baseGrandTotal = $baseGrandTotal-$data->getInterest();
+if($data->getMundipaggInterest()) {
+    $baseGrandTotal = $baseGrandTotal-$data->getMundipaggInterest();
 }
 
 // We check if taxvat is enabled

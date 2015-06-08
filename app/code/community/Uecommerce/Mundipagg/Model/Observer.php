@@ -137,4 +137,19 @@ class Uecommerce_Mundipagg_Model_Observer extends Uecommerce_Mundipagg_Model_Sta
             }
         }
     }
+
+    public function removeInterest($observer){
+        $session = Mage::getSingleton('admin/session');
+
+        if ($session->isLoggedIn()) {
+            $quote = Mage::getSingleton('adminhtml/session_quote')->getQuote();
+        } else {
+            $quote = Mage::getSingleton('checkout/session')->getQuote();
+        }
+
+        $quote->setMundipaggInterest(0.0);
+        $quote->setMundipaggBaseInterest(0.0);
+        $quote->setTotalsCollectedFlag(false)->collectTotals();
+        $quote->save();
+    }
 }
