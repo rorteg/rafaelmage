@@ -247,7 +247,11 @@ function updateInstallments(ccType, element ,total){
                 window['brand_'+id.replace('mundipagg_twocreditcards_','').replace('_cc_number','')] = undefined;
             }
             $$('.mundipagg_reload')[0].remove();
+            if($('order-billing_method') != undefined){
 
+                var data = {};
+                this.loadArea(['totals'], true, data);
+            }
         }
     });
 
@@ -511,6 +515,7 @@ function calculateInstallmentValue(field, num, c, url) {
         window['brand_'+realId] = undefined;
 
         if($('parcelamento_'+realId) != undefined){
+
             installmentElement = $('parcelamento_'+realId).select('select')[0];
             field.up(3).previous().select('.tokens')[0].select('option').each(function(opt){
                 if(opt.selected){
@@ -518,6 +523,7 @@ function calculateInstallmentValue(field, num, c, url) {
                     //console.log(opt.readAttribute('data'));
                 }
             });
+
 
         }
 
