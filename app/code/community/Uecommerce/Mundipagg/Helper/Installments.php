@@ -280,5 +280,5 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
         return 0;
     }
 
-    
+
 }

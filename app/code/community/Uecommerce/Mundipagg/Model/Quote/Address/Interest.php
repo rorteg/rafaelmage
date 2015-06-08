@@ -59,7 +59,7 @@ class Uecommerce_Mundipagg_Model_Quote_Address_Interest extends Mage_Sales_Model
 
             $quote->getPayment()->setPaymentInterest($amount);
             $address->setMundipaggInterest($amount);
-
+            
             $this->_setBaseAmount($amount);
             $this->_setAmount($amount);
         } else {

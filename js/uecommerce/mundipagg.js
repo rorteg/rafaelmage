@@ -206,13 +206,18 @@ function checkCredcardType(cardNumber){
 }
 
 function updateInstallments(ccType, element ,total){
+
     var url = window.baseUrl+'/mundipagg/standard/installmentsandinterest';
 
     if(!total){
         total=0;
     }
-
-    loading = new Element('img', {src:window.baseUrl+'/skin/frontend/base/default/images/mundipagg/ajax-loader.gif'});
+    if(window.ajax_loader_mundipagg_img != undefined){
+        mundipagg_img = window.ajax_loader_mundipagg_img;
+    }else{
+        mundipagg_img = window.baseUrl+'/skin/frontend/base/default/images/mundipagg/ajax-loader.gif';
+    }
+    loading = new Element('img', {src:mundipagg_img});
     loading.addClassName('mundipagg_reload');
     element.insert({
         'after':loading
@@ -242,6 +247,7 @@ function updateInstallments(ccType, element ,total){
                 window['brand_'+id.replace('mundipagg_twocreditcards_','').replace('_cc_number','')] = undefined;
             }
             $$('.mundipagg_reload')[0].remove();
+
         }
     });
 
@@ -753,6 +759,7 @@ function checkInstallments(field, url)
 		onSuccess: function(response) {
 			if (200 == response.status){
 				var result = eval("(" + response.responseText + ")");
+
                 console.log(result);
 				/*new Ajax.Request(url + 'mundipagg/standard/val', {
 					method: 'post',

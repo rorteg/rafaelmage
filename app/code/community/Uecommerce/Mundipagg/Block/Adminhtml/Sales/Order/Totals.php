@@ -38,7 +38,7 @@ class Uecommerce_Mundipagg_Block_Adminhtml_Sales_Order_Totals extends Mage_Admin
     protected function _initTotals()
     {
         parent::_initTotals();
-        
+
         $source = $this->getSource();
 		
 		if($this->getSource()->getMundipaggInterest() > 0)
