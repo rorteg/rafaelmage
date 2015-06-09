@@ -135,6 +135,7 @@ class Uecommerce_Mundipagg_Model_Threecreditcards extends Uecommerce_Mundipagg_M
             $value3 = $data[$this->_code.'_value_3_3'];
         } else {
             $parcelsNumber3 = $data[$this->_code.'_new_credito_parcelamento_3_3'];
+            $value3 = $data[$this->_code.'_new_value_3_3'];
         }
 
         $interest1 = 0;
