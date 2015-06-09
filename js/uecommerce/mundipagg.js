@@ -209,7 +209,11 @@ function checkCredcardType(cardNumber){
 
 function updateInstallments(ccType, element ,total){
 
-    var url = window.baseUrl+'/mundipagg/standard/installmentsandinterest';
+    if(window['admin_area_url'] == undefined) {
+        var url = window.baseUrl + '/mundipagg/standard/installmentsandinterest';
+    }else{
+        var url = window['admin_area_url'];
+    }
 
     if(!total){
         total=0;
@@ -253,6 +257,7 @@ function updateInstallments(ccType, element ,total){
 
                 var data = {};
                 this.loadArea(['totals'], true, data);
+
             }
         }
     });

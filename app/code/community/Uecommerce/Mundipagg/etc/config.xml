@@ -239,8 +239,18 @@
             </updates>
         </layout>
     </adminhtml>
-
     <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Uecommerce_Mundipagg after="Mage_Adminhtml">Uecommerce_Mundipagg</Uecommerce_Mundipagg>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <!--<admin>
         <routers>
             <mundipagg>
                 <use>admin</use>
@@ -250,7 +260,7 @@
                 </args>
             </mundipagg>
         </routers>
-    </admin>
+    </admin>-->
     
     <default>
         <payment>

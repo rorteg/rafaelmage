@@ -37,4 +37,31 @@ class Uecommerce_Mundipagg_Adminhtml_IndexController extends Mage_Adminhtml_Cont
     {        
         $this->setUsedModuleName('mundipagg');
     }
+
+    public function installmentsandinterestAction(){
+        $post = $this->getRequest()->getPost();
+        $result = array();
+        $installmentsHelper = Mage::helper('mundipagg/installments');
+        if(isset($post['cctype'])){
+            $total = $post['total'];
+            $cctype = $post['cctype'];
+
+            if(!$total || $total == 0){
+                $total = null;
+            }
+
+            $installments = $installmentsHelper->getInstallmentForCreditCardType($cctype,$total);
+
+            $result['installments'] = $installments;
+            $result['brand'] = $cctype;
+
+        }else{
+            $installments = $installmentsHelper->getInstallmentForCreditCardType();
+            $result['installments'] = $installments;
+        }
+
+
+
+        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+    }
 }

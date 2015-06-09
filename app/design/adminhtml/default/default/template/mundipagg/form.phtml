@@ -343,7 +343,8 @@ $_code = $this->getMethodCode();
 
 <script type="text/javascript">
 //<![CDATA[
-window.baseUrl = '<?php echo $this->getUrl();?>'
+window.baseUrl = '<?php echo $this->getUrl();?>';
+window.admin_area_url = '<?php echo $this->getUrl('mundipagg/adminhtml_index/installmentsandinterest'); ?>';
 
 window.isInstallmentsEnabled = '<?php echo Mage::helper('mundipagg/installments')->isInstallmentsEnabled(); ?>';
 
