@@ -117,24 +117,26 @@ function selectCredcard(ele){
 
                     if (window[realId] != check) {
                         window[realId] = check;
-                        window['brand_'+realId] = check;
+                        window['brand_' + realId] = check;
                         selects = ele.up(3).select('select');
-                        selects.each(function(select){
-                            if(select.name.indexOf('parcelamento') != -1){
+                        selects.each(function (select) {
+                            if (select.name.indexOf('parcelamento') != -1) {
                                 installmentElement = select;
                             }
                         });
+                        if (window['installmentElement'] != undefined) {
+                            window['select_html_' + realId] = installmentElement.innerHTML;
+                            window['select_' + realId] = installmentElement;
 
-                        window['select_html_'+realId] = installmentElement.innerHTML;
-                        window['select_'+realId] = installmentElement;
-                        if($('mundipagg_'+cardType+'_new_value_'+realId) != undefined) {
-                            if ($('mundipagg_' + cardType + '_new_value_' + realId).value == '') {
-                                updateInstallments(check, installmentElement);
+                            if ($('mundipagg_' + cardType + '_new_value_' + realId) != undefined) {
+                                if ($('mundipagg_' + cardType + '_new_value_' + realId).value == '') {
+                                    updateInstallments(check, installmentElement);
+                                } else {
+                                    updateInstallments(check, installmentElement, $('mundipagg_' + cardType + '_new_value_' + realId).value);
+                                }
                             } else {
-                                updateInstallments(check, installmentElement, $('mundipagg_' + cardType + '_new_value_' + realId).value);
+                                updateInstallments(check, installmentElement);
                             }
-                        }else{
-                            updateInstallments(check, installmentElement);
                         }
                     }
 
