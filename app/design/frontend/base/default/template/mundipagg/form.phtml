@@ -396,7 +396,7 @@ ul.inline li img {
                                 <?php if ($installmentsHelper->isInstallmentsEnabled() && $_code != 'mundipagg_creditcardoneinstallment'): ?>
 	                                <li style="margin-bottom: 5px;">
 	                                	<div class="field">
-	                                		<label class="required"><?php echo $this->__('Credit options') ?> <?php if($num ==2): ?><a href="javascript:void(0);" onclick="javascript:void(0);">(<?php echo $this->__('click to update') ?>)</a><?php endif ?></label>
+	                                		<label class="required"><?php echo $this->__('Credit options') ?> <?php if($num ==2): ?><!--<a href="javascript:void(0);" onclick="javascript:void(0);">(<?php /*echo $this->__('click to update') */?>)</a>--><?php endif ?></label>
 		                                	<div class="input-box">
 		                                		<select id="<?php echo $_code; ?>_new_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_new_credito_parcelamento_<?php echo $num; ?>_<?php echo $c;?>]" onchange="checkInstallments(this, '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>');">
 													<?php foreach($this->getInstallments() as $key => $parcel): ?>
