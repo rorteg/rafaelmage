@@ -755,14 +755,69 @@ function setCcType(field, code, num, c, issuer)
 	cc_cid(field, num, c)
 }
 
+function setTotalInterestHtml(field){
+
+    var container = field.up(5);
+    var totalFieldElement = container.select('div')[0];
+    var totalFieldValue = parseFloat(totalFieldElement.innerHTML.replace(/\s/g, "").replace('<b>ValorTotal:</b>','').replace('R$','').replace(',','.'));
+    var containerSelects = container.select('select');
+    var template = '<div class="total_juros"><b>Valor Total c/ juros: </b>R${%%%}</div>';
+    var totalInterest = 0;
+    containerSelects.each(function(select){
+        if(select.readAttribute('id').indexOf('credito_parcelamento') != -1){
+            if(window.getComputedStyle(select.up(3)).getPropertyValue('display') == 'block'){
+                var selectedText = select.options[select.selectedIndex].text;
+                if(selectedText.indexOf('Total') != -1){
+                    realCurrentInterest = 0;
+                    newTotalInterest = parseFloat(selectedText.substring(selectedText.indexOf('Total'), selectedText.length).replace('Total: R$','').replace(')','').replace(/\s/g, "").replace(',','.'));
+                    if($(select.readAttribute('id').replace('credito_parcelamento','value')) != undefined) {
+                        currentValueField = parseFloat($(select.readAttribute('id').replace('credito_parcelamento', 'value')).value.replace(',', '.'));
+                    }else{
+                        currentValueField = NaN;
+                    }
+
+                    if(!isNaN(currentValueField)){
+                        realCurrentInterest = parseFloat(newTotalInterest - currentValueField );
+                        totalInterest = parseFloat(totalInterest + parseFloat(realCurrentInterest));
+                    }else{
+                        realCurrentInterest = parseFloat(newTotalInterest - totalFieldValue);
+                        totalInterest = parseFloat(totalInterest + parseFloat(realCurrentInterest));
+                    }
+
+
+                }
+            }
+
+        }
+    });
+
+    if(Object.keys(totalFieldElement.select('.total_juros')).length){
+        totalFieldElement.select('.total_juros')[0].remove();
+    }
+
+    if(totalInterest > 0){
+        totalFieldElement.insert(template.replace('{%%%}',parseFloat(totalFieldValue + totalInterest).toFixed(2).replace('.',',')));
+    }
+
+}
+
 function checkInstallments(field, url)
 {
-    
+
 	if ($('onestepcheckout-form') == null) {
 		params = $('co-payment-form').serialize(true);
 	} else {
 		params = $('onestepcheckout-form').serialize(true);
 	}
+
+    if(window['mundipaggTotalInterest'] == undefined){
+        window.mundipaggTotalInterest = 0;
+    }
+
+
+
+    setTotalInterestHtml(field);
+
 
 
 
