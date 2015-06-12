@@ -759,7 +759,7 @@ function setTotalInterestHtml(field){
 
     var container = field.up(5);
     var totalFieldElement = container.select('div')[0];
-    var totalFieldValue = parseFloat(totalFieldElement.innerHTML.replace(/\s/g, "").replace('<b>ValorTotal:</b>','').replace('R$','').replace(',','.'));
+    var totalFieldValue = parseFloat(totalFieldElement.innerHTML.replace(/\s/g, "").replace('<b>ValorTotal:</b>','').replace('R$','').replace('.','').replace(',','.'));
     var containerSelects = container.select('select');
     var template = '<div class="total_juros"><b>Valor Total c/ juros: </b>R${%%%}</div>';
     var totalInterest = 0;
@@ -769,9 +769,9 @@ function setTotalInterestHtml(field){
                 var selectedText = select.options[select.selectedIndex].text;
                 if(selectedText.indexOf('Total') != -1){
                     realCurrentInterest = 0;
-                    newTotalInterest = parseFloat(selectedText.substring(selectedText.indexOf('Total'), selectedText.length).replace('Total: R$','').replace(')','').replace(/\s/g, "").replace(',','.'));
+                    newTotalInterest = parseFloat(selectedText.substring(selectedText.indexOf('Total'), selectedText.length).replace('Total: R$','').replace(')','').replace(/\s/g, "").replace('.','').replace(',','.'));
                     if($(select.readAttribute('id').replace('credito_parcelamento','value')) != undefined) {
-                        currentValueField = parseFloat($(select.readAttribute('id').replace('credito_parcelamento', 'value')).value.replace(',', '.'));
+                        currentValueField = parseFloat($(select.readAttribute('id').replace('credito_parcelamento', 'value')).value.replace('.','').replace(',', '.'));
                     }else{
                         currentValueField = NaN;
                     }
@@ -796,7 +796,12 @@ function setTotalInterestHtml(field){
     }
 
     if(totalInterest > 0){
-        totalFieldElement.insert(template.replace('{%%%}',parseFloat(totalFieldValue + totalInterest).toFixed(2).replace('.',',')));
+        var strNumber = parseFloat(totalFieldValue + totalInterest).toFixed(2);
+        while (strNumber.match(/^\d{4}/)){
+            strNumber = strNumber.replace(/(\d)(\d{3}(\.|$))/, '$1.$2');
+        }
+        strNumber = strNumber.substring(0,parseInt(strNumber.length - 3))+','+strNumber.substring(parseInt(strNumber.length - 2), strNumber.length);
+        totalFieldElement.insert(template.replace('{%%%}',strNumber));
     }
 
 }

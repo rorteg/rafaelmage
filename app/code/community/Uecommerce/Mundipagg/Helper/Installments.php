@@ -254,6 +254,7 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
 
             $installmentKey = $installments - 1;
 
+
             $installment = $all_installments[$installmentKey];
 
             if($installment != null && is_array($installment)) {
