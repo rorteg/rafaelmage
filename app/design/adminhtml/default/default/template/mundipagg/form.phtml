@@ -130,19 +130,13 @@ $_code = $this->getMethodCode();
                                             <select id="<?php echo $_code; ?>_token_<?php echo $num; ?>_<?php echo $c;?>" data="group_<?php echo $num; ?>_<?php echo $c;?>" name="payment[<?php echo $_code; ?>_token_<?php echo $num; ?>_<?php echo $c;?>]" class="required-entry tokens group_<?php echo $num; ?>_<?php echo $c;?>" onchange="token_or_not(<?php echo $num; ?>,<?php echo $c;?>,this)">
                                                 <option value="">...</option>
                                                 <?php
-                                                    $selected = '';
-
-                                                    if($countCcs == 1):
-                                                        $selected = 'selected="selected"';
-                                                    endif;
-
                                                     foreach($ccs as $id => $cc):
 
                                                         if($countCcs == 1){
                                                             $currentSelectedToken = Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cc->getCcType());
                                                         }
                                                         $dataType = $currentSelectedToken?$currentSelectedToken:Mage::getSingleton('mundipagg/source_cctypes')->getCcTypeForLabel($cc->getCcType());
-                                                        echo '<option value="'.$cc->getId().'" '.$selected.' data="'.$dataType.'">'.$cc->getCcType().' '.$cc->getCreditCardMask().'</option>';
+                                                        echo '<option value="'.$cc->getId().'" data="'.$dataType.'">'.$cc->getCcType().' '.$cc->getCreditCardMask().'</option>';
                                                     endforeach;
                                                 ?>
                                                 <option value="new"><?php echo $this->__('New Credit Card') ?></option>
