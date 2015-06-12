@@ -212,13 +212,13 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             $installment = $all_installments[$key];
             if(isset($installment[2]) && $installment[2] > 0) {
                 $total_amount_with_interest = $amount + ($amount * ($installment[2] / 100));
-                $message = ' c/ juros';
+                $message = ' '.$this->__('with interest');
                 if($displayTotal && $this->displayTotal){
                     $message .= ' (Total: '.Mage::helper('core')->formatPrice(round((($total_amount_with_interest)/$i),2) * $i,false).')';
                 }
             } else {
                 $total_amount_with_interest = $amount;
-                $message = ' s/ juros';
+                $message = ' '.$this->__('without interest');
             }
 
             $partial_amount = ((double)$total_amount_with_interest)/$i;

@@ -282,7 +282,7 @@ function remove_special_characters(event) {
 }
 
 if(Validation) {  
-	Validation.add('validar_cpf', 'O CPF ou CNPJ informado \xE9 inválido', function(v){return validaCPF(v,0);});
+	Validation.add('validar_cpf', 'The taxvat is invalid', function(v){return validaCPF(v,0);});
 
     /**
 	 * Hash with credit card types which can be simply extended in payment modules
@@ -301,9 +301,9 @@ if(Validation) {
 	    'HI': [false, new RegExp('^([0-9]{3})?$'), false]
 	});
 
-	Validation.add('check_values', 'Confira os valores a passar em cada cartão', function(){return check_values();});
+	Validation.add('check_values', 'Check the values to pass on each card', function(){return check_values();});
 
-    Validation.add('validate-cc-exp-cus', 'Data de expiração do Cartão incorreta', function(v,elm){return verify_cc_expiration_date(v,elm);});
+    Validation.add('validate-cc-exp-cus', 'Expiration date of the incorrect card', function(v,elm){return verify_cc_expiration_date(v,elm);});
 }
 
 function verify_cc_expiration_date(v,elm) {
@@ -761,7 +761,7 @@ function setTotalInterestHtml(field){
     var totalFieldElement = container.select('div')[0];
     var totalFieldValue = parseFloat(totalFieldElement.innerHTML.replace(/\s/g, "").replace('<b>ValorTotal:</b>','').replace('R$','').replace('.','').replace(',','.'));
     var containerSelects = container.select('select');
-    var template = '<div class="total_juros"><b>Valor Total c/ juros: </b>R${%%%}</div>';
+    var template = '<div class="total_juros">'+Translator.translate('Total amount with interest: USD{%%%}')+'</div>';
     var totalInterest = 0;
     containerSelects.each(function(select){
         if(select.readAttribute('id').indexOf('credito_parcelamento') != -1){
@@ -855,3 +855,4 @@ function checkInstallments(field, url)
 		}
 	});
 }
+
