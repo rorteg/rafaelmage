@@ -143,7 +143,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 				$creditcardTransactionCollection[] = $creditcardTransactionData;
 			}
 
-			$_request["CreditCardTransactionCollection"] = $this->ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollection);
+			$_request["CreditCardTransactionCollection"] = $this->ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollection, $standard);
 			
 			// Buyer data
 			$_request["Buyer"] = array();
@@ -238,7 +238,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 			// Only 1 transaction
 			if (count($xml->CreditCardTransactionResultCollection->CreditCardTransactionResult) == 1) {
-				if ($creditCardTransactionResultCollection['CreditCardTransactionResult']['Success'] == true) {
+				if ((string)$creditCardTransactionResultCollection['CreditCardTransactionResult']['Success'] == 'true') {
 					$trans = $creditCardTransactionResultCollection['CreditCardTransactionResult'];
 
 					// We save Card On File
@@ -342,7 +342,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 	/**
 	* Convert CreditcardTransaction Collection From Request
 	*/
-	public function ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollectionRequest) 
+	public function ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollectionRequest, $standard) 
 	{
 		$newCreditcardTransCollection = array();
 		$counter = 0;
@@ -379,7 +379,10 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$creditcardTrans["CreditCardOperation"] 			= $creditcardTransItem->CreditCardOperation;
 			$creditcardTrans["InstallmentCount"] 				= $creditcardTransItem->InstallmentCount;
 			$creditcardTrans['Options']["CurrencyIso"] 			= $creditcardTransItem->Options->CurrencyIso;
-			$creditcardTrans['Options']["PaymentMethodCode"] 	= $creditcardTransItem->Options->PaymentMethodCode;
+
+			if ($standard->getEnvironment() != 'production') {
+				$creditcardTrans['Options']["PaymentMethodCode"] = $creditcardTransItem->Options->PaymentMethodCode;
+			}
 			
 			$newCreditcardTransCollection[$counter] = $creditcardTrans;
 			$counter += 1;
