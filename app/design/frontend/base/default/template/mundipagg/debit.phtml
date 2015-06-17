@@ -4,6 +4,31 @@ $_code = $this->getMethodCode();
 // We check if taxvat is enabled
 $_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
 ?>
+<style>
+    ul.inline {
+        float:left;
+    }
+
+    ul.inline li {
+        float: left;
+        width: 30%;
+        margin-right: 2%;
+        text-align: center;
+    }
+
+    ul.inline.input-radio > li {
+        width: 15%;
+        margin-right:4px
+    }
+
+    ul.inline li img {
+        width: 100%;
+        height: auto;
+        clear: both;
+        display: block;
+        margin-bottom: 5px;
+    }
+</style>
 <fieldset>	
 	<ul id="payment_form_<?php echo $_code ?>" style="display:none;">
 	    <li>
@@ -19,8 +44,8 @@ $_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
 						        ?>
 						            <?php foreach($debitTypes as $debitType): ?>
 						            	<li>
-											<img src="<?php echo $this->getSkinUrl('images/mundipagg/'.$debitType.'.png');?>" alt="<?php echo $debitType ?>" border="0">
-											<input type="radio" name="payment[<?php echo $_code; ?>]" id="<?php echo $_code; ?>" value="<?php echo $debitType ?>" class="<?php if ($_i == 1): ?>validate-one-required-by-name<?php endif; ?>">
+                                            <label for="<?php echo $_code.'_'.$debitType; ?>"><img src="<?php echo $this->getSkinUrl('images/mundipagg/'.$debitType.'.png');?>" alt="<?php echo $debitType ?>" border="0" style="cursor:pointer"/></label>
+                                            <input type="radio" name="payment[<?php echo $_code; ?>]" id="<?php echo $_code.'_'.$debitType; ?>" value="<?php echo $debitType ?>" class="<?php if ($_i == 1): ?>validate-one-required-by-name<?php endif; ?>">
 										</li>
 						            <?php 
 						            $_i++;
