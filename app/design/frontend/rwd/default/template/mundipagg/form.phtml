@@ -74,7 +74,7 @@ $countCcs = count($ccs);
 $_code = $this->getMethodCode();
 ?>
 
-<fieldset class="form-list">
+
 	<ul id="payment_form_<?php echo $_code ?>" style="display:none;">
 		<div>
     		<input type="hidden" id="baseGrandTotal" name="baseGrandTotal" value="<?php echo number_format($baseGrandTotal, "2", ",", ""); ?>"/>
@@ -326,7 +326,7 @@ $_code = $this->getMethodCode();
 							        </li>
 						    	<?php endif;?>
 						    	<?php if($standard->getQuote()->getCheckoutMethod() != 'guest'): ?>
-                                                                <?php if(Mage::getStoreConfig('payment/mundipagg_standard/save_cardonfile')): ?>
+						    	<?php if(Mage::getStoreConfig('payment/mundipagg_standard/save_cardonfile')): ?>
 						    	<li>
                                                         
 		               				<div class="input-box" style="padding-top: 10px">
@@ -347,7 +347,7 @@ $_code = $this->getMethodCode();
         </li> 
     	<?php // END CREDIT CARD PAYMENT METHOD ?>
 	</ul>
-</fieldset>
+
 
 <script type="text/javascript">
 //<![CDATA[
