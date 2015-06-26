@@ -49,7 +49,7 @@
                 <action method="addItem"><type>skin_css</type><name>css/mundipagg.css</name></action>
 	    </reference>
 	</onestepcheckout_index_index>
-        <opc_index_index translate="label">
+    <opc_index_index translate="label">
 		<reference name="head">  
 	        <action method="addItem"><type>js</type><name>uecommerce/mundipagg.js</name></action>
                 <action method="addItem"><type>skin_css</type><name>css/mundipagg.css</name></action>
