@@ -129,6 +129,13 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					$creditcardTransactionData->Options->CurrencyIso = "BRL"; //Moeda do pedido
 				}
 
+				// BillingAddress
+				if ($standard->getClearsale() == 1) {
+					$addy = $this->buyerBillingData($order, $data, $_request, $standard);
+
+					$creditcardTransactionData->CreditCard->BillingAddress = $addy['AddressCollection'][0];
+				}
+
 				if ($standard->getEnvironment() != 'production') {
 					$creditcardTransactionData->Options->PaymentMethodCode = $standard->getPaymentMethodCode(); // Código do meio de pagamento 
 				}
@@ -382,6 +389,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 			if ($standard->getEnvironment() != 'production') {
 				$creditcardTrans['Options']["PaymentMethodCode"] = $creditcardTransItem->Options->PaymentMethodCode;
+			}
+
+			if ($standard->getClearsale() == 1) {
+				$creditcardTrans['CreditCard']['BillingAddress'] = $creditcardTransItem->CreditCard->BillingAddress;
+
+				unset($creditcardTrans['CreditCard']['BillingAddress']['AddressType']);
 			}
 			
 			$newCreditcardTransCollection[$counter] = $creditcardTrans;
@@ -727,12 +740,20 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		if ($order->getData()) {
 			if ($order->getCustomerGender()) {
 				$gender = $order->getCustomerGender();
-			} else {
-				$customerId = $order->getCustomerId(); 
+			}
 
-				$customer = Mage::getModel('customer/customer')->load($customerId);
+			if($order->getCustomerIsGuest() == 0) {
+				$customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
 
 				$gender = $customer->getGender();
+
+				$createdAt = explode(' ', $customer->getCreatedAt());
+				$updatedAt = explode(' ', $customer->getUpdatedAt());
+
+				$createDateInMerchant = $createdAt[0].'T'.$createdAt[1];
+				$lastBuyerUpdateInMerchant = $updatedAt[0].'T'.$updatedAt[1];
+			} else {
+				$createDateInMerchant = $lastBuyerUpdateInMerchant = date('Y-m-d').'T'.date('H:i:s');
 			}
 
 			switch ($gender) {
@@ -793,18 +814,19 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$_request["Buyer"]["Gender"] 		= $gender;
 		}
 
-		$_request["Buyer"]["DocumentNumber"] 	= preg_replace('[\D]', '', $data['DocumentNumber']);
-		$_request["Buyer"]["DocumentType"] 		= $data['DocumentType'];
-		$_request["Buyer"]["Email"] 			= $order->getCustomerEmail();
-		$_request["Buyer"]["EmailType"] 		= 'Personal';
-		$_request["Buyer"]["Name"] 				= $order->getCustomerName();
-		$_request["Buyer"]["PersonType"] 		= $data['PersonType'];
-		$_request["Buyer"]["MobilePhone"] 		= $telephone;
-		$_request["Buyer"]['BuyerCategory']		= 'Normal';
-		$_request["Buyer"]['Birthdate']			= '1983-06-02'; // Se enviar o objeto Buyer sem o Birthdate tenho um erro 500
-		$_request["Buyer"]['FacebookId']		= '';
-		$_request["Buyer"]['TwitterId']			= '';
-		$_request["Buyer"]['BuyerReference']	= '';
+		$_request["Buyer"]["DocumentNumber"] 			= preg_replace('[\D]', '', $data['DocumentNumber']);
+		$_request["Buyer"]["DocumentType"] 				= $data['DocumentType'];
+		$_request["Buyer"]["Email"] 					= $order->getCustomerEmail();
+		$_request["Buyer"]["EmailType"] 				= 'Personal';
+		$_request["Buyer"]["Name"] 						= $order->getCustomerName();
+		$_request["Buyer"]["PersonType"] 				= $data['PersonType'];
+		$_request["Buyer"]["MobilePhone"] 				= $telephone;
+		$_request["Buyer"]['BuyerCategory']				= 'Normal';
+		$_request["Buyer"]['FacebookId']				= '';
+		$_request["Buyer"]['TwitterId']					= '';
+		$_request["Buyer"]['BuyerReference']			= '';
+		$_request["Buyer"]['CreateDateInMerchant']		= $createDateInMerchant;
+		$_request["Buyer"]['LastBuyerUpdateInMerchant']	= $lastBuyerUpdateInMerchant;
 		
 		// Address
 		$address = array();
@@ -906,7 +928,6 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		$_request["Buyer"]["PersonType"] 		= $data['PersonType'];
 		$_request["Buyer"]["MobilePhone"] 		= $telephone;
 		$_request["Buyer"]['BuyerCategory']		= 'Normal';
-		$_request["Buyer"]['Birthdate']			= '1983-06-02'; // Se enviar o objeto Buyer sem o Birthdate tenho um erro 500
 		$_request["Buyer"]['FacebookId']		= '';
 		$_request["Buyer"]['TwitterId']			= '';
 		$_request["Buyer"]['BuyerReference']	= '';
