@@ -138,7 +138,8 @@ class Uecommerce_Mundipagg_Model_Observer extends Uecommerce_Mundipagg_Model_Sta
         }
     }
 
-    public function removeInterest($observer){
+    public function removeInterest($observer)
+    {
         $session = Mage::getSingleton('admin/session');
 
         if ($session->isLoggedIn()) {
@@ -151,5 +152,56 @@ class Uecommerce_Mundipagg_Model_Observer extends Uecommerce_Mundipagg_Model_Sta
         $quote->setMundipaggBaseInterest(0.0);
         $quote->setTotalsCollectedFlag(false)->collectTotals();
         $quote->save();
+    }
+
+    /**
+    * Check if recurrency product is in cart in order to show only Mundipagg Credit Card payment
+    */
+    public function checkForRecurrency($observer)
+    {
+        $recurrent = 0;
+
+        $session = Mage::getSingleton('admin/session');
+
+        if ($session->isLoggedIn()) {
+            $quote = Mage::getSingleton('adminhtml/session_quote')->getQuote();
+        } else {    
+            $quote = Mage::getSingleton('checkout/session')->getQuote();
+        }
+
+        $cartItems = $quote->getAllVisibleItems();
+
+        foreach ($cartItems as $item) {
+            $productId = $item->getProductId();
+
+            $product = Mage::getModel('catalog/product')->load($productId);
+
+            if($product->getMundipaggRecurrent()) {
+                $recurrent++;   
+            }
+        }
+
+        if ($recurrent > 0) {
+            $instance = $observer->getMethodInstance();
+            $result = $observer->getResult();
+
+            switch ($instance->getCode()) {
+                case 'mundipagg_boleto':
+                case 'mundipagg_debit':
+                case 'mundipagg_creditcardoneinstallment':
+                case 'mundipagg_twocreditcards':
+                case 'mundipagg_threecreditcards':
+                case 'mundipagg_fourcreditcards':
+                case 'mundipagg_fivecreditcards':
+                    $result->isAvailable = false;
+                    break;
+                case 'mundipagg_creditcard':
+                    $result->isAvailable = true;
+                    break;
+                default:    
+                    $result->isAvailable = false;
+                    break;
+            }
+        }
     }
 }
