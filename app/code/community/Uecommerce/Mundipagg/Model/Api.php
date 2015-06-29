@@ -750,8 +750,8 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 				$createdAt = explode(' ', $customer->getCreatedAt());
 				$updatedAt = explode(' ', $customer->getUpdatedAt());
 
-				$createDateInMerchant = $createdAt[0].'T'.$createdAt[1];
-				$lastBuyerUpdateInMerchant = $updatedAt[0].'T'.$updatedAt[1];
+				$createDateInMerchant = substr($createdAt[0].'T'.$createdAt[1], 0, 19);
+				$lastBuyerUpdateInMerchant = substr($updatedAt[0].'T'.$updatedAt[1], 0, 19);
 			} else {
 				$createDateInMerchant = $lastBuyerUpdateInMerchant = date('Y-m-d').'T'.date('H:i:s');
 			}
