@@ -979,9 +979,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		$items = array();
 
 		foreach ($order->getItemsCollection() as $item) {
+                        
 			if($item->getParentItemId() == '') {
+                                
 				$items[$item->getItemId()]['sku'] 	= $item->getProductId();
 				$items[$item->getItemId()]['name'] 	= $item->getName();
+                                $items[$item->getItemId()]['description'] = $item->getProduct()->load()->getShortDescription();
 	            $items[$item->getItemId()]['qty'] 	= round($item->getQtyOrdered(),0);
 	            $items[$item->getItemId()]['price'] = $item->getBasePrice();
         	}
@@ -996,7 +999,8 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
         foreach ($items as $itemId) {
 			if ($standard->getClearsale() == 1) {
 				$unitCostInCents = intval(strval(($itemId['price']*$discount*100)));
-
+                                
+                                $_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Description"] = empty($itemId['description']) || ($itemId['description'] == '')?$itemId['name']:$itemId['description'];
 				$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["ItemReference"] 	= $itemId['sku'];
         		$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Name"] 			= $itemId['name'];
             	$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Quantity"] 		= $itemId['qty'];
@@ -1033,12 +1037,13 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		$address['Street'] 		= isset($street[0])?$street[0]:'xxx';
 		$address['ZipCode'] 	= preg_replace('[\D]', '', $addy->getPostcode());
 		$address['Country'] 	= 'Brazil';
+                $address['AddressType'] = "Shipping";
 
 		$_request["ShoppingCartCollection"]["DeliveryAddress"] = array();
 
-		$_request["ShoppingCartCollection"]["DeliveryAddress"] = array($address);
+		$_request["ShoppingCartCollection"]["DeliveryAddress"] = $address;
 
-        return $_request["ShoppingCartCollection"];
+        return array($_request["ShoppingCartCollection"]);
 	}
 
 	/**
