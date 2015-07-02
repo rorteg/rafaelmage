@@ -454,9 +454,17 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 				$boletoTransactionData->Options = new stdclass();
  				$boletoTransactionData->Options->CurrencyIso = 'BRL';
 				$boletoTransactionData->Options->DaysToAddInBoletoExpirationDate = $daysToAddInBoletoExpirationDate;
+                                
+//                                if ($standard->getClearsale() == 1) {
+                                    $addy = $this->buyerBillingData($order, $data, $_request, $standard);
+
+                                    $boletoTransactionData->BillingAddress = $addy['AddressCollection'][0];
+//                                }   
 			
 				$boletoTransactionCollection = array($boletoTransactionData);
 			}
+                        
+                        
 
 			$_request["BoletoTransactionCollection"] = $this->ConvertBoletoTransactionCollectionFromRequest($boletoTransactionCollection);
 			
@@ -579,11 +587,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		foreach($boletoTransactionCollectionRequest as $boletoTransItem) {
 			$boletoTrans = array();
 			$boletoTrans["AmountInCents"] = $boletoTransItem->AmountInCents;
-			$boletoTrans["BankNumber"] = $boletoTransItem->BankNumber;
+                        $boletoTrans["BankNumber"] = isset($boletoTransItem->BankNumber) ? $boletoTransItem->BankNumber : null;
 			$boletoTrans["Instructions"] = $boletoTransItem->Instructions;
 			$boletoTrans["DocumentNumber"] = $boletoTransItem->DocumentNumber;
 			$boletoTrans["Options"]["CurrencyIso"] = $boletoTransItem->Options->CurrencyIso;
 			$boletoTrans["Options"]["DaysToAddInBoletoExpirationDate"] = $boletoTransItem->Options->DaysToAddInBoletoExpirationDate;
+                        $boletoTrans['BillingAddress'] = $boletoTransItem->BillingAddress;
 			
 			$newBoletoTransCollection[$counter] = $boletoTrans;
 			$counter += 1;
@@ -738,6 +747,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 	public function buyerBillingData($order, $data, $_request, $standard) 
 	{
 		if ($order->getData()) {
+                        $gender = null;
 			if ($order->getCustomerGender()) {
 				$gender = $order->getCustomerGender();
 			}
@@ -749,6 +759,15 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 				$createdAt = explode(' ', $customer->getCreatedAt());
 				$updatedAt = explode(' ', $customer->getUpdatedAt());
+                                $currentDateTime = Mage::getModel('core/date')->date('Y-m-d H:i:s');
+                                if(!array_key_exists(1, $createdAt)){
+                                    $createdAt = explode(' ', $currentDateTime);
+                                }
+                                
+                                if(!array_key_exists(1, $updatedAt)){
+                                    $updatedAt = explode(' ', $currentDateTime);
+                                }
+                               
 
 				$createDateInMerchant = substr($createdAt[0].'T'.$createdAt[1], 0, 19);
 				$lastBuyerUpdateInMerchant = substr($updatedAt[0].'T'.$updatedAt[1], 0, 19);
@@ -984,7 +1003,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
                                 
 				$items[$item->getItemId()]['sku'] 	= $item->getProductId();
 				$items[$item->getItemId()]['name'] 	= $item->getName();
-                                $items[$item->getItemId()]['description'] = $item->getProduct()->load()->getShortDescription();
+                                $items[$item->getItemId()]['description'] = $item->getProduct()->load($item->getProductId())->getShortDescription();
 	            $items[$item->getItemId()]['qty'] 	= round($item->getQtyOrdered(),0);
 	            $items[$item->getItemId()]['price'] = $item->getBasePrice();
         	}
@@ -997,7 +1016,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
         $_request["ShoppingCartCollection"]["FreightCostInCents"] = $shipping;
 
         foreach ($items as $itemId) {
-			if ($standard->getClearsale() == 1) {
+			//if ($standard->getClearsale() == 1) {
 				$unitCostInCents = intval(strval(($itemId['price']*$discount*100)));
                                 
                                 $_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Description"] = empty($itemId['description']) || ($itemId['description'] == '')?$itemId['name']:$itemId['description'];
@@ -1005,7 +1024,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
         		$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Name"] 			= $itemId['name'];
             	$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Quantity"] 		= $itemId['qty'];
         		$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["UnitCostInCents"]= $unitCostInCents;
-        	}
+        	//}
 
         	$totalInCents = intval(strval(($itemId['qty']*$itemId['price']*$discount*100)));
 
@@ -1042,7 +1061,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		$_request["ShoppingCartCollection"]["DeliveryAddress"] = array();
 
 		$_request["ShoppingCartCollection"]["DeliveryAddress"] = $address;
-
+                
         return array($_request["ShoppingCartCollection"]);
 	}
 
