@@ -78,4 +78,27 @@ if (empty($result)) {
     $installer->addAttribute('catalog_product', 'mundipagg_frequency_enum', $frequency_enum);
 }
 
+$result = $reader->query('select attribute_code from '.$prefix.'eav_attribute WHERE attribute_code = "mundipagg_recurrences"')->fetchAll();
+
+if (empty($result)) {
+    $recurrences = array(
+      'attribute_set'           => 'Default',
+      'group'                   => 'Recorrência',
+      'label'                   => 'Número de Ciclos',
+      'note'                    => 'Número de ciclos que serão cobrados antes de uma renovação da parte do cliente.',
+      'visible'                 => true,
+      'type'                    => 'int',
+      'input'                   => 'text',
+      'system'                  => false,
+      'required'                => true,
+      'used_in_product_listing' => true,
+      'is_visible_on_front'     => true,
+      'visible_on_front'        => true,
+      'frontend_input'          => 'text',
+      'default'                 => '1'
+    );
+
+    $installer->addAttribute('catalog_product', 'mundipagg_recurrences', $recurrences);
+}
+
 $installer->endSetup();

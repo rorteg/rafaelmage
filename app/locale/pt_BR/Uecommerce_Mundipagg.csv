@@ -178,3 +178,7 @@
 "Total amount with interest: USD{%%%}","<b>Valor total c/ juros: </b>R${%%%}"
 "with interest","c/ juros"
 "without interest", "s/ juros"
+"Daily", "Diário"
+"Weekly","Semanal"
+"Monthly","Mensal"
+"Yearly","Anual"
