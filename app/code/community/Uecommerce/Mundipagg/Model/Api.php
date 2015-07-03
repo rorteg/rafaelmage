@@ -145,24 +145,17 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					if ($item->getSku() == $standard->getCieloSku() && $standard->getEnvironment() == 'production') {
 						$creditcardTransactionData->Options->PaymentMethodCode = 5; // Código do meio de pagamento  Cielo
 					}
-                                        $_product = $item->getProduct()->load($item->getProductId());
-                                        if($_product->getMundipaggRecurrent()){
-                                            $currentDateTime = Mage::getModel('core/date')->date('Y-m-d H:i:s');
-                                            $dateToStartBilling = explode(' ',$currentDateTime);
-                               
-
-                                            $start = substr($dateToStartBilling[0].'T'.$dateToStartBilling[1], 0, 19);
-                                            $creditcardTransactionData->recurrency = new stdClass();
-                                            $creditcardTransactionData->recurrency->datetostartbilling = $start;
-                                            $creditcardTransactionData->recurrency->frequency = $_product->getMundipaggFrequencyEnum();
-                                            $creditcardTransactionData->recurrency->interval = '1';
-                                            //$creditcardTransactionData->recurrency->oneDollarAuth = 'false';
-                                            $creditcardTransactionData->recurrency->recurrences = $_product->getMundipaggRecurrences();
-                                        }
+                                        /**
+                                         * @todo Implementar Recorrência.
+                                         */
 				}
 
 				$creditcardTransactionCollection[] = $creditcardTransactionData;
 			}
+                        
+                        /**
+                         * @todo Implementar looping para recorrencias a serem adicionadas em $creditcardTransactionCollection
+                         */
 
 			$_request["CreditCardTransactionCollection"] = $this->ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollection, $standard);
 			
@@ -400,16 +393,10 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$creditcardTrans["CreditCardOperation"] 			= $creditcardTransItem->CreditCardOperation;
 			$creditcardTrans["InstallmentCount"] 				= $creditcardTransItem->InstallmentCount;
 			$creditcardTrans['Options']["CurrencyIso"] 			= $creditcardTransItem->Options->CurrencyIso;
-                        if(property_exists($creditcardTransItem,'recurrency')){
-                            $creditcardTrans['Recurrency']                          = $creditcardTransItem->recurrency;
-                            $creditcardTrans['Recurrency'] = array(
-                                                    'DateToStartBilling' => $creditcardTransItem->recurrency->datetostartbilling,
-                                                    'Frequency' => $creditcardTransItem->recurrency->frequency,
-                                                    'Interval' => '1',
-                                                    //'OneDollarAuth' => false,
-                                                    'Recurrences' => $creditcardTransItem->recurrency->recurrences
-                                                );
-                        }
+                        
+                        /**
+                         * @todo Implementar array de recorrencia caso exista.
+                         */
 
 			if ($standard->getEnvironment() != 'production') {
 				$creditcardTrans['Options']["PaymentMethodCode"] = $creditcardTransItem->Options->PaymentMethodCode;

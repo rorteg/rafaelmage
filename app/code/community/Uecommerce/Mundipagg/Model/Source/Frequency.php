@@ -37,6 +37,8 @@ class Uecommerce_Mundipagg_Model_Source_Frequency extends Mage_Eav_Model_Entity_
             array('value' => 'Daily', 'label' => Mage::helper('mundipagg')->__('Daily')),
             array('value' => 'Weekly', 'label' => Mage::helper('mundipagg')->__('Weekly')),
             array('value' => 'Monthly', 'label' => Mage::helper('mundipagg')->__('Monthly')),
+            array('value' => 'Quarterly', 'label' => Mage::helper('mundipagg')->__('Quarterly')),
+            array('value' => 'Biannual', 'label' => Mage::helper('mundipagg')->__('Biannual')),
             array('value' => 'Yearly', 'label' => Mage::helper('mundipagg')->__('Yearly'))
         );
     }
