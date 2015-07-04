@@ -157,7 +157,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
                                             if($recurrencyModel->isRecurrent()){
                                                 
                                                 // Subtraimos o valor do produto recorrente da primeira transação.
-                                                $creditcardTransactionData->AmountInCents = ((int)$creditcardTransactionData->AmountInCents - (int)str_replace('.','',number_format($item->getPrice(),2,'.','')));
+                                                $creditcardTransactionData->AmountInCents = ((int)$creditcardTransactionData->AmountInCents - (int)str_replace('.','',number_format($recurrencyModel->getItemFinalPrice(),2,'.','')));
                                             }
                                         }
                                         
@@ -174,7 +174,9 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
                             foreach($recurrencyModel->getRecurrencesData() as $recurrency){
                                 $newCreditCardTransactionCollection = $_request['CreditCardTransactionCollection'][0];
                                 if($recurrency->hasItem()){
-                                    $amount = str_replace('.','',number_format($recurrency->getItem()->getPrice(),2,'.',''));
+                                    $amountItem = $recurrency->getItem()->getItemFinalPrice();
+                                    
+                                    $amount = str_replace('.','',number_format($amountItem,2,'.',''));
                                 }else{
                                     $amount = str_replace('.','',number_format($recurrency->getProduct()->getFinalPrice(),2,'.',''));
                                 }

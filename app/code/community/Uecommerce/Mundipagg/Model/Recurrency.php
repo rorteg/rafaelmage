@@ -68,8 +68,8 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
         $this->_product = null;
         $this->_recurrency = null;
     }
-
-    /**
+    
+     /**
      * Set item
      * 
      * @param Mage_Sales_Model_Order_Item $item
@@ -214,6 +214,23 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
     public function getItem(){
         return $this->_item;
     }
+    
+    /**
+     * Get the item price with the discount applied
+     * 
+     * @return float
+     */
+    public function getItemFinalPrice(){
+        
+            $item = $this->getItem();
+            $amount = $item->getPrice();
+            if($item->getDiscountAmount()){
+                $amount = ($amount - $item->getDiscountAmount());
+            }
+            
+            return $amount;
+        
+    }
         
     /**
      * Add current recorrency in array data.
@@ -224,6 +241,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
             $recurrency->setData('product',$this->getProduct());
             $recurrency->setData('recurrency',$this->getRecurrency());
             $recurrency->setData('item',$this->getItem());
+            $recurrency->getItem()->setItemFinalPrice($this->getItemFinalPrice());
             $this->_recurrencesData[] = $recurrency;
         }
     }
