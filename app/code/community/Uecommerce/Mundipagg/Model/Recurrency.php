@@ -50,13 +50,23 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
      * 
      * @var array
      */
-    protected $_recurrences;
+    protected $_recurrencesData;
+    
+    /**
+     * Get item from quote
+     * 
+     * @var Mage_Sales_Model_Order_Item
+     */
+    protected $_item;
 
     /**
      * Varien_Object
      */
     public function _construct() {
         parent::_construct();
+        $this->_recurrences = array();
+        $this->_product = null;
+        $this->_recurrency = null;
     }
 
     /**
@@ -66,6 +76,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
      * @return Uecommerce_Mundipagg_Model_Recurrency
      */
     public function setItem(Mage_Sales_Model_Order_Item $item) {
+        $this->_item = $item;
         $this->_product = $item->getProduct()->load($item->getProductId());
         if ($this->_product->getMundipaggRecurrent() && $this->isRecurrent()) {
             $this->_setRecurrencyByProduct($this->_product);
@@ -77,6 +88,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
      * Set Product
      * 
      * @param Mage_Catalog_Model_Product $product
+     * @return Uecommerce_Mundipagg_Model_Recurrency
      */
     public function setProduct(Mage_Catalog_Model_Product $product) {
         if ($product->HasMundipaggRecurrent()) {
@@ -94,6 +106,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
      * Set Product by id
      * 
      * @param int $id
+     * @return Uecommerce_Mundipagg_Model_Recurrency
      */
     public function setProductById($id){
         $this->_product = Mage::getModel('catalog/product')->load($id);
@@ -125,6 +138,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
      * Set Recurrency for this product
      * 
      * @param Mage_Catalog_Model_Product $_product
+     * @return boolean
      */
     protected function _setRecurrencyByProduct(Mage_Catalog_Model_Product $_product) {
 
@@ -154,11 +168,17 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
         );
         
         $this->setData('recurrency',$this->_recurrency);
+        $this->addRecurrencyData();
+        
+        return true;
     }
 
-     /**
-     * Get formatted date to start billing for recurrency by product
+   
+    /**
+     * Get Formatted Date to Start Billing
      * 
+     * @param string $frequency
+     * @param int $interval
      * @return string
      */
     public function getFormattedDateToStartBilling($frequency, $interval) {
@@ -182,8 +202,48 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
         
         $date->{$function}($interval);
         
-        return $date->toString('Y-MM-ddTH:m:s');
+        return $date->toString('yyyy-MM-ddTHH:mm:ss');
         
+    }
+    
+    /**
+     * Get item from Order
+     * 
+     * @return Mage_Sales_Model_Order_Item
+     */
+    public function getItem(){
+        return $this->_item;
+    }
+        
+    /**
+     * Add current recorrency in array data.
+     */
+    protected function addRecurrencyData(){
+        if(!empty($this->_recurrency)){
+            $recurrency = new Varien_Object();
+            $recurrency->setData('product',$this->getProduct());
+            $recurrency->setData('recurrency',$this->getRecurrency());
+            $recurrency->setData('item',$this->getItem());
+            $this->_recurrencesData[] = $recurrency;
+        }
+    }
+    
+    /**
+     * Get all recurrences Data
+     * 
+     * @return array 
+     */
+    public function getRecurrencesData(){
+        return $this->_recurrencesData;
+    }
+    
+    /**
+     * Check if there is any recurrency
+     * 
+     * @return boolean 
+     */
+    public function recurrencyExists(){
+        return (!empty($this->getRecurrencesData()))?true:false;
     }
 
 }

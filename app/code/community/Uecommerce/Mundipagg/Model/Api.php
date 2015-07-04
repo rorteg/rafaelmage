@@ -67,6 +67,9 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 			// Collection
 			$_request["CreditCardTransactionCollection"] = array();
+                        
+                        /* @var $recurrencyModel Uecommerce_Mundipagg_Model_Recurrency */
+                        $recurrencyModel = Mage::getModel('mundipagg/recurrency');
 
 			$creditcardTransactionCollection = array();
 
@@ -82,7 +85,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$helper = Mage::helper('mundipagg');
 
             $num = $helper->getCreditCardsNumber($data['payment_method']);
-
+                        
 			if ( $num > 1 ) {
 				$creditCardOperationEnum = 'AuthOnly';
 			} else {
@@ -145,20 +148,40 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					if ($item->getSku() == $standard->getCieloSku() && $standard->getEnvironment() == 'production') {
 						$creditcardTransactionData->Options->PaymentMethodCode = 5; // Código do meio de pagamento  Cielo
 					}
-                                        /**
-                                         * @todo Implementar Recorrência.
-                                         */
+                                        
+                                        // Adicionamos o produto a lógica de recorrência.
+                                        $qty = $item->getQtyOrdered();
+                                        
+                                        for($qt=1;$qt<=$qty;$qt++){
+                                            $recurrencyModel->setItem($item);
+                                        }
+                                        
+                                        
 				}
 
 				$creditcardTransactionCollection[] = $creditcardTransactionData;
 			}
                         
-                        /**
-                         * @todo Implementar looping para recorrencias a serem adicionadas em $creditcardTransactionCollection
-                         */
-
+                        
 			$_request["CreditCardTransactionCollection"] = $this->ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollection, $standard);
 			
+                        if($recurrencyModel->recurrencyExists()){
+                            foreach($recurrencyModel->getRecurrencesData() as $recurrency){
+                                $newCreditCardTransactionCollection = $_request['CreditCardTransactionCollection'][0];
+                                if($recurrency->hasItem()){
+                                    $amount = str_replace('.','',number_format($recurrency->getItem()->getPrice(),2,'.',''));
+                                }else{
+                                    $amount = str_replace('.','',number_format($recurrency->getProduct()->getFinalPrice(),2,'.',''));
+                                }
+                                
+                                $newCreditCardTransactionCollection['AmountInCents'] = $amount;
+                                $newCreditCardTransactionCollection['InstallmentCount'] = 1;
+                                $newCreditCardTransactionCollection['Recurrency'] = $recurrency->getRecurrency();
+                                //$newCreditCardTransactionCollection['CreditCardOperation'] = 'AuthOnly';
+                                $_request['CreditCardTransactionCollection'][] = $newCreditCardTransactionCollection;
+                            }
+                        }
+                        
 			// Buyer data
 			$_request["Buyer"] = array();
 			$_request["Buyer"] = $this->buyerBillingData($order, $data, $_request, $standard);
@@ -394,10 +417,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$creditcardTrans["InstallmentCount"] 				= $creditcardTransItem->InstallmentCount;
 			$creditcardTrans['Options']["CurrencyIso"] 			= $creditcardTransItem->Options->CurrencyIso;
                         
-                        /**
-                         * @todo Implementar array de recorrencia caso exista.
-                         */
-
+                       
 			if ($standard->getEnvironment() != 'production') {
 				$creditcardTrans['Options']["PaymentMethodCode"] = $creditcardTransItem->Options->PaymentMethodCode;
 			}
@@ -1471,4 +1491,6 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			
 		$mail->send();
 	}
+        
+        
 }
