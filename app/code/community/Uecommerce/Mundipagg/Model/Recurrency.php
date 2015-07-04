@@ -216,16 +216,21 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
     }
     
     /**
-     * Get the item price with the discount applied
+     * Get the item price with the discount and tax applied
      * 
      * @return float
      */
     public function getItemFinalPrice(){
         
             $item = $this->getItem();
+            
             $amount = $item->getPrice();
             if($item->getDiscountAmount()){
                 $amount = ($amount - $item->getDiscountAmount());
+            }
+            
+            if($item->getTaxAmount()){
+                $amount = ($amount + $item->getTaxAmount());
             }
             
             return $amount;
