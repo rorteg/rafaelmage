@@ -200,7 +200,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
         
         $function = 'add'.$frequency;
         
-        $date->{$function}($interval);
+       // $date->{$function}($interval);
         
         return $date->toString('yyyy-MM-ddTHH:mm:ss');
         
