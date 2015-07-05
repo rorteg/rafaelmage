@@ -68,8 +68,8 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			// Collection
 			$_request["CreditCardTransactionCollection"] = array();
                         
-                        /* @var $recurrencyModel Uecommerce_Mundipagg_Model_Recurrency */
-                        $recurrencyModel = Mage::getModel('mundipagg/recurrency');
+            /* @var $recurrencyModel Uecommerce_Mundipagg_Model_Recurrency */
+            $recurrencyModel = Mage::getModel('mundipagg/recurrency');
 
 			$creditcardTransactionCollection = array();
 
@@ -85,6 +85,8 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$helper = Mage::helper('mundipagg');
 
             $num = $helper->getCreditCardsNumber($data['payment_method']);
+
+            $installmentCount = 1;
                         
 			if ( $num > 1 ) {
 				$creditCardOperationEnum = 'AuthOnly';
@@ -132,6 +134,8 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					$creditcardTransactionData->Options->CurrencyIso = "BRL"; //Moeda do pedido
 				}
 
+				$installmentCount = $paymentData['InstallmentCount'];
+
 				// BillingAddress
 				if ($standard->getClearsale() == 1) {
 					$addy = $this->buyerBillingData($order, $data, $_request, $standard);
@@ -149,53 +153,49 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 						$creditcardTransactionData->Options->PaymentMethodCode = 5; // Código do meio de pagamento  Cielo
 					}
                                         
-                                        // Adicionamos o produto a lógica de recorrência.
-                                        $qty = $item->getQtyOrdered();
-                                        
-                                        for($qt=1;$qt<=$qty;$qt++){
-                                            $recurrencyModel->setItem($item);
-                                            if($recurrencyModel->isRecurrent()){
-                                                
-                                                // Subtraimos o valor do produto recorrente da primeira transação.
-                                                $creditcardTransactionData->AmountInCents = ((int)$creditcardTransactionData->AmountInCents - (int)str_replace('.','',number_format($recurrencyModel->getItemFinalPrice(),2,'.','')));
-                                            }
-                                        }
-                                        
-                                        
+                    // Adicionamos o produto a lógica de recorrência.
+                    $qty = $item->getQtyOrdered();
+                    
+                    for($qt=1;$qt<=$qty;$qt++) {
+                        $recurrencyModel->setItem($item);
+
+                        if($recurrencyModel->isRecurrent()) {
+                            // Subtraimos o valor do produto recorrente da primeira transação.
+                            $creditcardTransactionData->AmountInCents = ((int)$creditcardTransactionData->AmountInCents - (int)str_replace('.','',number_format($recurrencyModel->getItemFinalPrice(),2,'.','')));
+                        }
+                    }                
 				}
 
 				$creditcardTransactionCollection[] = $creditcardTransactionData;
 			}
-                        
-                        
+                   
 			$_request["CreditCardTransactionCollection"] = $this->ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollection, $standard);
 			
-                        if($recurrencyModel->recurrencyExists()){
-                            foreach($recurrencyModel->getRecurrencesData() as $recurrency){
-                                $newCreditCardTransactionCollection = $_request['CreditCardTransactionCollection'][0];
-                                if($recurrency->hasItem()){
-                                    $amountItem = $recurrency->getItem()->getItemFinalPrice();
-                                    
-                                    $amount = str_replace('.','',number_format($amountItem,2,'.',''));
-                                }else{
-                                    $amount = str_replace('.','',number_format($recurrency->getProduct()->getFinalPrice(),2,'.',''));
-                                }
-                                
-                                                                
-                                $itemRecurrency = $recurrency->getRecurrency();
-                                $newCreditCardTransactionCollection['AmountInCents'] = $amount;
-                                $newCreditCardTransactionCollection['InstallmentCount'] = 1;
-                                $newCreditCardTransactionCollection['Recurrency'] = $itemRecurrency;
-                                $newCreditCardTransactionCollection['CreditCardOperation'] = 'AuthOnly';
-                                //$newCreditCardTransactionCollection['TransactionDateInMerchant'] = $itemRecurrency['DateToStartBilling'];
-                                $_request['CreditCardTransactionCollection'][] = $newCreditCardTransactionCollection;
-                            }
-                        }
+            if($recurrencyModel->recurrencyExists()) {
+                foreach($recurrencyModel->getRecurrencesData() as $recurrency) {
+                    $newCreditCardTransactionCollection = $_request['CreditCardTransactionCollection'][0];
+
+                    if($recurrency->hasItem()) {
+                        $amountItem = $recurrency->getItem()->getItemFinalPrice();
                         
-                        // Se a primeira transação for menor ou igual a 0, retiramos ela.
-                        if($_request['CreditCardTransactionCollection'][0]['AmountInCents'] <= 0000){
-                            array_shift($_request['CreditCardTransactionCollection']);
-                        }
+                        $amount = str_replace('.','',number_format($amountItem,2,'.',''));
+                    } else {
+                        $amount = str_replace('.','',number_format($recurrency->getProduct()->getFinalPrice(),2,'.',''));
+                    }
+                                                 
+                    $itemRecurrency = $recurrency->getRecurrency();
+                    $newCreditCardTransactionCollection['AmountInCents'] = $amount;
+                    $newCreditCardTransactionCollection['InstallmentCount'] = $installmentCount;
+                    $newCreditCardTransactionCollection['Recurrency'] = $itemRecurrency;
+                    $newCreditCardTransactionCollection['CreditCardOperation'] = 'AuthOnly';
+                    $_request['CreditCardTransactionCollection'][] = $newCreditCardTransactionCollection;
+                }
+            }
+            
+            // Se a primeira transação for menor ou igual a 0, retiramos ela.
+            if($_request['CreditCardTransactionCollection'][0]['AmountInCents'] <= 0000){
+                array_shift($_request['CreditCardTransactionCollection']);
+            }
                         
 			// Buyer data
 			$_request["Buyer"] = array();
@@ -432,8 +432,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$creditcardTrans["CreditCardOperation"] 			= $creditcardTransItem->CreditCardOperation;
 			$creditcardTrans["InstallmentCount"] 				= $creditcardTransItem->InstallmentCount;
 			$creditcardTrans['Options']["CurrencyIso"] 			= $creditcardTransItem->Options->CurrencyIso;
-                        
-                       
+                      
 			if ($standard->getEnvironment() != 'production') {
 				$creditcardTrans['Options']["PaymentMethodCode"] = $creditcardTransItem->Options->PaymentMethodCode;
 			}
@@ -629,6 +628,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 		foreach($boletoTransactionCollectionRequest as $boletoTransItem) {
 			$boletoTrans = array();
+
 			$boletoTrans["AmountInCents"] = $boletoTransItem->AmountInCents;
             $boletoTrans["BankNumber"] = isset($boletoTransItem->BankNumber) ? $boletoTransItem->BankNumber : '';
 			$boletoTrans["Instructions"] = $boletoTransItem->Instructions;
@@ -657,8 +657,6 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			$amountInCentsVar = intval(strval(($baseGrandTotal*100)));
 
 			// Set Data
-			$_request = array();
-
 			$_request = array();
 
 			$_request["RequestKey"] = '00000000-0000-0000-0000-000000000000';
@@ -790,7 +788,8 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 	public function buyerBillingData($order, $data, $_request, $standard) 
 	{
 		if ($order->getData()) {
-                        $gender = null;
+            $gender = null;
+
 			if ($order->getCustomerGender()) {
 				$gender = $order->getCustomerGender();
 			}
@@ -802,15 +801,14 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 				$createdAt = explode(' ', $customer->getCreatedAt());
 				$updatedAt = explode(' ', $customer->getUpdatedAt());
-                                $currentDateTime = Mage::getModel('core/date')->date('Y-m-d H:i:s');
-                                if(!array_key_exists(1, $createdAt)){
-                                    $createdAt = explode(' ', $currentDateTime);
-                                }
-                                
-                                if(!array_key_exists(1, $updatedAt)){
-                                    $updatedAt = explode(' ', $currentDateTime);
-                                }
-                               
+                $currentDateTime = Mage::getModel('core/date')->date('Y-m-d H:i:s');
+                if(!array_key_exists(1, $createdAt)){
+                    $createdAt = explode(' ', $currentDateTime);
+                }
+                
+                if(!array_key_exists(1, $updatedAt)){
+                    $updatedAt = explode(' ', $currentDateTime);
+                }              
 
 				$createDateInMerchant = substr($createdAt[0].'T'.$createdAt[1], 0, 19);
 				$lastBuyerUpdateInMerchant = substr($updatedAt[0].'T'.$updatedAt[1], 0, 19);
@@ -1040,13 +1038,11 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 		$items = array();
 
-		foreach ($order->getItemsCollection() as $item) {
-                        
+		foreach ($order->getItemsCollection() as $item) {       
 			if($item->getParentItemId() == '') {
-                                
 				$items[$item->getItemId()]['sku'] 	= $item->getProductId();
 				$items[$item->getItemId()]['name'] 	= $item->getName();
-                                $items[$item->getItemId()]['description'] = $item->getProduct()->load($item->getProductId())->getShortDescription();
+                $items[$item->getItemId()]['description'] = $item->getProduct()->load($item->getProductId())->getShortDescription();
 	            $items[$item->getItemId()]['qty'] 	= round($item->getQtyOrdered(),0);
 	            $items[$item->getItemId()]['price'] = $item->getBasePrice();
         	}
@@ -1062,7 +1058,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			//if ($standard->getClearsale() == 1) {
 				$unitCostInCents = intval(strval(($itemId['price']*$discount*100)));
                                 
-                                $_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Description"] = empty($itemId['description']) || ($itemId['description'] == '')?$itemId['name']:$itemId['description'];
+                $_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Description"] = empty($itemId['description']) || ($itemId['description'] == '')?$itemId['name']:$itemId['description'];
 				$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["ItemReference"] 	= $itemId['sku'];
         		$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Name"] 			= $itemId['name'];
             	$_request["ShoppingCartCollection"]["ShoppingCartItemCollection"][$i]["Quantity"] 		= $itemId['qty'];
@@ -1099,7 +1095,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		$address['Street'] 		= isset($street[0])?$street[0]:'xxx';
 		$address['ZipCode'] 	= preg_replace('[\D]', '', $addy->getPostcode());
 		$address['Country'] 	= 'Brazil';
-                $address['AddressType'] = "Shipping";
+        $address['AddressType'] = "Shipping";
 
 		$_request["ShoppingCartCollection"]["DeliveryAddress"] = array();
 
@@ -1506,7 +1502,5 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 	    $mail->setType('html');
 			
 		$mail->send();
-	}
-        
-        
+	}    
 }
