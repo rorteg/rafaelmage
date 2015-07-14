@@ -345,6 +345,9 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
                 Mage::dispatchEvent('checkout_onepage_controller_success_action', array('order_ids' => array($lastOrderId)));
                 $this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('mundipagg/standard_success'));
                 $this->renderLayout();
+                
+                $recurrence = Mage::getModel('mundipagg/recurrency');
+                $recurrence->checkRecurrencesByOrder($order);
 
                 $session->clear();
             } else {
@@ -367,6 +370,8 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
                 $this->getResponse()->setBody($result);
             }
         }
+        
+        
     }
 
     public function installmentsandinterestAction(){

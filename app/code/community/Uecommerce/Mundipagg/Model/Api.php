@@ -158,11 +158,10 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
                     
                     for($qt=1;$qt<=$qty;$qt++) {
                         $recurrencyModel->setItem($item);
-
-                        if($recurrencyModel->isRecurrent()) {
+//                        if($recurrencyModel->isRecurrent()) {
                             // Subtraimos o valor do produto recorrente da primeira transação.
-                            $creditcardTransactionData->AmountInCents = ((int)$creditcardTransactionData->AmountInCents - (int)str_replace('.','',number_format($recurrencyModel->getItemFinalPrice(),2,'.','')));
-                        }
+                            //$creditcardTransactionData->AmountInCents = ((int)$creditcardTransactionData->AmountInCents - (int)str_replace('.','',number_format($recurrencyModel->getItemFinalPrice(),2,'.','')));
+//                        }
                     }                
 				}
 
@@ -171,31 +170,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
                    
 			$_request["CreditCardTransactionCollection"] = $this->ConvertCreditcardTransactionCollectionFromRequest($creditcardTransactionCollection, $standard);
 			
-            if($recurrencyModel->recurrencyExists()) {
-                foreach($recurrencyModel->getRecurrencesData() as $recurrency) {
-                    $newCreditCardTransactionCollection = $_request['CreditCardTransactionCollection'][0];
-
-                    if($recurrency->hasItem()) {
-                        $amountItem = $recurrency->getItem()->getItemFinalPrice();
-                        
-                        $amount = str_replace('.','',number_format($amountItem,2,'.',''));
-                    } else {
-                        $amount = str_replace('.','',number_format($recurrency->getProduct()->getFinalPrice(),2,'.',''));
-                    }
-                                                 
-                    $itemRecurrency = $recurrency->getRecurrency();
-                    $newCreditCardTransactionCollection['AmountInCents'] = $amount;
-                    $newCreditCardTransactionCollection['InstallmentCount'] = $installmentCount;
-                    $newCreditCardTransactionCollection['Recurrency'] = $itemRecurrency;
-                    $newCreditCardTransactionCollection['CreditCardOperation'] = 'AuthOnly';
-                    $_request['CreditCardTransactionCollection'][] = $newCreditCardTransactionCollection;
-                }
-            }
+                        $_request = $recurrencyModel->generateRecurrences($_request, $installmentCount);
             
             // Se a primeira transação for menor ou igual a 0, retiramos ela.
-            if($_request['CreditCardTransactionCollection'][0]['AmountInCents'] <= 0000){
-                array_shift($_request['CreditCardTransactionCollection']);
-            }
+//            if($_request['CreditCardTransactionCollection'][0]['AmountInCents'] <= 0000){
+//                array_shift($_request['CreditCardTransactionCollection']);
+//            }
                         
 			// Buyer data
 			$_request["Buyer"] = array();
@@ -315,6 +295,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 						'returnMessage'		=> urldecode($creditCardTransactionResultCollection['CreditCardTransactionResult']['AcquirerMessage']), 
 						'OrderKey'			=> $dataR['OrderResult']['OrderKey'],
 						'OrderReference'	=> $dataR['OrderResult']['OrderReference'],
+                                                'isRecurrency'          => $recurrencyModel->recurrencyExists(),
 						'result'			=> $xml
 					);
 				} else {
@@ -367,6 +348,7 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 					'message'			=> 1,
 					'OrderKey'			=> $dataR['OrderResult']['OrderKey'],
 					'OrderReference'	=> $dataR['OrderResult']['OrderReference'],
+                                        'isRecurrency'          => $recurrencyModel->recurrencyExists(),
 					'result'			=> $xml,
 				);	
 			}
@@ -1502,5 +1484,52 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 	    $mail->setType('html');
 			
 		$mail->send();
-	}    
+	}
+        
+        /**
+         * Search by orderkey
+         * @param string $orderKey
+         * @return array
+         */
+        public function getTransactionHistory($orderKey){
+            
+                        // @var $standard Uecommerce_Mundipagg_Model_Standard
+                        $standard = Mage::getModel('mundipagg/standard');
+                        
+                        // Get store key
+			$key = $standard->getMerchantKey();
+                        
+			// Get Webservice URL
+			$url = $standard->getURL().'/Query/'.http_build_query(array('OrderKey' => $orderKey));
+
+			
+
+			// get transactions from MundiPagg
+			$ch = curl_init();
+
+			// Header
+                        curl_setopt($ch,CURLOPT_HEADER, false);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json', 'MerchantKey: '.$key.''));
+
+			
+			curl_setopt($ch, CURLOPT_URL, $url);
+
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+			// Execute get
+			$_response = curl_exec($ch);
+
+			// Close connection
+			curl_close($ch);
+
+			if ($standard->getDebug() == 1) {
+				Mage::log('Uecommerce_Mundipagg: '. Mage::helper('mundipagg')->getExtensionVersion(), null, 'Uecommerce_Mundipagg.log');
+				Mage::log(print_r($_response,1), null, 'Uecommerce_Mundipagg.log');
+			}
+
+			// Return
+			return array('result' => simplexml_load_string($_response));
+		
+		
+        }
 }

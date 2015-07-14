@@ -1351,6 +1351,10 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
         if(isset($approvalRequest['TransactionReference'])) {
             $payment->setAdditionalInformation('TransactionReference', $approvalRequest['TransactionReference']);
         }
+        
+        if(array_key_exists('isRecurrency',$approvalRequest)){
+            $payment->setAdditionalInformation('isRecurrency', $approvalRequest['isRecurrency']);
+        }
 
         return $payment;
     }

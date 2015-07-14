@@ -28,9 +28,8 @@
  * @package    Uecommerce_Mundipagg
  * @author     Uecommerce Dev Team
  */
+class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
 
-class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object 
-{
     /**
      * Loaded Product
      * 
@@ -51,7 +50,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
      * @var array
      */
     protected $_recurrencesData;
-    
+
     /**
      * Get item from quote
      * 
@@ -62,8 +61,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
     /**
      * Varien_Object
      */
-    public function _construct() 
-    {
+    public function _construct() {
         parent::_construct();
 
         $this->_recurrences = array();
@@ -71,15 +69,14 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
         $this->_recurrency = null;
         $this->_recurrencesData = array();
     }
-    
-     /**
+
+    /**
      * Set item
      * 
      * @param Mage_Sales_Model_Order_Item $item
      * @return Uecommerce_Mundipagg_Model_Recurrency
      */
-    public function setItem(Mage_Sales_Model_Order_Item $item) 
-    {
+    public function setItem(Mage_Sales_Model_Order_Item $item) {
         $this->_item = $item;
         $this->_product = $item->getProduct()->load($item->getProductId());
 
@@ -96,8 +93,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
      * @param Mage_Catalog_Model_Product $product
      * @return Uecommerce_Mundipagg_Model_Recurrency
      */
-    public function setProduct(Mage_Catalog_Model_Product $product) 
-    {
+    public function setProduct(Mage_Catalog_Model_Product $product) {
         if ($product->HasMundipaggRecurrent()) {
             $this->_product = $product;
         } else {
@@ -117,8 +113,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
      * @param int $id
      * @return Uecommerce_Mundipagg_Model_Recurrency
      */
-    public function setProductById($id)
-    {
+    public function setProductById($id) {
         $this->_product = Mage::getModel('catalog/product')->load($id);
 
         if ($this->_product->getMundipaggRecurrent() && $this->isRecurrent()) {
@@ -127,14 +122,13 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
 
         return $this;
     }
-    
+
     /**
      * Check if this product is recurrent
      * 
      * @return boolean
      */
-    public function isRecurrent() 
-    {
+    public function isRecurrent() {
         return $this->getProduct()->getMundipaggRecurrent() ? true : false;
     }
 
@@ -143,8 +137,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
      * 
      * @return Mage_Catalog_Model_Product
      */
-    public function getProduct() 
-    {
+    public function getProduct() {
         return $this->_product;
     }
 
@@ -154,8 +147,7 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
      * @param Mage_Catalog_Model_Product $_product
      * @return boolean
      */
-    protected function _setRecurrencyByProduct(Mage_Catalog_Model_Product $_product) 
-    {
+    protected function _setRecurrencyByProduct(Mage_Catalog_Model_Product $_product) {
         if (!$_product->getMundipaggRecurrent()) {
             return false;
         }
@@ -178,17 +170,16 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
             'DateToStartBilling' => $this->getFormattedDateToStartBilling($frequency, $interval),
             'Frequency' => $frequency,
             'Interval' => $interval,
-            'Recurrences' => $_product->getMundipaggRecurrences()
+            'Recurrences' => ($_product->getMundipaggRecurrences() - 1)
         );
-        
-        $this->setData('recurrency',$this->_recurrency);
+
+        $this->setData('recurrency', $this->_recurrency);
 
         $this->addRecurrencyData();
-        
+
         return true;
     }
 
-   
     /**
      * Get Formatted Date to Start Billing
      * 
@@ -196,11 +187,10 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
      * @param int $interval
      * @return string
      */
-    public function getFormattedDateToStartBilling($frequency, $interval) 
-    {
+    public function getFormattedDateToStartBilling($frequency, $interval) {
         $date = new Zend_Date(Mage::getModel('core/date')->timestamp(), Zend_Date::TIMESTAMP);
 
-        switch ($frequency){
+        switch ($frequency) {
             case 'Daily':
                 $frequency = 'Day';
                 break;
@@ -214,52 +204,48 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
                 $frequency = 'Year';
                 break;
         }
-        
-        $function = 'add'.$frequency;
-        
-       // $date->{$function}($interval);
-        
+
+        $function = 'add' . $frequency;
+
+        $date->{$function}($interval);
+
         return $date->toString('yyyy-MM-ddTHH:mm:ss');
-        
     }
-    
+
     /**
      * Get item from Order
      * 
      * @return Mage_Sales_Model_Order_Item
      */
-    public function getItem()
-    {
+    public function getItem() {
         return $this->_item;
     }
-    
+
     /**
      * Get the item price with the discount and tax applied
      * 
      * @return float
      */
-    public function getItemFinalPrice()
-    {
+    public function getItemFinalPrice() {
         $item = $this->getItem();
-        
+
         $amount = $item->getPrice();
-        if($item->getDiscountAmount()){
+        if ($item->getDiscountAmount()) {
             $amount = ($amount - $item->getDiscountAmount());
         }
-        
-        if($item->getTaxAmount()){
+
+        if ($item->getTaxAmount()) {
             $amount = ($amount + $item->getTaxAmount());
         }
-        
+
         return $amount;
     }
-        
+
     /**
      * Add current recorrency in array data.
      */
-    protected function addRecurrencyData()
-    {
-        if(!empty($this->_recurrency)) {
+    protected function addRecurrencyData() {
+        if (!empty($this->_recurrency)) {
             $recurrency = new Varien_Object();
             $recurrency->setData('product', $this->getProduct());
             $recurrency->setData('recurrency', $this->getRecurrency());
@@ -269,30 +255,100 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object
             $this->_recurrencesData[] = $recurrency;
         }
     }
-    
+
     /**
      * Get all recurrences Data
      * 
      * @return array 
      */
-    public function getRecurrencesData()
-    {
+    public function getRecurrencesData() {
         return $this->_recurrencesData;
     }
-    
+
     /**
      * Check if there is any recurrency
      * 
      * @return boolean 
      */
-    public function recurrencyExists()
-    {    
+    public function recurrencyExists() {
         $recurrencesData = $this->getRecurrencesData();
-        
-        if(!empty($recurrencesData)) {
+
+        if (!empty($recurrencesData)) {
             return true;
         } else {
             return false;
         }
     }
+
+    /**
+     * Generate all recurrences in request if exists
+     * 
+     * @param array $_request
+     * @param int $installmentCount
+     * @return array Parameter $_request
+     */
+    public function generateRecurrences($_request, $installmentCount) {
+        if (!$this->recurrencyExists()) {
+            return $_request;
+        }
+
+        foreach ($this->getRecurrencesData() as $recurrency) {
+            $newCreditCardTransactionCollection = $_request['CreditCardTransactionCollection'][0];
+
+            if ($recurrency->hasItem()) {
+                $amountItem = $recurrency->getItem()->getItemFinalPrice();
+
+                $amount = str_replace('.', '', number_format($amountItem, 2, '.', ''));
+            } else {
+                $amount = str_replace('.', '', number_format($recurrency->getProduct()->getFinalPrice(), 2, '.', ''));
+            }
+
+            $itemRecurrency = $recurrency->getRecurrency();
+            $newCreditCardTransactionCollection['AmountInCents'] = $amount;
+            $newCreditCardTransactionCollection['InstallmentCount'] = $installmentCount;
+            $newCreditCardTransactionCollection['Recurrency'] = $itemRecurrency;
+            $newCreditCardTransactionCollection['CreditCardOperation'] = 'AuthOnly';
+            $_request['CreditCardTransactionCollection'][] = $newCreditCardTransactionCollection;
+        }
+        
+        return $_request;
+    }
+    
+    /**
+     * 
+     * @param Mage_Sales_Model_Order $order
+     * @return boolean
+     */
+    public function checkRecurrencesByOrder(Mage_Sales_Model_Order $order){
+        $payment = $order->getPayment();
+        if($payment->getAdditionalInformation('isRecurrency') != '1'){
+            return false;
+        }
+        
+        // @var $transactions Mage_Sales_Model_Order_Payment_Transaction
+        $transactions = Mage::getModel('sales/order_payment_transaction')->getCollection()
+                ->addAttributeToFilter('order_id', array('eq' => $order->getEntityId()));
+        $transactionsKeys = array();
+        if($transactions->getSize()){
+            foreach($transactions as $transaction){
+                $transactionsKeys[] = $transaction->getAdditionalInformation('TransactionKey');
+            }
+        }
+        
+        // @var $api Uecommerce_Mundipagg_Model_Api
+        $api = Mage::getModel('mundipagg/api');
+        
+        $apiTransactions = $api->getTransactionHistory($payment->getAdditionalInformation('OrderKey'));
+        
+        if(count($apiTransactions['result'])){
+            foreach($apiTransactions['result']->SaleDataCollection->Sale->CreditCardTransactionDataCollection->CreditCardTransactionData as $transaction){
+                if(!in_array($transaction->TransactionKey, $transactionsKeys)){
+                    echo '<br> A key não consta no pedido ainda: '.$transaction->TransactionKey;
+                    Mage::log($transaction);
+                }
+            }
+        }
+        
+    }
+
 }
