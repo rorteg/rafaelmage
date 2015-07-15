@@ -249,7 +249,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
         if (!($data instanceof Varien_Object)) {
             $data = new Varien_Object($data);
         }
-
+        
         $info = $this->getInfoInstance();
 
         $mundipagg = array();
@@ -270,9 +270,14 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     Mage::throwException($error);
                 }
             }
+            
+            
         }
 
         if (!empty($mundipagg)) {
+            
+            $helperInstallments = Mage::helper('mundipagg/Installments');
+            
             //Set Mundipagg Data in Session
             $session = Mage::getSingleton('checkout/session');
             $session->setMundipaggData($mundipagg);
@@ -281,11 +286,14 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
             
             if (isset($mundipagg['mundipagg_type'])) {
                 $info->setAdditionalInformation('PaymentMethod', $mundipagg['method']);
-
+                
                 switch ($mundipagg['method']) {
                     case 'mundipagg_creditcard':
                         
                         if (isset($mundipagg['mundipagg_creditcard_1_1_cc_type'])){
+                            if($mundipagg['mundipagg_creditcard_credito_parcelamento_1_1'] > $helperInstallments->getMaxInstallments($mundipagg['mundipagg_creditcard_1_1_cc_type'])){
+                                Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg['mundipagg_creditcard_credito_parcelamento_1_1']));
+                            }
                             $info->setCcType($mundipagg['mundipagg_creditcard_1_1_cc_type'])
                                 ->setCcOwner($mundipagg['mundipagg_creditcard_cc_holder_name_1_1'])
                                 ->setCcLast4(substr($mundipagg['mundipagg_creditcard_1_1_cc_number'], -4))
@@ -350,6 +358,12 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     (float) $totalInstallments      = 0;
 
                     for ($i=1; $i <= $num; $i++) {
+                        
+                        if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], str_replace(',', '.', $mundipagg[$method.'_value_'.$num.'_'.$i]))){
+                            Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
+                        }
+                        
+                        
                         if (isset($mundipagg[$method.'_token_'.$num.'_'.$i]) && $mundipagg[$method.'_token_'.$num.'_'.$i] != 'new') {
                             (float) $value = str_replace(',', '.', $mundipagg[$method.'_value_'.$num.'_'.$i]);
                             

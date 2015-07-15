@@ -170,6 +170,37 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
 
         return $value;
     }
+    
+    public function getMaxInstallments($ccType = null,$amount = null){
+        $session = Mage::getSingleton('admin/session');
+
+        if ($session->isLoggedIn()) {
+            $quote = Mage::getSingleton('adminhtml/session_quote')->getQuote();
+        } else {
+            $quote = (Mage::getModel('checkout/type_onepage') !== false)? Mage::getModel('checkout/type_onepage')->getQuote(): Mage::getModel('checkout/session')->getQuote();;
+        }
+        
+        if(!$amount) {
+            $amount = (double)$quote->getGrandTotal()-$quote->getMundipaggInterest();
+        }
+        $amount = str_replace(',','.',$amount);
+        $ccTypeInstallments = "installments_".$ccType;
+
+        $all_installments = $this->getInstallments(null, $ccTypeInstallments);
+
+        if(empty($all_installments)) {
+            $ccTypeInstallments = null;
+        } else {
+            $max_installments = $this->getConfigValue($amount, null, $ccTypeInstallments);
+        }
+        
+        if($ccTypeInstallments == null) {
+            $max_installments = $this->getConfigValue($amount, null);
+            $all_installments = $this->getInstallments();
+        }
+        
+        return $max_installments;
+    }
 
     public function getInstallmentForCreditCardType($ccType = null,$amount = null) 
     {
