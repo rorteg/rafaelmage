@@ -359,17 +359,23 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 
                     for ($i=1; $i <= $num; $i++) {
                         
-                        if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], str_replace(',', '.', $mundipagg[$method.'_value_'.$num.'_'.$i]))){
-                            Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
-                        }
+                        
                         
                         
                         if (isset($mundipagg[$method.'_token_'.$num.'_'.$i]) && $mundipagg[$method.'_token_'.$num.'_'.$i] != 'new') {
                             (float) $value = str_replace(',', '.', $mundipagg[$method.'_value_'.$num.'_'.$i]);
                             
+                            if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
+                                Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
+                            }
+                            
                             (float) $totalInstallmentsToken += $value;
                         } else {
                             (float) $value = str_replace(',', '.', $mundipagg[$method.'_new_value_'.$num.'_'.$i]);
+                            if($mundipagg[$method.'_new_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
+                                Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_new_credito_parcelamento_'.$num.'_'.$i]));
+                            }
+                            
                             
                             (float) $totalInstallmentsNew += $value;
                         }
