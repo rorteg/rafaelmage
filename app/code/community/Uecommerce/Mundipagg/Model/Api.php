@@ -455,17 +455,13 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
  				$boletoTransactionData->Options->CurrencyIso = 'BRL';
 				$boletoTransactionData->Options->DaysToAddInBoletoExpirationDate = $daysToAddInBoletoExpirationDate;
                                 
-//                                if ($standard->getClearsale() == 1) {
-                                    $addy = $this->buyerBillingData($order, $data, $_request, $standard);
+	            $addy = $this->buyerBillingData($order, $data, $_request, $standard);
 
-                                    $boletoTransactionData->BillingAddress = $addy['AddressCollection'][0];
-//                                }   
+	            $boletoTransactionData->BillingAddress = $addy['AddressCollection'][0];
 			
 				$boletoTransactionCollection = array($boletoTransactionData);
 			}
-                        
-                        
-
+			
 			$_request["BoletoTransactionCollection"] = $this->ConvertBoletoTransactionCollectionFromRequest($boletoTransactionCollection);
 			
 			// Buyer data
@@ -587,12 +583,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 		foreach($boletoTransactionCollectionRequest as $boletoTransItem) {
 			$boletoTrans = array();
 			$boletoTrans["AmountInCents"] = $boletoTransItem->AmountInCents;
-                        $boletoTrans["BankNumber"] = isset($boletoTransItem->BankNumber) ? $boletoTransItem->BankNumber : null;
+            $boletoTrans["BankNumber"] = isset($boletoTransItem->BankNumber) ? $boletoTransItem->BankNumber : '';
 			$boletoTrans["Instructions"] = $boletoTransItem->Instructions;
 			$boletoTrans["DocumentNumber"] = $boletoTransItem->DocumentNumber;
 			$boletoTrans["Options"]["CurrencyIso"] = $boletoTransItem->Options->CurrencyIso;
 			$boletoTrans["Options"]["DaysToAddInBoletoExpirationDate"] = $boletoTransItem->Options->DaysToAddInBoletoExpirationDate;
-                        $boletoTrans['BillingAddress'] = $boletoTransItem->BillingAddress;
+            $boletoTrans['BillingAddress'] = $boletoTransItem->BillingAddress;
 			
 			$newBoletoTransCollection[$counter] = $boletoTrans;
 			$counter += 1;
