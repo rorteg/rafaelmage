@@ -154,27 +154,38 @@ class Uecommerce_Mundipagg_Model_Fourcreditcards extends Uecommerce_Mundipagg_Mo
         $interest2 = 0;
         $interest3 = 0;
         $interest4 = 0;
-
+        $interestInformation = array();
         if($cctype1) {
             $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $value1);
+            $interestInformation[$this->_code.'_4_1'] = new Varien_Object();
+            $interestInformation[$this->_code.'_4_1']->setInterest(str_replace(',','.',$interest1))->setValue(str_replace(',','.',$value1));
         }
 
         if($cctype2) {
             $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, $value2);
+            $interestInformation[$this->_code.'_4_2'] = new Varien_Object();
+            $interestInformation[$this->_code.'_4_2']->setInterest(str_replace(',','.',$interest2))->setValue(str_replace(',','.',$value2));
         }
 
         if($cctype3) {
             $interest3 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber3 , $cctype3, $value3);
+            $interestInformation[$this->_code.'_4_3'] = new Varien_Object();
+            $interestInformation[$this->_code.'_4_3']->setInterest(str_replace(',','.',$interest3))->setValue(str_replace(',','.',$value3));
         }
 
         if($cctype4) {
             $interest4 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber4 , $cctype4, $value4);
+            $interestInformation[$this->_code.'_4_4'] = new Varien_Object();
+            $interestInformation[$this->_code.'_4_4']->setInterest(str_replace(',','.',$interest4))->setValue(str_replace(',','.',$value4));
         }
 
         $interest = $interest1+$interest2+$interest3+$interest4;
 
         if ($interest > 0) {
+            $info->setAdditionalInformation('mundipagg_interest_information', array());
+            $info->setAdditionalInformation('mundipagg_interest_information',$interestInformation);
             $this->applyInterest($info, $interest);
+            
         } else {
             // If none of Cc parcels doens't have interest we reset interest
             $this->resetInterest($info);

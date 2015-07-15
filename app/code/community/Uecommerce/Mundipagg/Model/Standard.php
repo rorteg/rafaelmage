@@ -1224,8 +1224,10 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('success');
                         Mage::getSingleton('checkout/session')->setAuthorizedAmount();
                     } else {
+                        
                         Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('partial');
                         Mage::getSingleton('checkout/session')->setAuthorizedAmount($authorizedAmount);
+                        
                     }
                 } else {
                     Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('cancel');
@@ -1269,8 +1271,26 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                             Mage::getSingleton('checkout/session')->setAuthorizedAmount();
                         } else {
                             if(($orderGrandTotal-$authorizedAmount) > $epsilon){
+                                
                                 Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('partial');
                                 Mage::getSingleton('checkout/session')->setAuthorizedAmount($authorizedAmount);
+                                $interestInformation = $payment->getAdditionalInformation('mundipagg_interest_information');
+                                $unauthorizedAmount = (float)abs($orderGrandTotal - $authorizedAmount);
+                                
+                                if(count($interestInformation)){
+                                    foreach($interestInformation as $ii){
+                                        
+                                        if($ii->hasValue()){
+                                            if((float)($ii->getValue()+$ii->getInterest()) == (float)trim($unauthorizedAmount)){
+                                                $this->removeInterestToOrder($order, $ii->getInterest());
+                                            }
+                                        }else{
+                                            if(($order->getGrandTotal()+$order->getMundipaggInterest()) == $unauthorizedAmount){
+                                                $this->removeInterestToOrder($order, $ii->getInterest());
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -1729,13 +1749,14 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     */
     public function resetInterest($info) 
     {
+        $info->setAdditionalInformation('mundipagg_interest_information', array());
         if ($info->getQuote()->getMundipaggInterest() > 0 || $info->getQuote()->getMundipaggBaseInterest() > 0) {
             $info->getQuote()->setMundipaggInterest(0.0);
             $info->getQuote()->setMundipaggBaseInterest(0.0);
             $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
             $info->getQuote()->save();
         }
-
+        
         return $info;
     }
 
@@ -1748,6 +1769,25 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
         $info->getQuote()->setMundipaggBaseInterest($interest);
         $info->getQuote()->setTotalsCollectedFlag(false)->collectTotals();
         $info->getQuote()->save();
+       
+    }
+    
+    /**
+     * Remove interest to order when the total is not allowed.
+     * 
+     * @param Mage_Sales_Model_Order $order
+     * @param float $interest
+     */
+    protected function removeInterestToOrder(Mage_Sales_Model_Order $order, $interest)
+    {
+        $mundipaggInterest = $order->getMundipaggInterest();
+        $setInterest = (float)($mundipaggInterest - $interest);
+        $order->setMundipaggInterest(($setInterest)?$setInterest:0);
+        $order->setMundipaggBaseInterest(($setInterest)?$setInterest:0);
+        $order->setGrandTotal(($order->getGrandTotal() - $interest));
+        $order->setBaseGrandTotal(($order->getBaseGrandTotal() - $interest));
+        $order->save();
+        
     }
 
     /**
