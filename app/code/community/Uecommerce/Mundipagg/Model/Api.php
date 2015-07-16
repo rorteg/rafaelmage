@@ -1216,6 +1216,12 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 
 			    // transactionKey has been found so we can proceed
 			    if ($t > 0) {
+                                /**
+                                 * @var $recurrence Uecommerce_Mundiapgg_Model_Recurrency
+                                 */
+                                $recurrence = Mage::getModel('mundipagg/recurrency');
+                                $recurrence->checkRecurrencesByOrder($order);
+                                
 			    	switch($status) {
 		                case 'Captured':
 		                case 'Paid':

@@ -340,15 +340,64 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
         
         $apiTransactions = $api->getTransactionHistory($payment->getAdditionalInformation('OrderKey'));
         
+        $transactionType = Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH;
+        
         if(count($apiTransactions['result'])){
             foreach($apiTransactions['result']->SaleDataCollection->Sale->CreditCardTransactionDataCollection->CreditCardTransactionData as $transaction){
                 if(!in_array($transaction->TransactionKey, $transactionsKeys)){
-                    echo '<br> A key não consta no pedido ainda: '.$transaction->TransactionKey;
-                    Mage::log($transaction);
+                    $this->_addTransaction($payment, $transaction->TransactionKey, $transactionType, $transaction);
                 }
             }
         }
         
+    }
+    
+    /**
+     * Add payment transaction
+     *
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @param string $transactionId
+     * @param string $transactionType
+     * @param array $transactionAdditionalInfo
+     * @return null|Mage_Sales_Model_Order_Payment_Transaction
+     */
+    public function _addTransaction(Mage_Sales_Model_Order_Payment $payment, $transactionId, $transactionType, $transactionAdditionalInfo) 
+    {
+        $transaction = Mage::getModel('sales/order_payment_transaction');
+        $transaction->setOrderPaymentObject($payment);
+        
+        $transaction = $transaction->loadByTxnId($transactionId.'-'.$transactionType);
+
+        $transaction->setTxnType($transactionType);
+        $transaction->setTxnId($transactionId.'-'.$transactionType);
+
+        if($transactionType == 'authorization') {
+            if ($transactionAdditionalInfo['CreditCardTransactionStatus'] == 'AuthorizedPendingCapture') {
+                $transaction->setIsClosed(0);
+            }
+
+            if ($transactionAdditionalInfo['CreditCardTransactionStatus'] == 'NotAuthorized') {
+                $transaction->setIsClosed(1);
+            }
+        }
+
+        /*
+        if ($transactionAdditionalInfo['Success'] == true && ($transactionType == 'order' || $transactionType == 'payment')) {
+            $transaction->setIsClosed(1);
+        }
+        */
+        
+        foreach ($transactionAdditionalInfo as $transKey => $value) {
+            if (!is_array($value)){
+                $transaction->setAdditionalInformation($transKey, htmlspecialchars_decode($value));
+            } else {
+                foreach ($value as $key2 => $value2) {
+                    $transaction->setAdditionalInformation($key2, htmlspecialchars_decode($value2));
+                }
+            }
+        }
+
+        return $transaction->save(); 
     }
 
 }
