@@ -1276,20 +1276,26 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                                 Mage::getSingleton('checkout/session')->setAuthorizedAmount($authorizedAmount);
                                 $interestInformation = $payment->getAdditionalInformation('mundipagg_interest_information');
                                 $unauthorizedAmount = (float)abs($orderGrandTotal - $authorizedAmount);
-                                
+                                $newInterestInformation = array();
                                 if(count($interestInformation)){
                                     foreach($interestInformation as $ii){
                                         
                                         if($ii->hasValue()){
                                             if((float)($ii->getValue()+$ii->getInterest()) == (float)trim($unauthorizedAmount)){
                                                 $this->removeInterestToOrder($order, $ii->getInterest());
+                                            }else{
+                                                $newInterestInformation[] = $ii;
                                             }
                                         }else{
                                             if(($order->getGrandTotal()+$order->getMundipaggInterest()) == $unauthorizedAmount){
                                                 $this->removeInterestToOrder($order, $ii->getInterest());
+                                            }else{
+                                                $newInterestInformation[] = $ii;
                                             }
                                         }
                                     }
+                                    
+                                    $payment->setAdditionalInformation('mundipagg_interest_information', $newInterestInformation);
                                 }
                             }
                         }
@@ -1780,6 +1786,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
      */
     protected function removeInterestToOrder(Mage_Sales_Model_Order $order, $interest)
     {
+        //$quote = $order->getQuote();
         $mundipaggInterest = $order->getMundipaggInterest();
         $setInterest = (float)($mundipaggInterest - $interest);
         $order->setMundipaggInterest(($setInterest)?$setInterest:0);
@@ -1787,6 +1794,12 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
         $order->setGrandTotal(($order->getGrandTotal() - $interest));
         $order->setBaseGrandTotal(($order->getBaseGrandTotal() - $interest));
         $order->save();
+//        $quote->setMundipaggInterest(($setInterest)?$setInterest:0);
+//        $quote->setMundipaggBaseInterest(($setInterest)?$setInterest:0);
+//        $quote->setGrandTotal(($order->getGrandTotal() - $interest));
+//        $quote->setBaseGrandTotal(($order->getBaseGrandTotal() - $interest));
+//        $quote->setTotalsCollectedFlag(false)->collectTotals();
+//        $quote->save();
         
     }
 
