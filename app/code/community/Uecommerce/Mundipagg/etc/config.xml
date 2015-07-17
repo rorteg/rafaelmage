@@ -96,6 +96,15 @@
                     </checkForRecurrency>
                 </observers>
             </payment_method_is_active>
+            <sales_quote_collect_totals_after>
+                <observers>
+                    <mundipagg_discount_partial>
+                        <type>singleton</type>
+                        <class>Uecommerce_Mundipagg_Model_Observer</class>
+                        <method>addDiscountWhenPartial</method>
+                    </mundipagg_discount_partial>
+                </observers>
+            </sales_quote_collect_totals_after>
         </events>
 
         <resources>

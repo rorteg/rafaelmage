@@ -397,14 +397,18 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         Mage::getSingleton('checkout/session')->setAuthorizedAmount();
                     }
 
-                    //Mage::log('grandTotal: '.$grandTotal, null, 'Uecommerce_Mundipagg.log');
-                    //Mage::log('totalInstallments: '.$totalInstallments, null, 'Uecommerce_Mundipagg.log');
-                    //Mage::log('getPaymentInterest: '. $info->getPaymentInterest());
-                    //Mage::log('cal: '. abs($grandTotal-$totalInstallments-$info->getPaymentInterest()), null, 'Uecommerce_Mundipagg.log');
+//                    Mage::log('grandTotal: '.$grandTotal, null, 'Uecommerce_Mundipagg.log');
+//                    Mage::log('totalInstallments: '.$totalInstallments, null, 'Uecommerce_Mundipagg.log');
+//                    Mage::log('getPaymentInterest: '. $info->getPaymentInterest());
+//                    Mage::log('cal: '. abs($grandTotal-$totalInstallments-$info->getPaymentInterest()), null, 'Uecommerce_Mundipagg.log');
+                    
+                    /**
+                     * @todo Fix application of discount in partial payments.
+                     */
                     
                     $epsilon = 0.00001;
-
-                    if ($totalInstallments > 0 && abs($grandTotal-$totalInstallments-$info->getPaymentInterest()) > $epsilon) {
+                    
+                    if ($totalInstallments > 0 && ($grandTotal-$totalInstallments-$info->getPaymentInterest()) > $epsilon) {
                         Mage::throwException(Mage::helper('payment')->__('Installments does not match with quote.'));
                     }
                 }
@@ -1794,6 +1798,9 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
         $order->setGrandTotal(($order->getGrandTotal() - $interest));
         $order->setBaseGrandTotal(($order->getBaseGrandTotal() - $interest));
         $order->save();
+        $info = $this->getInfoInstance();
+        $info->setPaymentInterest(($info->getPaymentInterest()-$setInterest));
+        $info->save();
 //        $quote->setMundipaggInterest(($setInterest)?$setInterest:0);
 //        $quote->setMundipaggBaseInterest(($setInterest)?$setInterest:0);
 //        $quote->setGrandTotal(($order->getGrandTotal() - $interest));

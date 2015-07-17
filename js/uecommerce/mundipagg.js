@@ -485,7 +485,11 @@ function hide_methods_admin(dont_hide) {
 
 function calculateInstallmentValue(field, num, c, url) {
 	var type = $$('input[name="payment\\[method\\]"]:checked').first().value;
+        
 	var total = $('baseGrandTotal').value;
+        if($('partial') != undefined){
+            total = String(quoteBaseGrandTotal);
+        }
 	var total_oc = parseFloat(total.replace(',','.'));
 	var field_id = type + '_credito_parcelamento_' + num + '_' + c;
 	var field_id_new = type + '_new_credito_parcelamento_' + num + '_' + c;
