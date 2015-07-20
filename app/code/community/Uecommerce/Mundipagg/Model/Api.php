@@ -1024,11 +1024,9 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			if($item->getParentItemId() == '') {
 				$items[$item->getItemId()]['sku'] 	= $item->getProductId();
 				$items[$item->getItemId()]['name'] 	= $item->getName();
-                                if(version_compare(Mage::getVersion(), '1.7.0.2') > 0){
-                    $items[$item->getItemId()]['description'] = $item->getProduct()->load($item->getProductId())->getShortDescription();
-                                }else{
+                                
                                     $items[$item->getItemId()]['description'] = Mage::getModel('catalog/product')->load($item->getProductId())->getShortDescription();
-                                }
+                                
 	            $items[$item->getItemId()]['qty'] 	= round($item->getQtyOrdered(),0);
 	            $items[$item->getItemId()]['price'] = $item->getBasePrice();
         	}

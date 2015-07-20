@@ -78,11 +78,9 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
      */
     public function setItem(Mage_Sales_Model_Order_Item $item) {
         $this->_item = $item;
-        if(version_compare(Mage::getVersion(), '1.7.0.2') > 0){
-            $this->_product = $item->getProduct()->load($item->getProductId());
-        }else{
-            $this->_product = Mage::getModel('catalog/product')->load($item->getProductId());
-        }
+        
+        $this->_product = Mage::getModel('catalog/product')->load($item->getProductId());
+        
 
         if ($this->_product->getMundipaggRecurrent() && $this->isRecurrent()) {
             $this->_setRecurrencyByProduct($this->_product);
