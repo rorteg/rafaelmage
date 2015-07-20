@@ -232,8 +232,10 @@ class Uecommerce_Mundipagg_Model_Observer extends Uecommerce_Mundipagg_Model_Sta
         $interestInformation = $payment->getAdditionalInformation('mundipagg_interest_information');
         $discountAmount = 0;
         
-        foreach($interestInformation as $ii){
-            $discountAmount += (float)$ii->getValue();
+        if(isset($interestInformation)){
+            foreach($interestInformation as $ii){
+                $discountAmount += (float)$ii->getValue();
+            }
         }
         
                
