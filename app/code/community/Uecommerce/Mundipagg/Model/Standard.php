@@ -291,8 +291,10 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     case 'mundipagg_creditcard':
                         
                         if (isset($mundipagg['mundipagg_creditcard_1_1_cc_type'])){
-                            if($mundipagg['mundipagg_creditcard_credito_parcelamento_1_1'] > $helperInstallments->getMaxInstallments($mundipagg['mundipagg_creditcard_1_1_cc_type'])){
-                                Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg['mundipagg_creditcard_credito_parcelamento_1_1']));
+                            if(array_key_exists('mundipagg_creditcard_credito_parcelamento_1_1', $mundipagg)){
+                                if($mundipagg['mundipagg_creditcard_credito_parcelamento_1_1'] > $helperInstallments->getMaxInstallments($mundipagg['mundipagg_creditcard_1_1_cc_type'])){
+                                    Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg['mundipagg_creditcard_credito_parcelamento_1_1']));
+                                }
                             }
                             $info->setCcType($mundipagg['mundipagg_creditcard_1_1_cc_type'])
                                 ->setCcOwner($mundipagg['mundipagg_creditcard_cc_holder_name_1_1'])
@@ -365,17 +367,21 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         if (isset($mundipagg[$method.'_token_'.$num.'_'.$i]) && $mundipagg[$method.'_token_'.$num.'_'.$i] != 'new') {
                             (float) $value = str_replace(',', '.', $mundipagg[$method.'_value_'.$num.'_'.$i]);
                             
-                            if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
-                                Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
+                            if(array_key_exists($method.'_credito_parcelamento_'.$num.'_'.$i,$mundipagg)){
+                                if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
+                                    Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
+                                }
                             }
                             
                             (float) $totalInstallmentsToken += $value;
                         } else {
                             (float) $value = str_replace(',', '.', $mundipagg[$method.'_new_value_'.$num.'_'.$i]);
-                            if($mundipagg[$method.'_new_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
-                                Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_new_credito_parcelamento_'.$num.'_'.$i]));
-                            }
                             
+                            if(array_key_exists($method.'_new_credito_parcelamento_'.$num.'_'.$i,$mundipagg)){
+                                if($mundipagg[$method.'_new_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
+                                    Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_new_credito_parcelamento_'.$num.'_'.$i]));
+                                }
+                            }
                             
                             (float) $totalInstallmentsNew += $value;
                         }
@@ -956,11 +962,14 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         // We record transaction(s)
                         if (count($resultPayment['result']['CreditCardTransactionResultCollection']) == 1) {
                             $trans = $resultPayment['result']['CreditCardTransactionResultCollection']['CreditCardTransactionResult'];
-                            
-                            $this->_addTransaction($payment, $trans['TransactionKey'], $transactionType, $trans);
+                            if(array_key_exists('TransactionKey',$trans)){
+                                $this->_addTransaction($payment, $trans['TransactionKey'], $transactionType, $trans);
+                            }
                         } else {
                             foreach ($resultPayment['result']['CreditCardTransactionResultCollection']['CreditCardTransactionResult'] as $key => $trans) {
-                                $this->_addTransaction($payment, $trans['TransactionKey'], $transactionType, $trans);
+                                if(array_key_exists('TransactionKey',$trans)){
+                                    $this->_addTransaction($payment, $trans['TransactionKey'], $transactionType, $trans);
+                                }
                             }
                         }
 

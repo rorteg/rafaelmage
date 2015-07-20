@@ -345,6 +345,13 @@ class Uecommerce_Mundipagg_Model_Recurrency extends Varien_Object {
         if(count($apiTransactions['result'])){
             foreach($apiTransactions['result']->SaleDataCollection->Sale->CreditCardTransactionDataCollection->CreditCardTransactionData as $transaction){
                 if(!in_array($transaction->TransactionKey, $transactionsKeys)){
+                    // Check if ONEDOLLARAUTH transaction
+                    if($transaction->AmountInCents == '100' 
+                            && $transaction->AuthorizedAmountInCents == '100'
+                            && $transaction->InstallmentCount == '0'
+                            && $transaction->IsReccurency == 'true'){
+                        continue;
+                    }
                     $this->_addTransaction($payment, $transaction->TransactionKey, $transactionType, $transaction);
                 }
             }

@@ -346,8 +346,8 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
                 $this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('mundipagg/standard_success'));
                 $this->renderLayout();
                 
-                $recurrence = Mage::getModel('mundipagg/recurrency');
-                //$recurrence->checkRecurrencesByOrder($order);
+//                $recurrence = Mage::getModel('mundipagg/recurrency');
+//                $recurrence->checkRecurrencesByOrder($order);
 
                 $session->clear();
             } else {

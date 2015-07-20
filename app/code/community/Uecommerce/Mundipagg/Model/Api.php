@@ -1529,10 +1529,10 @@ class Uecommerce_Mundipagg_Model_Api extends Uecommerce_Mundipagg_Model_Standard
 			curl_close($ch);
 
 			if ($standard->getDebug() == 1) {
-				Mage::log('Uecommerce_Mundipagg: '. Mage::helper('mundipagg')->getExtensionVersion(), null, 'Uecommerce_Mundipagg.log');
+				Mage::log('Uecommerce_Mundipagg: '. Mage::helper('mundipagg')->getExtensionVersion().' Notification (return url)', null, 'Uecommerce_Mundipagg.log');
 				Mage::log(print_r($_response,1), null, 'Uecommerce_Mundipagg.log');
 			}
-
+                        
 			// Return
 			return array('result' => simplexml_load_string($_response));
 		
