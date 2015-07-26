@@ -4,7 +4,9 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
 
     public function setUp() {
         $this->_installmentActive=false;
+        $this->_additionalSaveSettings['payment/mundipagg_boleto/active'] = '1';
         parent::setUp();
+        
     }
     
    
@@ -32,7 +34,7 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
         $this->clickButtonByContainer('payment-buttons-container');
         sleep(1);
         $this->clickButtonByContainer('review-buttons-container');
-        sleep(10);
+        sleep(20);
         
         $elements = $this->byCssSelector('.pagSucess')->elements($this->using('css selector')->value('a'));
         foreach($elements as $element){

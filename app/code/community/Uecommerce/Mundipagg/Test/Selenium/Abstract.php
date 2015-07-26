@@ -6,6 +6,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     public $_Recurrency;
     public $_paymentType;
     public $_isLogged;
+    protected $_additionalSaveSettings = array();
     protected static $_custmerTest = array(
         'firstname' => 'Test',
         'lastname' => 'Test',
@@ -68,7 +69,13 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         } else {
             $config->saveConfig('payment/mundipagg_standard/enable_installments', '0');
         }
-        $config->saveConfig('payment/mundipagg_boleto/active', '1');
+        
+        
+        if(is_array($this->_additionalSaveSettings) && count($this->_additionalSaveSettings)){
+            foreach($this->_additionalSaveSettings as $path => $value){
+                $config->saveConfig($path, $value);
+            }
+        }
 
 
         $config->reinit();
@@ -366,7 +373,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     }
 
     /**
-     * @return Codex_Xtest_Model_Core_Config
+     * @return Mage_Core_Model_Config
      */
     public static function getConfig()
     {
