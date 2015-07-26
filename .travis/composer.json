@@ -1,0 +1,11 @@
+{
+    "require":{
+        "rorteg/mage-ci": "dev-master"
+    },
+    "config":{
+        "bin-dir":"bin"
+    },
+    "extra":{
+        "magento-root-dir":"tests/magento"
+    }    
+}

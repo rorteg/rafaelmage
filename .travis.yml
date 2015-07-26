@@ -1,0 +1,30 @@
+language: php
+php:
+    - 5.3
+    - 5.4
+env:
+    - MAGE=1.9.1.0
+    - MAGE=1.8.1.0
+    - MAGE=1.7.0.2
+    #- MAGE=1.6.2.0
+    #- MAGE=1.5.1.0
+before_script:
+    - MAGE_DIR=tests/magento
+    # Copying travis composer.json to test only module
+    - cp -f .travis/composer.json composer.json
+    # Installing dependencies
+    - composer install
+    # Installing magento version with prepared DB dump
+    - bin/mage-ci install $MAGE_DIR $MAGE magento -c http://mage-ci.ecomdev.org
+    # Installing modman
+    - bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer) && source ~/.profile
+    # Installing module
+    - cd $MAGE_DIR && modman init && modman clone https://github.com/rorteg/test.git
+    # Installing Test Framework
+    - modman clone https://github.com/schmengler/Xtest.git
+    # Change permissions
+    - chmod +x tests/phpunit.phar
+script:
+    # Run test
+    - cd tests && php phpunit.phar ../app/code/community/Uecommerce/Mundipagg/
+    
