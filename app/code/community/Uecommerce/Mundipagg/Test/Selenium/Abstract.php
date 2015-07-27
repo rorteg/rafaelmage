@@ -24,7 +24,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     protected static $_setConfigMagento;
     protected static $_createProduct;
     protected static $_productSku = 'test';
-    protected static $_defaultSleep = 20;
+    protected static $_defaultSleep = 10;
    
 
 
@@ -167,27 +167,13 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         if(self::$_disableCaches){
             return false;
         }
-        Mage::app()->CleanAllSessions();
-        Mage::app()->getCacheInstance()->flush();
-        Mage::app()->cleanCache();
-        
-        $types = array(
-            'config','layout','block_html','translate','collections','eav','config_api','fullpage','config_api2'
-        );
-        
-        $allTypes = Mage::app()->useCache();
-        
-        $updateTypes = 0;
-        foreach($types as $code){
-            if(!empty($allTypes[$code])){
-                $allTypes[$code] = 0;
-                $updateTypes++;
-            }
-            Mage::app()->getCacheInstance()->cleanType($code);
+        /** @var $model Mage_Core_Model_Cache */
+        $model = Mage::getModel('core/cache');
+        $options = $model->canUse();
+        foreach($options as $option => $value){
+            $options[$option] = 0;
         }
-        if($updateTypes > 0){
-            Mage::app()->save()->saveUseCache($allTypes);
-        }
+        $model->saveOptions($option);
         self::$_disableCaches = true;
     }
     
