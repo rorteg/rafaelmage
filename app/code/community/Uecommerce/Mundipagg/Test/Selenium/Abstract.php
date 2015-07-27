@@ -24,6 +24,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     protected static $_setConfigMagento;
     protected static $_createProduct;
     protected static $_productSku = 'test';
+    protected static $_defaultSleep = 20;
    
 
 
@@ -202,6 +203,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         // Access homePage
         $this->url(Mage::getBaseUrl());
         $this->assertEquals(200, $this->getHttpCode());
+        sleep(self::$_defaultSleep);
         // Search product
         $element = $this->byId('search');
         $element->value(self::$_productSku);
@@ -235,7 +237,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     public function registerCustomer(){
         $this->byId('login:register')->click();
         $this->byId('onepage-guest-register-button')->click();
-        sleep(1);
+        sleep(self::$_defaultSleep);
         $this->byId('billing:firstname')->value(self::$_custmerTest['firstname']);
         $this->byId('billing:lastname')->value(self::$_custmerTest['lastname']);
         $this->byId('billing:email')->value(self::$_custmerTest['email']);
@@ -247,9 +249,9 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         $this->byId('billing:customer_password')->value(self::$_custmerTest['customer_password']);
         $this->byId('billing:confirm_password')->value(self::$_custmerTest['confirm_password']);
         $this->clickButtonByContainer('billing-buttons-container');
-        sleep(1);
-        $this->assertElementHasClass('active', $this->byId('opc-shipping_method'));
-        sleep(1);
+        sleep(self::$_defaultSleep);
+        //$this->assertElementHasClass('active', $this->byId('opc-shipping_method'));
+        sleep(self::$_defaultSleep);
     }
     
     /**
@@ -259,13 +261,13 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         $this->byId('login-email')->value(self::$_custmerTest['email']);
         $this->byId('login-password')->value(self::$_custmerTest['customer_password']);
         $this->byId('login-form')->submit();
-        sleep(1);
+        sleep(self::$_defaultSleep);
         $this->assertElementHasClass('active', $this->byId('opc-billing'));
         $this->clickButtonByContainer('billing-buttons-container');
-        sleep(1);
+        sleep(self::$_defaultSleep);
         $this->assertElementHasClass('active', $this->byId('opc-shipping_method'));
         
-        sleep(1);
+        sleep(self::$_defaultSleep);
         
     }
     
