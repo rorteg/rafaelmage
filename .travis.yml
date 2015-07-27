@@ -1,6 +1,6 @@
 language: php
 php:
-    - 5.3
+    #- 5.3
     - 5.4
 env:
     - MAGE=1.9.1.0
@@ -9,22 +9,38 @@ env:
     #- MAGE=1.6.2.0
     #- MAGE=1.5.1.0
 before_script:
-    - MAGE_DIR=tests/magento
+    
+    - MAGE_DIR=magento/test
+    
     # Copying travis composer.json to test only module
     - cp -f .travis/composer.json composer.json
     # Installing dependencies
     - composer install
     # Installing magento version with prepared DB dump
-    - bin/mage-ci install $MAGE_DIR $MAGE magento -c http://mage-ci.ecomdev.org
+    - bin/mage-ci install $MAGE_DIR $MAGE magento -c 
     # Installing modman
     - bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer) && source ~/.profile
     # Installing module
-    - cd $MAGE_DIR && modman init && modman clone https://github.com/rorteg/test.git
+    - cd $MAGE_DIR && modman init && modman clone https://github.com/rorteg/rafaelmage.git
     # Installing Test Framework
     - modman clone https://github.com/schmengler/Xtest.git
     # Change permissions
     - chmod +x tests/phpunit.phar
+    - chmod +x tests/selenium/start.sh
+    # Start selenium server
+    - "sudo sh -e ./tests/selenium/start.sh"
+    # run Web Server
+    - php -S 127.0.0.1:8085 &
+    
 script:
     # Run test
     - cd tests && php phpunit.phar ../app/code/community/Uecommerce/Mundipagg/
     
+before_install:
+    - "export DISPLAY=:99.0"
+    - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
+    - "sh -e /etc/init.d/xvfb start"
+    
+notifications:
+    email:
+        - rafael@uecommerce.com.br
