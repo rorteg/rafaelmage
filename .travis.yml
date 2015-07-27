@@ -44,3 +44,4 @@ before_install:
 notifications:
     email:
         - rafael@uecommerce.com.br
+        - jonathan@uecommerce.com.br
