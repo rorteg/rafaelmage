@@ -4,14 +4,14 @@ php:
     - 5.4
 env:
     - MAGE=1.9.1.0
-    - MAGE=1.8.1.0
+    #- MAGE=1.8.1.0
     - MAGE=1.7.0.2
     #- MAGE=1.6.2.0
     #- MAGE=1.5.1.0
 before_script:
     
     - MAGE_DIR=magento/test
-    - sudo echo "max_allowed_packet = 32M wait_timeout = 1800 connect_timeout = 120" >> /etc/mysql/my.cnf
+    #- sudo echo "max_allowed_packet = 32M wait_timeout = 1800 connect_timeout = 120" >> /etc/mysql/my.cnf
     - sudo service mysql restart
     # Copying travis composer.json to test only module
     - cp -f .travis/composer.json composer.json
