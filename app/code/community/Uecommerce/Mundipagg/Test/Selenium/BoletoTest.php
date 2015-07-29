@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @todo Mock return Mundipagg to tests.
+ */
 class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg_Test_Selenium_Abstract {
 
     public function setUp() {
@@ -9,7 +12,9 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
         
     }
     
-   
+   /**
+    * Test boleto registering a new customer.
+    */
     public function testBoletoRegistered(){
         $this->_isLogged = false;
         $this->runMundipagg();
@@ -18,6 +23,8 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
     }
     
     /**
+     * Test boleto with the logged customer.
+     * 
      * @depends testBoletoRegistered
      */
     public function testBoletoLogged(){
@@ -26,6 +33,9 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
         $this->setBoleto();
     }
     
+    /**
+     * Set all values to boleto and test.
+     */
     protected function setBoleto(){
         $this->clickButtonByContainer('shipping-method-buttons-container');
         sleep(self::$_defaultSleep);

@@ -1,5 +1,6 @@
 <?php
 
+
 class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Selenium2TestCase {
 
     public $_installmentActive;
@@ -24,7 +25,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     protected static $_setConfigMagento;
     protected static $_createProduct;
     protected static $_productSku = 'test';
-    protected static $_defaultSleep = 10;
+    protected static $_defaultSleep = 15;
    
 
 
@@ -38,7 +39,12 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         // Default Browser-Size
         $this->prepareSession()->currentWindow()->size(array('width' => 1280, 'height' => 1024));
         
+        
         self::initFrontend(1);
+        
+        if(Mage::getIsDeveloperMode()){
+            self::$_defaultSleep = 3;
+        }
     
         
         $this->disableCaches();
@@ -53,7 +59,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
      * Set default settings Mundipagg
      */
     public function setMundipaggConfig() {
-        $config = Mage::getConfig();
+        $config = $this->getConfig();
         $config->saveConfig('payment/mundipagg_standard/merchantKeyStaging', '5f964d65-98a0-48ee-8ce8-857e8773177e');
         $config->saveConfig('payment/mundipagg_standard/payment_action', 'authorize');
         $config->saveConfig('payment/mundipagg_standard/cc_types', 'VI,MC,AE,DI,EL,HI');
@@ -91,7 +97,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         if(self::$_setConfigMagento){
             return false;
         }
-        $config = Mage::getConfig();
+        $config = $this->getConfig();
         $config->saveConfig('dev/template/allow_symlink', '1');
         $config->reinit();
         $config->cleanCache();
@@ -368,6 +374,9 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         return Mage::getConfig();
     }
     
+    public function selectOptionByValue(PHPUnit_Extensions_Selenium2TestCase_Element $element, $value){
+        PHPUnit_Extensions_Selenium2TestCase_Element_Select::fromElement($element)->selectOptionByValue($value);
+    }
     
 
 }
