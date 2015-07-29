@@ -11,7 +11,7 @@ env:
 before_script:
     
     - MAGE_DIR=magento/test
-    
+    - sudo service mysql restart
     # Copying travis composer.json to test only module
     - cp -f .travis/composer.json composer.json
     # Installing dependencies
