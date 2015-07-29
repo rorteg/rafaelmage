@@ -37,38 +37,38 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
         $this->clickButtonByContainer('shipping-method-buttons-container');
         sleep(self::$_defaultSleep);
         $this->byId('p_method_mundipagg_' . $this->_paymentType)->click();
-        
-        if(empty($this->_ccLength)){
+
+        if (empty($this->_ccLength)) {
             $this->_ccLength = 1;
         }
 
         for ($i = 1; $i <= $this->_ccLength; $i++) {
-            $flags = $this->findElementsByCssSelector('.cc_brand_types', $this->byId('mundipagg_' . $this->_paymentType . '_new_credit_card_' . $this->_ccLength . '_'.$i));
+            $flags = $this->findElementsByCssSelector('.cc_brand_types', $this->byId('mundipagg_' . $this->_paymentType . '_new_credit_card_' . $this->_ccLength . '_' . $i));
             foreach ($this->_ccCards as $flag => $card) {
                 foreach ($card as $key => $number) {
-                    $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_'.$i.'_cc_number')->value($this->_ccCards[$flag][$key][0]);
+                    $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_' . $i . '_cc_number')->value($this->_ccCards[$flag][$key][0]);
                     foreach ($flags as $element) {
                         if (strpos($element->attribute('class'), strtolower($flag)) !== false) {
                             sleep(1);
                             $this->assertContains('active', $element->attribute('class'));
-                            $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_'.$i.'_cc_number')->clear();
+                            $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_' . $i . '_cc_number')->clear();
                         }
                     }
                 }
             }
-            $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_'.$i.'_cc_number')->clear();
+            $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_' . $i . '_cc_number')->clear();
             $ccRand = $this->getCcRand();
-            $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_'.$i.'_cc_number')->value($ccRand[0]);
-            $this->byId('mundipagg_' . $this->_paymentType . '_cc_holder_name_' . $this->_ccLength . '_'.$i)->value(self::$_custmerTest['firstname']);
-            $this->selectOptionByValue($this->byId('mundipagg_' . $this->_paymentType . '_expirationMonth_' . $this->_ccLength . '_'.$i), 06);
-            $this->selectOptionByValue($this->byId('mundipagg_' . $this->_paymentType . '_expirationYear_' . $this->_ccLength . '_'.$i), 25);
-            $this->byId('mundipagg_' . $this->_paymentType . '_cc_cid_' . $this->_ccLength . '_'.$i)->value($ccRand[1]);
-            $this->byId('mundipagg_' . $this->_paymentType . '_save_token_' . $this->_ccLength . '_'.$i)->click();
+            $this->byId('mundipagg_' . $this->_paymentType . '_' . $this->_ccLength . '_' . $i . '_cc_number')->value($ccRand[0]);
+            $this->byId('mundipagg_' . $this->_paymentType . '_cc_holder_name_' . $this->_ccLength . '_' . $i)->value(self::$_custmerTest['firstname']);
+            $this->selectOptionByValue($this->byId('mundipagg_' . $this->_paymentType . '_expirationMonth_' . $this->_ccLength . '_' . $i), 06);
+            $this->selectOptionByValue($this->byId('mundipagg_' . $this->_paymentType . '_expirationYear_' . $this->_ccLength . '_' . $i), 25);
+            $this->byId('mundipagg_' . $this->_paymentType . '_cc_cid_' . $this->_ccLength . '_' . $i)->value($ccRand[1]);
+            $this->byId('mundipagg_' . $this->_paymentType . '_save_token_' . $this->_ccLength . '_' . $i)->click();
         }
         $this->setValues();
     }
-    
-    public function runCardonfile(){
+
+    public function runCardonfile() {
         $this->runMundipagg();
         $this->clickButtonByContainer('shipping-method-buttons-container');
         sleep(self::$_defaultSleep);
@@ -80,16 +80,16 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
         $this->clickButtonByContainer('payment-buttons-container');
         sleep(self::$_defaultSleep);
         $this->clickButtonByContainer('review-buttons-container');
-        sleep(self::$_defaultSleep + 10);
+        sleep(self::$_defaultSleep + 30);
         $this->assertContains('mundipagg/standard/success', $this->url());
     }
-    
-    public function setValues(){
-        if(is_array($this->_values) && count($this->_values)){
-            foreach($this->_values as $input => $value){
-                $this->byId('mundipagg_'.$this->_paymentType.'_new_value_'.$this->_ccLength.'_'.$input)->value($value);
+
+    public function setValues() {
+        if (is_array($this->_values) && count($this->_values)) {
+            foreach ($this->_values as $input => $value) {
+                $this->byId('mundipagg_' . $this->_paymentType . '_new_value_' . $this->_ccLength . '_' . $input)->value($value);
             }
-        }else{
+        } else {
             return false;
         }
     }
@@ -155,6 +155,25 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
         }
         $currentRand = reset(array_slice($this->_ccCards, $nrand, -($total - $nrand)));
         return $currentRand[0];
+    }
+
+    protected function deleteAllCardonfiles() {
+        $customer = Mage::getModel("customer/customer");
+        $customer->setWebsiteId(Mage::app()->getWebsite()->getId());
+        if ($customer->loadByEmail(parent::$_custmerTest['email'])->getId()) {
+            $ccsCollection = Mage::getResourceModel('mundipagg/cardonfile_collection')
+                    ->addEntityIdFilter($customer->getId());
+            foreach($ccsCollection as $cardonfile){
+                $cardonfile->delete();
+            }
+        }
+    }
+    
+    protected function tearDown(){
+        if($this->_isLogged){
+            $this->deleteAllCardonfiles();
+        }
+        
     }
 
 }

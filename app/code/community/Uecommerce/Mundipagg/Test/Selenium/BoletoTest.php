@@ -1,8 +1,6 @@
 <?php
 
-/**
- * @todo Mock return Mundipagg to tests.
- */
+
 class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg_Test_Selenium_Abstract {
 
     public function setUp() {
@@ -51,7 +49,7 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
             $element->click();
         }
         sleep(self::$_defaultSleep);
-        $this->assertContains('mundipagg',$this->url());
+        $this->assertContains('mundipaggone',$this->url());
         
     }
     
