@@ -25,7 +25,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     protected static $_setConfigMagento;
     protected static $_createProduct;
     protected static $_productSku = 'test';
-    protected static $_defaultSleep = 15;
+    protected static $_defaultSleep = 7;
    
 
 
