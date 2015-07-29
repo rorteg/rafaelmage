@@ -11,6 +11,7 @@ env:
 before_script:
     
     - MAGE_DIR=magento/test
+    - sudo echo "max_allowed_packet = 32M wait_timeout = 1800 connect_timeout = 120" >> /etc/mysql/my.cnf
     - sudo service mysql restart
     # Copying travis composer.json to test only module
     - cp -f .travis/composer.json composer.json
@@ -44,4 +45,4 @@ before_install:
 notifications:
     email:
         - rafael@uecommerce.com.br
-        - jonathan@uecommerce.com.br
+        
