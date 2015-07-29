@@ -49,7 +49,7 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
             $element->click();
         }
         sleep(self::$_defaultSleep);
-        $this->assertContains('mundipaggone',$this->url());
+        $this->assertContains('mundipagg/standard/success',$this->url());
         
     }
     
