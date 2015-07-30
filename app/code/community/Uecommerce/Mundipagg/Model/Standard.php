@@ -361,13 +361,16 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 
                     for ($i=1; $i <= $num; $i++) {
                         
-                        
-                        
-                        
                         if (isset($mundipagg[$method.'_token_'.$num.'_'.$i]) && $mundipagg[$method.'_token_'.$num.'_'.$i] != 'new') {
                             (float) $value = str_replace(',', '.', $mundipagg[$method.'_value_'.$num.'_'.$i]);
                             
                             if(array_key_exists($method.'_credito_parcelamento_'.$num.'_'.$i,$mundipagg)){
+                                if(!array_key_exists($method.'_'.$num.'_'.$i.'_cc_type',$mundipagg)){
+                                    $cardonFile = Mage::getModel('mundipagg/cardonfile')->load($mundipagg[$method.'_token_'.$num.'_'.$i]);
+                                    
+                                    $mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'] = Mage::helper('mundipagg')->getCardTypeByIssuer($cardonFile->getCcType());
+                                }
+                                                                
                                 if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
                                     Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
                                 }

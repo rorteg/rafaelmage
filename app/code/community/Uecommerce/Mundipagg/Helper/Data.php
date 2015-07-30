@@ -65,6 +65,31 @@ class Uecommerce_Mundipagg_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
     }
+    
+    /**
+     * Return cardType
+     * @param string $issuer
+     */
+    public function getCardTypeByIssuer($issuer){
+        if ( $issuer == '') {
+            return '';
+        } else {
+            $issuers = array(
+                'VI' => 'Visa',
+                'MC' => 'Mastercard',
+                'AE' => 'Amex',
+                'DI' => 'Diners',
+                'HI' => 'Hipercard',
+                'EL' => 'Elo',
+            );
+            
+            foreach ($issuers as $key => $cardType) {
+                if ($cardType == $issuer) {
+                    return $key;
+                }
+            }
+        }
+    }
 
     /**
     * Get credit cards number
