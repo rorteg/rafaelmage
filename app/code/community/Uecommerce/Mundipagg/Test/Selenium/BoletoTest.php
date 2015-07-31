@@ -14,6 +14,8 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
     * Test boleto registering a new customer.
     */
     public function testBoletoRegistered(){
+//        $this->markTestSkipped();
+//        return false;
         $this->_isLogged = false;
         $this->runMundipagg();
         $this->setBoleto();

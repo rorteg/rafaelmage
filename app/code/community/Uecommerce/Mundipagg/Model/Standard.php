@@ -1282,31 +1282,50 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         // If authorized amount is the same as order grand total we can show success page
                         $epsilon = 0.1;
                         
-                        if(abs($orderGrandTotal-$authorizedAmount) <= $epsilon) {
+                        if($orderGrandTotal-$authorizedAmount <= $epsilon) {
                             Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('success');
                             Mage::getSingleton('checkout/session')->setAuthorizedAmount();
+                            if($orderGrandTotal < $authorizedAmount){
+                                $interestInformation = $payment->getAdditionalInformation('mundipagg_interest_information');
+                                $newInterestInformation = array();
+                                if(count($interestInformation)){
+                                    $newInterest = 0;
+                                    foreach($interestInformation as $key => $ii){
+                                        if(strpos($key,'partial') !== false){
+                                            if($ii->hasValue()){
+                                                $newInterest +=(float)($ii->getInterest());
+                                            }
+                                        }
+                                        
+                                    }
+//                                    Mage::log('newInterest: '.$newInterest);
+//                                    Mage::log('grandTodal: '.$orderGrandTotal);
+//                                    Mage::log('authorizeAmount: '.$authorizedAmount);
+                                }
+                                $this->addInterestToOrder($order, $newInterest);
+                            }
                         } else {
                             if(($orderGrandTotal-$authorizedAmount) > $epsilon){
                                 
                                 Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('partial');
                                 Mage::getSingleton('checkout/session')->setAuthorizedAmount($authorizedAmount);
                                 $interestInformation = $payment->getAdditionalInformation('mundipagg_interest_information');
-                                $unauthorizedAmount = (float)abs($orderGrandTotal - $authorizedAmount);
+                                $unauthorizedAmount = (float)($orderGrandTotal - $authorizedAmount);
                                 $newInterestInformation = array();
                                 if(count($interestInformation)){
-                                    foreach($interestInformation as $ii){
+                                    foreach($interestInformation as $key => $ii){
                                         
                                         if($ii->hasValue()){
                                             if((float)($ii->getValue()+$ii->getInterest()) == (float)trim($unauthorizedAmount)){
                                                 $this->removeInterestToOrder($order, $ii->getInterest());
                                             }else{
-                                                $newInterestInformation[] = $ii;
+                                                $newInterestInformation[$key] = $ii;
                                             }
                                         }else{
                                             if(($order->getGrandTotal()+$order->getMundipaggInterest()) == $unauthorizedAmount){
                                                 $this->removeInterestToOrder($order, $ii->getInterest());
                                             }else{
-                                                $newInterestInformation[] = $ii;
+                                                $newInterestInformation[$key] = $ii;
                                             }
                                         }
                                     }
@@ -1771,7 +1790,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
     */
     public function resetInterest($info) 
     {
-        $info->setAdditionalInformation('mundipagg_interest_information', array());
+        //$info->setAdditionalInformation('mundipagg_interest_information', array());
         if ($info->getQuote()->getMundipaggInterest() > 0 || $info->getQuote()->getMundipaggBaseInterest() > 0) {
             $info->getQuote()->setMundipaggInterest(0.0);
             $info->getQuote()->setMundipaggBaseInterest(0.0);
@@ -1820,6 +1839,22 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 //        $quote->setTotalsCollectedFlag(false)->collectTotals();
 //        $quote->save();
         
+    }
+    
+    /**
+     * Add interest to order
+     */
+    protected function addInterestToOrder(Mage_Sales_Model_Order $order, $interest){
+        $mundipaggInterest = $order->getMundipaggInterest();
+        $setInterest = (float)($mundipaggInterest + $interest);
+        $order->setMundipaggInterest(($setInterest)?$setInterest:0);
+        $order->setMundipaggBaseInterest(($setInterest)?$setInterest:0);
+        $order->setGrandTotal(($order->getGrandTotal() + $interest));
+        $order->setBaseGrandTotal(($order->getBaseGrandTotal() + $interest));
+        $order->save();
+//        $info = $this->getInfoInstance();
+//        $info->setPaymentInterest(($info->getPaymentInterest()+$setInterest));
+//        $info->save();
     }
 
     /**

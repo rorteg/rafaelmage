@@ -25,7 +25,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     protected static $_setConfigMagento;
     protected static $_createProduct;
     protected static $_productSku = 'test';
-    protected static $_defaultSleep = 20;
+    protected static $_defaultSleep = 5;
    
 
 
@@ -43,7 +43,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         self::initFrontend(1);
         
         if(Mage::getIsDeveloperMode()){
-            self::$_defaultSleep = 7;
+            self::$_defaultSleep = 5;
         }
     
         
@@ -186,7 +186,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
     
     
     public function runMundipagg(){
-        
+        //Mage::log(Mage::app()->getResponse());
         if(!$this->_isLogged){
             $this->deleteCustomerIfExists();
             

@@ -81,8 +81,8 @@ class Uecommerce_Mundipagg_StandardController extends Mage_Core_Controller_Front
         $session = Mage::getSingleton('checkout/session');
 
         $approvalRequestSuccess = $session->getApprovalRequestSuccess();
-
-        if (!$session->getLastSuccessQuoteId() || $approvalRequestSuccess != 'partial') {
+        
+        if (!$session->getLastSuccessQuoteId() && $approvalRequestSuccess != 'partial') {
             $this->_redirect('checkout/cart');
             return;
         }

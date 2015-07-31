@@ -129,20 +129,29 @@ class Uecommerce_Mundipagg_Model_Twocreditcards extends Uecommerce_Mundipagg_Mod
         $interest1 = 0;
         $interest2 = 0;
         $interestInformation = array();
+        
+        if(Mage::app()->getRequest()->getActionName() == 'partialPost'){
+            $keyCode = $this->_code.'_partial';
+            $interestInformation = $info->getAdditionalInformation('mundipagg_interest_information');
+        }else{
+            $keyCode = $this->_code;
+        }
         if($cctype1) {
             $interest1 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber1 , $cctype1, $value1);
-            $interestInformation[$this->_code.'_2_1'] = new Varien_Object();
-            $interestInformation[$this->_code.'_2_1']->setInterest(str_replace(',','.',$interest1))->setValue(str_replace(',','.',$value1));
+            
+            
+            $interestInformation[$keyCode.'_2_1'] = new Varien_Object();
+            $interestInformation[$keyCode.'_2_1']->setInterest(str_replace(',','.',$interest1))->setValue(str_replace(',','.',$value1));
         }
 
         if($cctype2){
             $interest2 = Mage::helper('mundipagg/installments')->getInterestForCard($parcelsNumber2 , $cctype2, str_replace(',','.',$value2));
-            $interestInformation[$this->_code.'_2_2'] = new Varien_Object();
-            $interestInformation[$this->_code.'_2_2']->setInterest(str_replace(',','.',$interest2))->setValue(str_replace(',','.',$value2));
+            $interestInformation[$keyCode.'_2_2'] = new Varien_Object();
+            $interestInformation[$keyCode.'_2_2']->setInterest(str_replace(',','.',$interest2))->setValue(str_replace(',','.',$value2));
         }
         
         $interest = $interest1+$interest2;
-
+        
         if ($interest > 0) {
             $info->setAdditionalInformation('mundipagg_interest_information', array());
             $info->setAdditionalInformation('mundipagg_interest_information',$interestInformation);

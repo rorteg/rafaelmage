@@ -70,6 +70,13 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
 
     public function runCardonfile() {
         $this->runMundipagg();
+        if ($this->_isCardonfile) {
+            for ($i = 1; $i < $this->_ccLength; $i++) {
+                $cardonFiles = $this->byCssSelector('select#mundipagg_twocreditcards_token_' . $this->_ccLength . '_' . $i . ' > option');
+
+                $this->selectOptionByValue($this->byId('mundipagg_twocreditcards_token_' . $this->_ccLength . '_' . $i), $cardonFiles[1]->value());
+            }
+        }
         $this->clickButtonByContainer('shipping-method-buttons-container');
         sleep(self::$_defaultSleep);
         $this->byId('p_method_mundipagg_' . $this->_paymentType)->click();
@@ -163,17 +170,16 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
         if ($customer->loadByEmail(parent::$_custmerTest['email'])->getId()) {
             $ccsCollection = Mage::getResourceModel('mundipagg/cardonfile_collection')
                     ->addEntityIdFilter($customer->getId());
-            foreach($ccsCollection as $cardonfile){
+            foreach ($ccsCollection as $cardonfile) {
                 $cardonfile->delete();
             }
         }
     }
-    
-    protected function tearDown(){
-        if($this->_isLogged){
+
+    protected function tearDown() {
+        if ($this->_isLogged) {
             $this->deleteAllCardonfiles();
         }
-        
     }
 
 }
