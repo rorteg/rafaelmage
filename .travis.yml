@@ -22,7 +22,7 @@ before_script:
     # Installing modman
     - bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer) && source ~/.profile
     # Installing module
-    - cd $MAGE_DIR && modman init && modman clone https://rorteg@bitbucket.org/uecommerce/uecommerce_mundipagg_v2.git
+    - cd $MAGE_DIR && modman init && modman clone REPOSITORY_URL
     # Installing Test Framework
     - modman clone https://github.com/schmengler/Xtest.git
     # Change permissions
