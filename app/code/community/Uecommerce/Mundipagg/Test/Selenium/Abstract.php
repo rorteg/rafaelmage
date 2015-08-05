@@ -99,6 +99,7 @@ class Uecommerce_Mundipagg_Test_Selenium_Abstract extends PHPUnit_Extensions_Sel
         }
         $config = $this->getConfig();
         $config->saveConfig('dev/template/allow_symlink', '1');
+        $config->saveConfig('dev/log/active', '1');
         $config->reinit();
         $config->cleanCache();
         Mage::app()->reinitStores();

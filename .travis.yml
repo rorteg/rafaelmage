@@ -22,7 +22,7 @@ before_script:
     # Installing modman
     - bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer) && source ~/.profile
     # Installing module
-    - cd $MAGE_DIR && modman init && modman clone https://github.com/rorteg/rafaelmage.git
+    - cd $MAGE_DIR && modman init && modman clone https://rorteg@bitbucket.org/uecommerce/uecommerce_mundipagg_v2.git
     # Installing Test Framework
     - modman clone https://github.com/schmengler/Xtest.git
     # Change permissions
@@ -36,6 +36,7 @@ before_script:
 script:
     # Run test
     - cd tests && php phpunit.phar ../app/code/community/Uecommerce/Mundipagg/
+    - cat var/log/Uecommerce_Mundipagg.log
     
 before_install:
     - "export DISPLAY=:99.0"
