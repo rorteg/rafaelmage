@@ -36,7 +36,6 @@ before_script:
 script:
     # Run test
     - cd tests && php phpunit.phar ../app/code/community/Uecommerce/Mundipagg/
-    - echo | cat ../var/log/Uecommerce_Mundipagg.log
     
 before_install:
     - "export DISPLAY=:99.0"
