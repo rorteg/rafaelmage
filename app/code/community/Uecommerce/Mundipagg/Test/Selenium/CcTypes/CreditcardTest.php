@@ -9,8 +9,6 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_CreditcardTest extends Uecommer
     }
     
     public function testCreditcardRegistered() {
-//        $this->markTestSkipped();
-//        return false;
         $this->_isLogged = false;
         $this->runAllCcFlagsValidations();
         $this->continueBuy();
@@ -21,7 +19,8 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_CreditcardTest extends Uecommer
      */
     public function testCreditcardLogged(){
         $this->_isLogged = true;
-        $this->runCardonfile();
+        //$this->runCardonfile();
+        $this->runAllCcFlagsValidations();
         $this->continueBuy();
     }
 

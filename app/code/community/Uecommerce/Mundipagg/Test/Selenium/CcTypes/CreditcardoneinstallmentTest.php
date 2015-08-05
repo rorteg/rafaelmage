@@ -11,8 +11,6 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_CreditcardoneinstallmentTest ex
     
 
     public function testCreditcardoneinstallmentRegistered() {
-//        $this->markTestSkipped();
-//        return false;
         $this->_isLogged = false;
         $this->runAllCcFlagsValidations();
         $this->continueBuy();
@@ -23,7 +21,8 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_CreditcardoneinstallmentTest ex
      */
     public function testCreditcardoneinstallmentLogged(){
         $this->_isLogged = true;
-        $this->runCardonfile();
+        //$this->runCardonfile();
+        $this->runAllCcFlagsValidations();
         $this->continueBuy();
     }
 

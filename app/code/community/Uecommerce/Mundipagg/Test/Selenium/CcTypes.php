@@ -63,7 +63,9 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
             $this->selectOptionByValue($this->byId('mundipagg_' . $this->_paymentType . '_expirationMonth_' . $this->_ccLength . '_' . $i), 06);
             $this->selectOptionByValue($this->byId('mundipagg_' . $this->_paymentType . '_expirationYear_' . $this->_ccLength . '_' . $i), 25);
             $this->byId('mundipagg_' . $this->_paymentType . '_cc_cid_' . $this->_ccLength . '_' . $i)->value($ccRand[1]);
-            $this->byId('mundipagg_' . $this->_paymentType . '_save_token_' . $this->_ccLength . '_' . $i)->click();
+            
+            //TODO Implement Tests for card on file.
+            //$this->byId('mundipagg_' . $this->_paymentType . '_save_token_' . $this->_ccLength . '_' . $i)->click();
         }
         $this->setValues();
     }

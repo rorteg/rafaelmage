@@ -13,7 +13,7 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_TwocreditcardsTest extends Ueco
         $this->_isLogged = false;
         
         $this->_values = array(
-            1 => '5,00',
+            1 => '5',
 //            2 => '6,22'
         );
         $this->runAllCcFlagsValidations();
@@ -25,7 +25,12 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_TwocreditcardsTest extends Ueco
      */
     public function testTwoCreditcardsLogged(){
         $this->_isLogged = true;
-        $this->runCardonfile();
+        $this->_values = array(
+            1 => '5',
+//            2 => '6,22'
+        );
+        //$this->runCardonfile();
+        $this->runAllCcFlagsValidations();
         $this->continueBuy();
     }
 
