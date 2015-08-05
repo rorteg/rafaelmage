@@ -411,9 +411,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
 //                    Mage::log('getPaymentInterest: '. $info->getPaymentInterest());
 //                    Mage::log('cal: '. abs($grandTotal-$totalInstallments-$info->getPaymentInterest()), null, 'Uecommerce_Mundipagg.log');
                     
-                    /**
-                     * @todo Fix application of discount in partial payments.
-                     */
+                    
                     
                     $epsilon = 0.00001;
                     
@@ -1234,9 +1232,9 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                     }
 
                     // If authorized amount is the same as order grand total we can show success page
-                    $epsilon = 0.1;
+                    $epsilon = 0;
 
-                    if (abs($orderGrandTotal - $authorizedAmount) <= $epsilon) {
+                    if (($orderGrandTotal - $authorizedAmount) <= $epsilon) {
                         Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('success');
                         Mage::getSingleton('checkout/session')->setAuthorizedAmount();
                     } else {
