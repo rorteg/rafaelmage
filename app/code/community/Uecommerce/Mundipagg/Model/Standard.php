@@ -1282,7 +1282,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                         // If authorized amount is the same as order grand total we can show success page
                         $epsilon = 0.1;
                         
-                        if($orderGrandTotal-$authorizedAmount <= $epsilon) {
+                        if(abs($orderGrandTotal-$authorizedAmount <= $epsilon)) {
                             Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('success');
                             Mage::getSingleton('checkout/session')->setAuthorizedAmount();
                             if($orderGrandTotal < $authorizedAmount){
