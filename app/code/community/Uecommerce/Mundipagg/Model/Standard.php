@@ -1305,7 +1305,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                                 $this->addInterestToOrder($order, $newInterest);
                             }
                         } else {
-                            if(($orderGrandTotal-$authorizedAmount) > $epsilon){
+                            if(($orderGrandTotal-$authorizedAmount) >= $epsilon){
                                 
                                 Mage::getSingleton('checkout/session')->setApprovalRequestSuccess('partial');
                                 Mage::getSingleton('checkout/session')->setAuthorizedAmount($authorizedAmount);
