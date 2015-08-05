@@ -10,6 +10,7 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_TwocreditcardsTest extends Ueco
     }
     
     public function testTwoCreditcardsRegistered() {
+        $this->markTestSuiteSkipped('Test');
         $this->_isLogged = false;
         
         $this->_values = array(

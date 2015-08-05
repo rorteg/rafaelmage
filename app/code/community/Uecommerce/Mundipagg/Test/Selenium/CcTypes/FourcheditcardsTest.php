@@ -10,6 +10,7 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_FourcreditcardisTest extends Ue
     }
     
     public function testFourCreditcardsRegistered() {
+        $this->markTestSuiteSkipped('Test');
         $this->_isLogged = false;
         
         $this->_values = array(

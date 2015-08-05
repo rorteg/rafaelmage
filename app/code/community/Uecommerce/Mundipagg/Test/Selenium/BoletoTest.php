@@ -48,7 +48,7 @@ class Uecommerce_Mundipagg_Test_Selenium_BoletoTest extends Uecommerce_Mundipagg
         foreach($elements as $element){
             $element->click();
         }
-        sleep(self::$_defaultSleep);
+        sleep(self::$_defaultSleep+20);
         $this->assertContains('mundipagg/standard/success',$this->url());
         
     }

@@ -11,6 +11,7 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes_CreditcardoneinstallmentTest ex
     
 
     public function testCreditcardoneinstallmentRegistered() {
+        $this->markTestSuiteSkipped('Test');
         $this->_isLogged = false;
         $this->runAllCcFlagsValidations();
         $this->continueBuy();
