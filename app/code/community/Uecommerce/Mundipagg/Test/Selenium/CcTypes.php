@@ -179,9 +179,10 @@ class Uecommerce_Mundipagg_Test_Selenium_CcTypes extends Uecommerce_Mundipagg_Te
     }
 
     protected function tearDown() {
-        if ($this->_isLogged) {
-            $this->deleteAllCardonfiles();
-        }
+//        if ($this->_isLogged) {
+//            $this->deleteAllCardonfiles();
+//        }
+        parent::tearDown();
     }
 
 }
