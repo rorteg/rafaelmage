@@ -167,49 +167,103 @@ function selectCredcard(ele){
 
 }
 
+/**
+ * Javascript method based on helper Mundipagg: https://github.com/mundipagg/mundipagg-one-php/blob/master/lib/One/Helper/CreditCardHelper.php
+ * 
+ * @param string cardNumber Número do cartão
+ * @return string Bandeira do cartão
+ */
 function checkCredcardType(cardNumber){
-    var regexVisa = /^4[0-9]{12}([0-9]{3})?$/;
-    var regexMaster = /^5[1-5][0-9]{14}/;
-    var regexAmex = /^3[47][0-9]{13}/;
-    var regexDiners = /^3(?:0[0-5]|[68][0-9])[0-9]{11}/;
-    var regexElo = /^((((636368)|(438935)|(504175)|(451416)|(636297)|(506717)|(506718)|(506733)|(506739)|(506741)|(506742)|(506743)|(506753)|(506774)|(506776)|(506778)|(509003)|(509004)|(509005)|(509006)|(509007)|(509008)|(509009)|(509013)|(509020)|(509021)|(509022)|(509023)|(509024)|(509025)|(509026)|(509027)|(509028)|(509029)|(509031)|(509033)|(509035)|(509038)|(509039)|(509040)|(509041)|(509042)|(509043)|(509044)|(509045)|(509046)|(509047)|(509048)|(509049)|(509050)|(509051)|(509052)|(509053)|(509064)|(636297)|(431274)|(506724)|(509077)|(509078)|(509079)|(509080)|(506720)|(506721)|(506724)|(506725)|(506726)|(506727)|(506728)|(506729)|(506730)|(506731)|(506732)|(506740)|(506744)|(506745)|(506746)|(506747)|(506748)|(506775)|(506777)|(509000)|(509001)|(509002)|(509066)|(509067)|(509068)|(509069)|(509072)|(509074)|(636368)|(504175)|(438935)|(401179)|(401178)|(457631)|(457632)|(457393)|(506720)|(506721)|(509076)|(509081)|(509082)|(509083)|(509085)|(509086))\d{0,10})|((5067)|(4576)|(4011))[0-9]\d{0,12})$/;
-    var regexHipercard = /^(606282\d{10}(\d{3})?)|(3841\d{15})$/;
-    //var regexDiscover = /^6(?:011|5[0-9]{2})[0-9]{12}/;
-    //var regexJCB = /^(?:2131|1800|35\d{3})\d{11}/;
-
     var flag = false;
+    // Extrai somente números do cartão (Note: Not only draw numbers, letters as well).
+    cardNumber = cardNumber.toString().replace(/[^0-9a-zA-Z ]/g,'');
     
-    if(regexVisa.test(cardNumber)){
-        flag = 'VI';
-    }
-    if(regexMaster.test(cardNumber)){
-        flag = 'MC';
-    }
-    if(regexAmex.test(cardNumber)){
-       flag = 'AE';
-    }
-    
-    if(regexDiners.test(cardNumber)){
-        flag = 'DI';
-    }
-    
-    if(regexHipercard.test(cardNumber)){
-        flag = 'HI';
-    }
-    /*if(regexDiscover.test(cardNumber)){
-        return 'discover';
-    }*/
-    /*if(regexJCB.test(cardNumber)){
-        return 'jcb';
-    }*/
-    if(regexElo.test(cardNumber)){
+    if(inArray(cardNumber.substring(0,6),['401178', '504175', '509002', '509003', '438935', '457631', '451416', '457632', '506726', '506727', '506739', '506741', '506742', '506744', '506747', '506748', '506778', '636297', '636368', '637095'])){
         flag = 'EL';
     }
-
+    else if(cardNumber.substring(0,4) == '6011' || cardNumber.substring(0,3) == '622' || inArray(cardNumber.substring(0,2), ['64', '65'])){
+        // Flag not implemented in the module yet.
+        flag = 'discover';
+    }
+    else if(inArray(cardNumber.substring(0,3), ['301', '305']) || inArray(cardNumber.substring(0,2),['36', '38'])){
+        flag = 'DI';
+    }
+    else if(inArray(cardNumber.substring(0,2), ['34', '37'])){
+        flag = 'AE';
+    }
+    else if(cardNumber.substring(0,2) == '50'){
+        // Flag not implemented in the module yet.
+        flag = 'aura';
+    }
+    else if(inArray(cardNumber.substring(0,2),['38', '60'])){
+        flag = 'HI';
+    }
+    else if(cardNumber[0] == '4'){
+        flag = 'VI';
+    }
+    else if(cardNumber[0] == '5'){
+        flag = 'MC';
+    }
     
-
+    
+    console.log(flag);
     return flag;
 }
+
+/**
+ * Javascript method inArray equivalent PHP
+ */
+function inArray(neddle, arraySearch){
+    return arraySearch.filter(function(item){return item == neddle;}).length;
+}
+
+/**
+ * Old function.
+ */
+
+//function checkCredcardType(cardNumber){
+//    var regexVisa = /^4[0-9]{12}([0-9]{3})?$/;
+//    var regexMaster = /^5[1-5][0-9]{14}/;
+//    var regexAmex = /^3[47][0-9]{13}/;
+//    var regexDiners = /^3(?:0[0-5]|[68][0-9])[0-9]{11}/;
+//    var regexElo = /^((((636368)|(438935)|(504175)|(451416)|(636297)|(506717)|(506718)|(506733)|(506739)|(506741)|(506742)|(506743)|(506753)|(506774)|(506776)|(506778)|(509003)|(509004)|(509005)|(509006)|(509007)|(509008)|(509009)|(509013)|(509020)|(509021)|(509022)|(509023)|(509024)|(509025)|(509026)|(509027)|(509028)|(509029)|(509031)|(509033)|(509035)|(509038)|(509039)|(509040)|(509041)|(509042)|(509043)|(509044)|(509045)|(509046)|(509047)|(509048)|(509049)|(509050)|(509051)|(509052)|(509053)|(509064)|(636297)|(431274)|(506724)|(509077)|(509078)|(509079)|(509080)|(506720)|(506721)|(506724)|(506725)|(506726)|(506727)|(506728)|(506729)|(506730)|(506731)|(506732)|(506740)|(506744)|(506745)|(506746)|(506747)|(506748)|(506775)|(506777)|(509000)|(509001)|(509002)|(509066)|(509067)|(509068)|(509069)|(509072)|(509074)|(636368)|(504175)|(438935)|(401179)|(401178)|(457631)|(457632)|(457393)|(506720)|(506721)|(509076)|(509081)|(509082)|(509083)|(509085)|(509086))\d{0,10})|((5067)|(4576)|(4011))[0-9]\d{0,12})$/;
+//    var regexHipercard = /^((606282[0-9]{10})|(3841[0-9]{0,15}))/;
+//    //var regexDiscover = /^6(?:011|5[0-9]{2})[0-9]{12}/;
+//    //var regexJCB = /^(?:2131|1800|35\d{3})\d{11}/;
+//
+//    var flag = false;
+//    
+//    if(regexVisa.test(cardNumber)){
+//        flag = 'VI';
+//    }
+//    if(regexMaster.test(cardNumber)){
+//        flag = 'MC';
+//    }
+//    if(regexAmex.test(cardNumber)){
+//       flag = 'AE';
+//    }
+//    
+//    if(regexDiners.test(cardNumber)){
+//        flag = 'DI';
+//    }
+//    
+//    if(regexHipercard.test(cardNumber)){
+//        flag = 'HI';
+//    }
+//    /*if(regexDiscover.test(cardNumber)){
+//        return 'discover';
+//    }*/
+//    /*if(regexJCB.test(cardNumber)){
+//        return 'jcb';
+//    }*/
+//    if(regexElo.test(cardNumber)){
+//        flag = 'EL';
+//    }
+//
+//    
+//
+//    return flag;
+//}
 
 function updateInstallments(ccType, element ,total){
 
@@ -864,3 +918,4 @@ function checkInstallments(field, url)
 	});
 }
 
+checkCredcardType('38897722756041');
