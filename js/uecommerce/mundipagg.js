@@ -206,7 +206,7 @@ function checkCredcardType(cardNumber){
     }
     
     
-    console.log(flag);
+    
     return flag;
 }
 
