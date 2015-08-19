@@ -268,7 +268,7 @@ function inArray(neddle, arraySearch){
 function updateInstallments(ccType, element ,total){
 
     if(window['admin_area_url'] == undefined) {
-        var url = window.baseUrl + '/mundipagg/standard/installmentsandinterest';
+        var url = window.installmentsandinterestUrl;
     }else{
         var url = window['admin_area_url'];
     }
@@ -279,7 +279,7 @@ function updateInstallments(ccType, element ,total){
     if(window.ajax_loader_mundipagg_img != undefined){
         mundipagg_img = window.ajax_loader_mundipagg_img;
     }else{
-        mundipagg_img = window.baseUrl+'/skin/frontend/base/default/images/mundipagg/ajax-loader.gif';
+        mundipagg_img = window.ajaxLoaderGif;
     }
     loading = new Element('img', {src:mundipagg_img});
     loading.addClassName('mundipagg_reload');
@@ -295,13 +295,19 @@ function updateInstallments(ccType, element ,total){
         onSuccess:function(response){
 
             var res = JSON.parse(response.responseText);
-
+            
             if(res['installments'] != undefined){
 
                 i=0;
-                for(key in res.installments){
-                    element.options[i] = new Option(res.installments[key],key,false,false);
-                    i++;
+                if(res.installments.length == 1){
+                    element.options[0] = new Option(res.installments[0],0,false,false);
+                }else{
+                    for(key in res.installments){
+                        if(/^-?[\d.]+(?:e-?\d+)?$/.test(key)){
+                            element.options[i] = new Option(res.installments[key],key,false,false);
+                            i++;
+                        }
+                    }
                 }
                 if(res['brand'] != undefined) {
                     window['brand_' + id.replace('mundipagg_twocreditcards_', '').replace('_cc_number', '')] = res.brand;

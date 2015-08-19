@@ -339,6 +339,8 @@ $_code = $this->getMethodCode();
 //<![CDATA[
 window.baseUrl = '<?php echo $this->getUrl();?>';
 window.admin_area_url = '<?php echo $this->getUrl('mundipagg/adminhtml_index/installmentsandinterest'); ?>';
+window.installmentsandinterestUrl = '<?php echo Mage::getUrl('mundipagg/standard/installmentsandinterest',array('_secure'=>true)); ?>';
+window.ajaxLoaderGif = '<?php echo $this->getSkinUrl('images/mundipagg/ajax-loader.gif'); ?>';
 
 window.isInstallmentsEnabled = '<?php echo Mage::helper('mundipagg/installments')->isInstallmentsEnabled(); ?>';
 

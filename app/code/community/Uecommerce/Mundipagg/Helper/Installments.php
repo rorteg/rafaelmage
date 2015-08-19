@@ -199,12 +199,17 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             $all_installments = $this->getInstallments();
         }
         
+        if(!$max_installments){
+            $max_installments = 1;
+        }
+        
         return $max_installments;
     }
 
     public function getInstallmentForCreditCardType($ccType = null,$amount = null) 
     {
         $session = Mage::getSingleton('admin/session');
+        
 
         if ($session->isLoggedIn()) {
             $quote = Mage::getSingleton('adminhtml/session_quote')->getQuote();
@@ -215,6 +220,9 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
         if(!$amount) {
             $amount = (double)$quote->getGrandTotal()-$quote->getMundipaggInterest();
         }
+        
+        $result = array();
+        $result[1] = "1x ".Mage::helper('core')->formatPrice($amount, false);
         
         $amount = str_replace(',','.',$amount);
         $ccTypeInstallments = "installments_".$ccType;
@@ -233,6 +241,9 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             $all_installments = $this->getInstallments();
         }
         $displayTotal = Mage::getStoreConfig('payment/mundipagg_standard/display_total');
+        if(!$max_installments){
+            $max_installments = 0;
+        }
         // result array here
         for($i=1;$i<=$max_installments;$i++) {
             // check if installment has extra interest
@@ -255,7 +266,9 @@ class Uecommerce_Mundipagg_Helper_Installments extends Mage_Core_Helper_Abstract
             $partial_amount = ((double)$total_amount_with_interest)/$i;
             $result[(string)$i] = $i."x ".Mage::helper('core')->formatPrice($partial_amount, false).$message;
         }
-
+        
+        
+        
         return $result;
     }
 

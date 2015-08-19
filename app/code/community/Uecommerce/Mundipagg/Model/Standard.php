@@ -370,7 +370,7 @@ class Uecommerce_Mundipagg_Model_Standard extends Mage_Payment_Model_Method_Abst
                                     
                                     $mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'] = Mage::helper('mundipagg')->getCardTypeByIssuer($cardonFile->getCcType());
                                 }
-                                                                
+                                
                                 if($mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i] > $helperInstallments->getMaxInstallments($mundipagg[$method.'_'.$num.'_'.$i.'_cc_type'], $value)){
                                     Mage::throwException($helper->__('it is not possible to divide by %s times', $mundipagg[$method.'_credito_parcelamento_'.$num.'_'.$i]));
                                 }

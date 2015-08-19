@@ -367,6 +367,8 @@ Validation.addAllThese([
 ]);
 
 window.baseUrl = '<?php echo Mage::getUrl('',array('_secure'=>true)); ?>';
+window.installmentsandinterestUrl = '<?php echo Mage::getUrl('mundipagg/standard/installmentsandinterest',array('_secure'=>true)); ?>';
+window.ajaxLoaderGif = '<?php echo $this->getSkinUrl('images/mundipagg/ajax-loader.gif'); ?>';
 window.isInstallmentsEnabled = '<?php echo Mage::helper('mundipagg/installments')->isInstallmentsEnabled(); ?>';
 
 $$('.validate-cc-number').invoke('observe','keyup',function(){
